@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "14678057924",
+    "project_id": "spa-app-1",
+    "storage_bucket": "spa-app-1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14678057924:android:5c94e61f09c4eabc6dba91",
+        "android_client_info": {
+          "package_name": "com.flutter.spa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "14678057924-0vtqbkng2kl4ls0shh826id5ao4eh1ph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNbHN7hQCi_0AWSsA95buj245KMvWq8Js"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "14678057924-0vtqbkng2kl4ls0shh826id5ao4eh1ph.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,618 @@
+{
+   "language": "繁体中文",
+
+   "createANewPost": "建立帖子",
+   
+   "home" : "主页",
+
+   "termsAndConditions": "条款及条件",
+
+   "privacy": "隐私",
+
+   "language": "语言",
+
+   "logOut": "登出",
+
+   "termsAndConditionsContent": "接受条款及条件：本文中所使用的词彙FW (HK)及「本公司」(即FW·香港)，指经营及管理此网站及其他网站(「网站」，「本网站」)所提供的若干FW (HK)商业服务(「服务」)\n\n由FW (HK)网站提供的服务，可透过个人电脑输送渠道及无线通讯渠道获取，这些服务(「服务」)包括提供上述商业服务。\n\n本文中所使用的词彙「阁下」及「用户」，指基于任何原因或任何目的使用服务的所有个人及/或实体。本文所使用的词彙「内容」指所有或任何数据、文字、按钮图标、连接、HTML代码、商标、软件、音乐、声音、照片、图像、静止图片、移动图片系列，(无论是动画与否)，录像、商品、产品、广告、服务或其任何编排或组合、及在任何网站或网页上可能出现的任何其他内容或材料。\n\nFW (HK)根据以下使用条款及条件(「条款及条件」)向阁下提供服务，该等条款及条件可能会由本公司不时透过于网站公佈经修改的版本而予以更新。某些服务可能会受到额外的条款及条件规限，该等额外条款及条件将在阁下表示有意使用该等服务时知会阁下。\n\n阁下接受条款及条件，并同意在阁下使用任何服务或以其他方式进入网站或使用网站内任何资料时受其约束。若阁下不接受条款及条件，则阁下不得且不应进入网站或使用其提供的服务或资料。若阁下对条款及条件或对进入或使用网站尚有任何疑问，请致电+852 2838 9594与本公司联络。\n\n",
+
+   "version": "版本",
+
+   "news": "动态",
+
+   "justNow": "刚刚",
+
+   "minuteAgo": "分钟前",
+
+   "minutesAgo": "分钟前",
+
+   "hourAgo": "小时前",
+
+   "hoursAgo": "小时前",
+
+   "dayAgo": "天前",
+
+   "daysAgo": "天前",
+
+   "removing": "删除",
+
+   "like": "赞好",
+
+   "likes": "赞好",
+
+   "kLikes": "千 赞好",
+
+   "mLikes": "百万 赞好",
+
+   "student": "学生",
+
+   "tutor": "导师",
+
+   "center": "中心",
+
+   "parent": "家长",
+
+   "writeAComment": "发表留言",
+
+   "seeOther": "查看其他",
+
+   "comment": "留言",
+
+   "comments": "留言",
+
+   "caughtUp": "你们都被赶上了！",
+
+   "noNewsPosts": "暂无任何内容",
+
+   "loading": "加载中...",
+
+   "errorOccured": "发生了错误",
+
+   "newsCouldNotLoad": "无法载入",
+
+   "post": "发佈",
+
+   "paperShare": "试题共享",
+
+   "furtherStudies": "你问我答",
+
+   "interestClass": "兴趣班",
+
+   "profile": "个人资料",
+
+   "searchContentKeyword": "搜寻",
+
+   "subject": "科目",
+
+   "semester": "学期",
+
+   "level": "年级",
+
+   "discussLowerCase": "讨论",
+
+   "discussesLowerCase": "讨论",
+
+   "filter": "筛选",
+
+   "selectASubject": "选择科目",
+
+   "selectALevel": "选择年级",
+
+   "selectASemester": "选择学期",
+
+   "reset": "重置",
+
+   "bookmark": "书籤",
+
+   "pleaseSelect": "请选择",
+
+   "image": "图像",
+
+   "uploadHere": "在此上传",
+
+   "writeYourContentHere": "在这裏写下你想分享的内容...",
+
+   "rule": "板规",
+   
+   "ruleContent1": "不可有学校名",
+
+   "ruleContent2": "问功课请到你问我答",
+
+   "ruleContent3": "不可要求其他人提供试卷\n有可能取消会员资格",
+
+   "ruleContent4": "不可以有出版社名",
+
+   "ruleContent5": "只可以张贴自己儿女试卷\n如发现非自己试卷，将取消会员资格",
+
+   "understand": "我瞭解",
+
+   "newsBoard": "专栏",
+
+   "viewAll": "查看全部",
+
+   "parentAsk": "家长问",
+
+   "studentAsk": "学生问",
+
+   "parentDiscussEmpty": "暂无任何内容",
+
+   "studentDiscussEmpty": "暂无任何内容",
+
+   "postedFrom": "发佈自",
+
+   "reply": "回复",
+
+   "replies": "回复",
+
+   "searchTitleKeyword": "搜寻",
+
+   "recommend": "推荐",
+
+   "category": "类别",
+
+   "selectACategory": "选择类别",
+
+   "target": "对象",
+
+   "selectATarget": "选择对象",
+
+   "socialMedia": "社交媒体",
+
+   "joinNow": "立即加入",
+
+   "contact": "联络我们",
+
+   "viewDetails": "查看详情",
+
+   "favoriteCourse": "最爱项目",
+
+   "favoriteCourseEmpty": "暂无最爱项目",
+
+   "topic": "帖文",
+
+   "following": "追踪中",
+
+   "follower": "粉丝人数",
+
+   "lastTopic": "上一个贴文",
+
+   "bookmarkedTopic": "已添加的书籤",
+
+   "noAccountFollowed": "尚未关注任何帐户",
+
+   "createdPost": "我的帖子",
+
+   "noFollower": "尚未有追随者",
+   
+   "editProfile": "编辑个人资料",
+
+   "publicInfo": "个人资料",
+
+   "everyoneCanSee": "所有用户都可以看到。",
+
+   "editPhoto": "编辑相片",
+
+   "username": "用户名称",
+
+   "grade": "年级",
+
+   "enterGrade": "输入年级",
+
+   "type": "身份类别",
+
+   "regDate": "登记日期",
+
+   "email": "电子邮件",
+
+   "password": "密码",
+
+   "noOneCansee": "只供客服使用，其他用户不会看到。",
+
+   "changePassword": "更改密码",
+
+   "cancel": "取消",
+
+   "newPost": "发佈帖文",
+
+   "title": "标题",
+
+   "conversations": "对话",
+
+   "noConversationYet": "暂无对话",
+
+   "notification": "通知",
+
+   "followNotifications": "动态通知",
+
+   "promotions": "推广讯息",
+
+   "noNotification": "暂无通知",
+
+   "discover": "发现",
+
+   "searchUser": "搜寻用户",
+
+   "noUserFound": "找不到用户",
+
+   "tryAgainLater": "抱歉，请稍后再试",
+   
+   "commentPosted": "发表留言",
+
+   "enterTitle": "输入标题",
+
+   "enterContent": "输入内容",
+
+   "createdSuccessfully": "创建成功",
+
+   "startedFollowingYou": "开始追踪你。",
+
+   "unfollowedYou": "取消追踪您。",
+
+   "selectAnImage": "请选择图片",
+
+   "checkAllDetails": "请检查所有，然后重试？",
+
+   "enterUsername": "请输入用户名称",
+
+   "enter6Characters": "请输入至少 6 个字元",
+
+   "whiteSpacesNotAllowedUsername": "用户名称不能空白",
+
+   "usernameCannotMore50Characters": "用户名称不能多于 50 个字元",
+
+   "whiteSpacesNotAllowedPassword": "密码称不能空白",
+
+   "passowrdCannotMore50Characters": "密码不能多于 50 个字元",
+
+   "passwordsNotMatch": "密码不匹配",
+
+   "enterPhoneNumber": "请输入电话号码",
+
+   "enter8DigitPhoneNum": "请输入电话号码",
+
+   "enterValidEmail": "请输入有效的电邮地址",
+
+   "updatedSuccessfully": "已成功更新",
+
+   "passwordChanged": "已成功更改密码",
+
+   "photo": "相片",
+
+   "enterOldPassword": "输入现有密码",
+
+   "oldPasswordDoNotMatch": "您所输入的现有密码不正确",
+
+   "enterNewPassword": "输入新密码",
+
+   "passwordDonotMatchWithEachOther": "您再次输入的新密码不匹配",
+
+   "enterNewPasswordAgain": "再次输入新密码",
+
+   "agreeTermsAndConditions": "请接受条款及条件。",
+
+   "emailWasNotSent": "很抱歉，电子邮件未能发送。请稍后再试。",
+
+   "confirm": "确认",
+
+   "showMore": "显示更多",
+
+   "showLess": "隐藏部分",
+
+   "refreshPage": "刷新页面",
+
+   "chatMessagesCouldNotBeLoaded": "无法载入",
+
+   "reachedTheEndOfConvo": "已到最底",
+
+   "reloading": "重新载入",
+
+   "startANewConversation": "开始新对话",
+
+   "notificationCouldNotBeLoaded": "无法载入",
+
+   "promotionCouldNotBeLoaded": "无法载入",
+
+   "usersCouldNotLoad": "无法载入",
+
+   "newsBoardCouldNotLoad": "无法载入",
+
+   "noNewsBoard": "暂无任何内容",
+
+   "dataCouldNotLoad": "抱歉，无法载入数据。请稍后再试",
+
+   "allCourse": "所有课程",
+
+   "noInterestClassAvailable": "暂无任何内容",
+
+   "interestClassRemovedFromBookmark": "此兴趣班已从您的书籤清单中删除",
+
+   "interestClassIsRemoved": "兴趣班已被删除",
+
+   "website": "网站",
+
+   "tel": "电话",
+
+   "noInterestClassBookmarked": "暂无任何内容",
+
+   "noInterestClassFound": "未找到兴趣班",
+
+   "noRecommendClass": "暂无任何内容",
+
+   "paperShareIsEmpty": "暂无任何内容",
+
+   "paperShareIsRemoved": "找不到试卷",
+
+   "noBookmarkPaperShares": "暂无任何内容",
+
+   "noPaperShareFound": "暂无任何内容",
+
+   "noPostCreatedYet": "暂无任何内容",
+
+   "noBookmarkTopicFound": "暂无任何内容",
+
+   "example": "例子",
+
+   "selectAType": "选择身份类别",
+
+   "myTopic": "我的贴文",
+
+   "follow": "追踪",
+
+   "followed": "已追踪",
+
+   "noUserFollowedYet": "尚未有任何帐户关注",
+
+   "userTopic": "用户主题",
+
+   "thisUserHasNotCreatedTopic": "此用户尚未有任何贴文",
+
+   "oldPassword": "现有密码",
+
+   "newPassword": "新密码",
+
+   "confirmNewPassword": "确认新密码",
+
+   "discussUpperCase": "讨论",
+
+   "thisPostHasNoMaterial": "空白",
+
+   "register": "登记",
+
+   "registerType": "登记类别",
+
+   "textSomething": "输入讯息",
+
+   "save": "储存",
+
+   "welcome": "欢迎",
+
+   "usersWhoLikedThePost": "已赞好的用户",
+
+   "beTheFirstToLikeThePost": "成为第一个赞好这篇贴文的人",
+
+   "userInfo": "用户资料",
+
+   "passwordShouldNotMatch": "您的新密码不应跟现有密码相同",
+
+   "newsBottomTab": "动态",
+
+    "paperShareBottomTab": "试题共享",
+
+    "furtherStudiesBottomTab": "你问我答",
+
+    "interestClassBottomTab": "兴趣班",
+
+    "profileBottomTab": "个人手册",
+
+    "photos": "照片",
+
+   "lv": "lv",
+
+   "noPromotions": "暂无任何内容",
+
+   "hasSentYouAMessage": "向您发送新讯息。",
+
+   "youDoNotHaveAnyInternetConnection": "请检查您的网络状态",
+
+   "rememberMe": "记住登入帐号",
+
+   "login": "登入",
+
+   "notHaveAccount": "没有账户？",
+
+   "deleteAccount": "删除账户",
+
+   "confirmDeleteAccount": "是否要删除你的账户？",
+
+   "deleting": "删除中...",
+
+   "deleteFailed": "无法删除你的账户",
+
+   "createAccount": "建立账户",
+
+   "optional": "非必要",
+
+   "region": "地区",
+
+   "selectRegion": "选择地区",
+
+   "enterPasswordAgain": "再次输入密码",
+
+   "enterPassword": "输入密码",
+
+   "prevButton": "上一步",
+
+   "nextButton": "下一步",
+
+   "iAgreeWith": "我接受",
+
+   "emailVerification": "电邮验证",
+
+   "enter6DigitCodeEmail": "请输入从电邮提供的 6 位验证码",
+
+   "sixDigitCode": "6 位验证码",
+
+   "verifyButton": "验证",
+
+   "usernameTaken": "该用户名称已被使用",
+
+   "accountEmailRegistered": "有账户已使用该电子邮件登记",
+
+   "unsuccessfulTryAgainLater": "不成功，请稍后再试",
+
+   "emailRegistered": "该电子邮件已被登记",
+
+   "usernameEmailRegistered": "用户名称或电子邮件已被使用",
+
+   "basicInfo": "基本资料",
+
+   "centerName": "中心名称",
+
+   "enterCenterName": "输入中心名称",
+
+   "selectCategory": "选择类别",
+
+   "centerNameTooLong": "中心名称太长",
+
+   "teachingArea": "教学区域",
+
+   "collegeType": "学校类别",
+
+   "teachingType": "教学类别",
+
+   "newTerritories": "新界",
+
+   "kowloon": "九龙",
+
+   "hongKongIsland": "香港岛",
+
+   "selectTeachingType": "选择教学类别",
+
+   "selectTeachingArea": "选择教学区域",
+
+   "selectCollegeType": "选择学校类别",
+
+   "selectType": "选择类别",
+
+   "ok": "确定",
+
+   "enterUsernameEmail": "输入用户名称/电子邮件",
+
+   "usernameEmailPasswordNotMatch": "用户名称、电子邮件或密码不正确",
+
+   "accountDeleted": "你的账户已删除",
+
+   "chineseLanguage": "中文",
+
+   "englishLanguage": "英文",
+
+   "mathematics": "数学",
+
+   "generalStudies": "常识",
+
+   "primary1": "小一",
+
+   "primary2": "小二",
+
+   "primary3": "小三",
+
+   "primary4": "小四",
+
+   "primary5": "小五",
+
+   "primary6": "小六",
+
+   "form1": "中一",
+
+   "form2": "中二",
+
+   "form3": "中三",
+
+   "form4": "中四",
+
+   "form5": "中五",
+
+   "form6": "中六",
+
+   "firstSemester": "上学期",
+
+   "secondSemester": "下学期",
+
+   "interestClass": "興趣班",
+
+   "homeworkTutorialClass": "功課輔導班",
+
+   "subjectTutorialClass": "專科班",
+
+   "playGroup": "學前遊戲小組 (Play Group)",
+
+   "other": "其他",
+
+   "all": "全部",
+
+   "ageUnder5": "5岁以下",
+
+   "age6To11": "6至11岁",
+
+   "age12To14": "12至14岁",
+
+   "age15To17": "15至17岁",
+
+   "ageAbove18": "18岁以上",
+
+   "report": "检举",
+
+   "buttonReport": "检举",
+
+   "reason": "原因",
+
+   "pleaseSelectReason": "请选择原因",
+
+   "reportedSuccessfully": "检举成功",
+
+   "itsSpam": "垃圾内容",
+
+   "nudityOrSexualActivity": "裸体或色情活动",
+
+   "hateSpeech": "仇恨言论",
+
+   "falseInformation": "虚假资讯",
+
+   "bullyingOrHarassment": "欺凌或骚扰",
+
+   "scamOrFraud": "诈骗",
+
+   "violenceOrDangerousOrganizations": "暴力或危险组织",
+
+   "intellectualPropertyViolation": "侵犯知识产权",
+
+   "saleOfIllegalOrRegulatedGoods": "销售非法或受管制物品",
+
+   "suicideOrSelfInjury": "自杀或自残",
+
+   "blockAccount": "封锁账户",
+
+   "accountBlockedSuccessfully": "封锁账户成功",
+
+   "otherReason": "其他原因",
+
+   "pleaseEnter": "请输入",
+
+   "pleaseEnterOtherReason": "请输入其他原因",
+
+   "blockedAccounts": "已封锁的账户",
+
+   "unblock": "解除封锁",
+
+   "accountUnblockedSuccessfully": "解除封锁账户成功",
+
+   "privacyPolicy": "隐私政策",
+
+   "and": "及",
+
+   "deletedAccount": "已删除的账户",
+
+   "pleaseLogin": "请重新登录",
+
+   "pleaseWait": "请稍等"
+
+}

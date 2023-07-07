@@ -1,0 +1,618 @@
+{
+   "language": "English",
+
+   "createANewPost": "Create a new post",
+
+   "home": "Home",
+
+   "termsAndConditions": "Terms & Conditions",
+
+   "privacy": "Privacy",
+
+   "language": "Language",
+
+   "logOut": "Log Out",
+
+   "termsAndConditionsContent": "Acceptance of Terms and Conditions: the terms FW (HK) and the Company (i.e., FW· Hong Kong) as used herein refer to certain FW (HK) commercial services  provided by this website and other websites. \n\nThe services provided by the FW (HK) Website are available through personal computer delivery channels and wireless communication channels, including the provision of the above commercial services.\n\nAs used herein, the terms (you) and (user) refer to all individuals and/or entities who use the Services for any reason or for any purpose. As used herein, the term (Content) means all or any data, text, button icons, links, HTML code, trademarks, software, music, sounds, photographs, images, still images, mobile image series, (whether animated or not), videos, products, advertisements, services or any other arrangement or combination thereof, and any other content or material that may appear on any website or web page.\n\nFW (HK) provides services to you in accordance with the following terms and conditions of use (the Terms and Conditions), which may be updated by the Company from time to time by posting a modified version on the Website. Certain Services may be subject to additional terms and conditions which will be communicated to you when you indicate your intention to use such Services.\n\nYou accept the terms and conditions and agree to be bound by any service or otherwise access to the Site or use any information within the Site. If you do not accept the Terms and Conditions, you must not and should not access the Website or use the services or information provided by it. If you have any questions about the Terms and Conditions or about accessing or using the Website, please contact us at +852 2838 9594.\n\n",
+
+   "version": "Ver",
+
+   "news": "News",
+
+   "justNow": "just now",
+
+   "minuteAgo": "minute ago",
+
+   "minutesAgo": "minutes ago",
+
+   "hourAgo": "hour ago",
+
+   "hoursAgo": "hours ago",
+
+   "dayAgo": "day ago",
+
+   "daysAgo": "days ago",
+
+   "removing": "removing",
+
+   "like": "like",
+
+   "likes": "likes",
+
+   "kLikes": "K likes",
+
+   "mLikes": "M likes",
+
+   "student": "Student",
+
+   "tutor": "Tutor",
+
+   "center": "Center",
+
+   "parent": "Parent",
+
+   "writeAComment": "Write a comment",
+
+   "seeOther": "See other",
+
+   "comment": "comment",
+
+   "comments": "comments",
+
+   "caughtUp": "You are all caught up!",
+
+   "noNewsPosts": "No news posts",
+
+   "loading": "loading",
+
+   "errorOccured": "Uh oh, an error occured",
+
+   "newsCouldNotLoad": "Uh oh, news could not be loaded",
+
+   "post": "Post",
+
+   "paperShare": "Paper Share",
+
+   "furtherStudies": "Further Studies",
+
+   "interestClass": "Interest Class",
+
+   "profile": "Profile",
+
+   "searchContentKeyword": "Search content keyword",
+
+   "subject": "Subject",
+
+   "semester": "Semester",
+
+   "level": "Level",
+
+   "discussLowerCase": "discuss",
+
+   "discussesLowerCase": "discusses",
+
+   "filter": "Filter",
+
+   "selectASubject": "Select a subject",
+
+   "selectALevel": "Select a level",
+
+   "selectASemester": "Select a semester",
+
+   "reset": "RESET",
+
+   "bookmark": "Bookmark",
+
+   "pleaseSelect": "Please Select",
+
+   "image": "Image",
+
+   "uploadHere": "Upload here",
+
+   "writeYourContentHere": "Write your content here...",
+
+   "rule": "Rule",
+
+   "ruleContent1": "不可有學校名",
+
+   "ruleContent2": "問功課請到你問我答",
+
+   "ruleContent3": "不可要求其他人提供試卷\n有可能取消會員資格",
+
+   "ruleContent4": "不可以有出版社名",
+
+   "ruleContent5": "只可以張貼自己兒女試卷\n如發現非自己試卷，將取消會員資格",
+
+   "understand": "UNDERSTAND",
+
+   "newsBoard": "News Board",
+
+   "viewAll": "View All",
+
+   "parentAsk": "Parent Ask",
+
+   "studentAsk": "Student Ask",
+
+   "parentDiscussEmpty": "Parent discuss is empty",
+
+   "studentDiscussEmpty": "Student discuss is empty",
+
+   "postedFrom": "Posted from",
+
+   "reply": "Reply",
+
+   "replies": "replies",
+
+   "searchTitleKeyword": "Search title keyword",
+
+   "recommend": "Recommend",
+
+   "category": "Category",
+
+   "selectACategory": "Select a category",
+
+   "target": "Target",
+
+   "selectATarget": "Select a target",
+
+   "socialMedia": "Social media",
+
+   "joinNow": "Join Now",
+
+   "contact": "Contact",
+
+   "viewDetails": "View details",
+
+   "favoriteCourse": "Favorite Course",
+
+   "favoriteCourseEmpty": "Your favorite course list is empty",
+
+   "topic": "Topic",
+
+   "following": "Following",
+
+   "follower": "Follower",
+
+   "lastTopic": "Last Topic",
+
+   "bookmarkedTopic": "Bookmarked Topic",
+
+   "noAccountFollowed": "No account followed yet",
+
+   "createdPost": "Created post",
+
+   "noFollower": "No followers yet",
+
+   "editProfile": "Edit Profile",
+
+   "publicInfo": "Public Info",
+
+   "everyoneCanSee": "Everyone can see",
+
+   "editPhoto": "Edit photo",
+
+   "username": "Username",
+
+   "grade": "Grade",
+
+   "enterGrade": "Enter grade",
+
+   "type": "Type",
+
+   "regDate": "Reg date",
+
+   "email": "E-mail",
+
+   "password": "Password",
+
+   "noOneCansee": "No one can see, exclude CS",
+
+   "changePassword": "Change password",
+
+   "cancel": "Cancel",
+
+   "newPost": "New Post",
+
+   "title": "Title",
+
+   "conversations": "Conversations",
+
+   "noConversationYet": "No conversation yet",
+
+   "notification": "Notification",
+
+   "followNotifications": "Follow Notifications",
+
+   "promotions": "Promotions",
+
+   "noNotification": "No notification",
+
+   "discover": "Discover",
+
+   "searchUser": "Search user",
+
+   "noUserFound": "No user found",
+
+   "tryAgainLater": "Sorry, please try again later",
+
+   "commentPosted": "Comment posted",
+
+   "enterTitle": "Enter title",
+
+   "enterContent": "Enter content",
+
+   "createdSuccessfully": "Created successfully",
+
+   "startedFollowingYou": "started following you.",
+
+   "unfollowedYou": "unfollowed you.",
+
+   "selectAnImage": "Please select an image",
+
+   "checkAllDetails": "Please check all details and try again",
+
+   "enterUsername": "Enter user name",
+
+   "enter6Characters": "Enter at least 6 characters",
+
+   "whiteSpacesNotAllowedUsername": "White spaces are not allowed for username",
+
+   "usernameCannotMore50Characters": "User name cannot have more than 50 characters",
+
+   "whiteSpacesNotAllowedPassword": "White spaces are not allowed for password",
+
+   "passowrdCannotMore50Characters": "Password cannot have more than 50 characters",
+
+   "passwordsNotMatch": "Passwords do not match each other.",
+
+   "enterPhoneNumber": "Enter phone number",
+
+   "enter8DigitPhoneNum": "Please enter 8 digit phone number",
+
+   "enterValidEmail": "Enter a valid email address",
+
+   "updatedSuccessfully": "Updated successfully",
+
+   "passwordChanged": "Password changed successfully",
+
+   "photo": "Photo",
+
+   "enterOldPassword": "Enter old password",
+
+   "oldPasswordDoNotMatch": "Your old password do not match",
+
+   "enterNewPassword": "Enter new password",
+
+   "passwordDonotMatchWithEachOther": "Passwords do not match with each other.",
+
+   "enterNewPasswordAgain": "Enter new password again",
+
+   "agreeTermsAndConditions": "Please agree terms and conditions.",
+
+   "emailWasNotSent": "Sorry, the email was not sent. Please try again later.",
+
+   "confirm": "Confirm",
+
+   "showMore": "Show more",
+
+   "showLess": "Show less",
+
+   "refreshPage": "Uh oh, please refresh the page",
+
+   "chatMessagesCouldNotBeLoaded": "Uh oh, Chat messages cannot be loaded",
+
+   "reachedTheEndOfConvo": "You have reached the end of conversation",
+
+   "reloading": "Reloading",
+
+   "startANewConversation": "Start a new conversation",
+
+   "notificationCouldNotBeLoaded": "Uh oh, notification cannot be loaded",
+
+   "promotionCouldNotBeLoaded": "Uh oh, promotion could not be loaded",
+
+   "usersCouldNotLoad": "Uh oh, users could not be loaded",
+
+   "newsBoardCouldNotLoad": "Uh oh, news boards could not be loaded",
+
+   "noNewsBoard": "No news board",
+
+   "dataCouldNotLoad": "Sorry, data could not load. Please try again later",
+
+   "allCourse": "All Course",
+
+   "noInterestClassAvailable": "No interest classes available",
+
+   "interestClassRemovedFromBookmark": "This interest class was removed from your bookmark list",
+
+   "interestClassIsRemoved": "Uh oh, interest class is removed",
+
+   "website": "Website",
+
+   "tel": "tel",
+
+   "noInterestClassBookmarked": "No interest classes has been bookmarked",
+
+   "noInterestClassFound": "No interest class found",
+
+   "noRecommendClass": "No recommend class",
+
+   "paperShareIsEmpty": "Paper share is empty",
+
+   "paperShareIsRemoved": "Paper share is removed",
+
+   "noBookmarkPaperShares": "No bookmark paper shares",
+
+   "noPaperShareFound": "No paper share found",
+
+   "noPostCreatedYet": "No post created yet",
+
+   "noBookmarkTopicFound": "No bookmark topic found",
+
+   "example": "example",
+
+   "selectAType": "Select a type",
+
+   "myTopic": "My Topic",
+
+   "follow": "Follow",
+
+   "followed": "Followed",
+
+   "noUserFollowedYet": "No user followed yet",
+
+   "userTopic": "User Topic",
+
+   "thisUserHasNotCreatedTopic": "This user has not created any topic yet",
+
+   "oldPassword": "Old password",
+
+   "newPassword": "New password",
+
+   "confirmNewPassword": "Confirm new password",
+
+   "discussUpperCase": "Discuss",
+
+   "thisPostHasNoMaterial": "This post has no material",
+
+   "register": "Register",
+
+   "registerType": "Register Type",
+
+   "textSomething": "Text something",
+
+   "save": "Save",
+
+   "welcome": "Welcome",
+
+   "usersWhoLikedThePost": "Users who liked the post",
+
+   "beTheFirstToLikeThePost": "Be the first to like the post",
+
+   "userInfo": "User Info",
+
+   "passwordShouldNotMatch": "Your old and new passwords should not match",
+
+   "newsBottomTab": "News\n",
+   
+   "paperShareBottomTab": "Paper \nShare",
+
+   "furtherStudiesBottomTab": "Further \nStudies",
+
+   "interestClassBottomTab": "Interest \n Class",
+
+   "profileBottomTab": "Profile\n",
+
+   "photos": "Photos",
+
+   "lv": "lv.",
+
+   "noPromotions": "No promotions",
+
+   "hasSentYouAMessage": "has sent you a message.",
+
+   "youDoNotHaveAnyInternetConnection": "You do not have any internet connection",
+
+   "rememberMe": "Remember Me",
+
+   "login": "Login",
+
+   "notHaveAccount": "Not yet have account?",
+
+   "deleteAccount": "Delete Account",
+
+   "confirmDeleteAccount": "Do you want to delete your account?",
+
+   "deleting": "Deleting...",
+
+   "deleteFailed": "Failed to delete your account",
+
+   "createAccount": "Create Account",
+
+   "optional": "optional",
+
+   "region": "Region",
+
+   "selectRegion": "Select region",
+
+   "enterPasswordAgain": "Enter password again",
+
+   "enterPassword": "Enter password",
+
+   "prevButton": "PREV",
+
+   "nextButton": "NEXT",
+
+   "iAgreeWith": "I agree with ",
+
+   "emailVerification": "Email Verification",
+
+   "enter6DigitCodeEmail": "Please enter the 6 digit code that is sent to your email address",
+
+   "sixDigitCode": "Six digit code",
+
+   "verifyButton": "VERIFY",
+
+   "usernameTaken": "Username is already taken",
+
+   "accountEmailRegistered": "An account is already registered with this email address",
+
+   "unsuccessfulTryAgainLater": "Unsuccessful, please try again later",
+
+   "emailRegistered": "Email address is already registered",
+
+   "usernameEmailRegistered": "Username or email address might have been already taken",
+
+   "basicInfo": "Basic Info",
+
+   "centerName": "Center Name",
+
+   "enterCenterName": "Enter center name",
+
+   "selectCategory": "Select category",
+
+   "centerNameTooLong": "Center name is too long",
+
+   "teachingArea": "Teaching Area",
+
+   "collegeType": "College Type",
+
+   "teachingType": "Teaching Type",
+
+   "newTerritories": "New Territories",
+
+   "kowloon": "Kowloon",
+
+   "hongKongIsland": "Hong Kong Island",
+
+   "selectTeachingType": "Select teaching type",
+
+   "selectTeachingArea": "Select teaching area",
+
+   "selectCollegeType": "Select college type",
+
+   "selectType": "Select type",
+
+   "ok": "OK",
+
+   "enterUsernameEmail": "Enter username/email",
+
+   "usernameEmailPasswordNotMatch": "Username, e-mail or password does not match",
+
+   "accountDeleted": "Your account has been deleted",
+
+   "chineseLanguage": "Chinese",
+
+   "englishLanguage": "English",
+
+   "mathematics": "Mathematics",
+
+   "generalStudies": "General Studies",
+
+   "primary1": "Primary 1",
+
+   "primary2": "Primary 2",
+
+   "primary3": "Primary 3",
+
+   "primary4": "Primary 4",
+
+   "primary5": "Primary 5",
+
+   "primary6": "Primary 6",
+
+   "form1": "Form 1",
+
+   "form2": "Form 2",
+
+   "form3": "Form 3",
+
+   "form4": "Form 4",
+
+   "form5": "Form 5",
+
+   "form6": "Form 6",
+
+   "firstSemester": "First Semester",
+
+   "secondSemester": "Second Semester",
+
+   "interestClass": "Interest Class",
+
+   "homeworkTutorialClass": "Homework Tutorial Class",
+
+   "subjectTutorialClass": "Subject Tutorial Class",
+
+   "playGroup": "Play Group",
+
+   "other": "Other",
+
+   "all": "All",
+
+   "ageUnder5": "Age under 5",
+
+   "age6To11": "Age 6 to 11",
+
+   "age12To14": "Age 12 to 14",
+
+   "age15To17": "Age 15 to 17",
+
+   "ageAbove18": "Age above 18",
+
+   "report": "Report",
+
+   "buttonReport": "REPORT",
+
+   "reason": "Reason",
+
+   "pleaseSelectReason": "Please select reason",
+
+   "reportedSuccessfully": "Reported successfully",
+
+   "itsSpam": "It's spam",
+
+   "nudityOrSexualActivity": "Nudity or sexual activity",
+
+   "hateSpeech": "Hate speech",
+
+   "falseInformation": "False information",
+
+   "bullyingOrHarassment": "Bullying or harassment",
+
+   "scamOrFraud": "Scam or fraud",
+
+   "violenceOrDangerousOrganizations": "Violence or dangerous organizations",
+
+   "intellectualPropertyViolation": "Intellectual property violation",
+
+   "saleOfIllegalOrRegulatedGoods": "Sale of illegal or regulated goods",
+
+   "suicideOrSelfInjury": "Suicide or self-injury",
+
+   "blockAccount": "Block Account",
+
+   "accountBlockedSuccessfully": "The account is blocked successfully",
+
+   "otherReason": "Other reason",
+
+   "pleaseEnter": "Please enter",
+
+   "pleaseEnterOtherReason": "Please enter other reason",
+
+   "blockedAccounts": "Blocked Accounts",
+
+   "unblock": "Unblock",
+
+   "accountUnblockedSuccessfully": "The account is unblocked successfully",
+
+   "privacyPolicy": "Privacy Policy",
+
+   "and": " and ",
+
+   "deletedAccount": "Deleted Account",
+
+   "pleaseLogin": "Please login again",
+
+   "pleaseWait": "Please wait"
+
+}

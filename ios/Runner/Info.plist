@@ -32,12 +32,6 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -71,5 +65,24 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_dartobservatory._tcp</string>
+	</array>
+	<key>NSExtensionAttributes</key>
+	<dict>
+		<key>IsASCIICapable</key>
+		<false/>
+		<key>PrefersRightToLeft</key>
+		<false/>
+		<key>PrimaryLanguage</key>
+		<string>en-US</string>
+		<key>RequestsOpenAccess</key>
+		<true/>
+	</dict>
+	<key>NSExtensionPointIdentifier</key>
+	<string>com.apple.keyboard-service</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow access to photos in order to upload them in the application.</string>
 </dict>
 </plist>

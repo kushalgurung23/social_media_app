@@ -116,11 +116,10 @@ class TermsAndConditionsProvider extends ChangeNotifier {
       final random = Random();
       var sixDigitCode = random.nextInt(900000) + 100000;
       Map bodyData = {
-        "memberId": "-",
         "sendTo": recipientEmailAddress,
-        "subject": "P Daily Email Verification",
+        "subject": "Spa Email Verification",
         "body": "<p>Dear Madam/Sir,</p>"
-            "<p>Please enter the following 6 digit code in P Daily application to verify your email address:</p>"
+            "<p>Please enter the following 6 digit code in Spa application to verify your email address:</p>"
             "<h1>$sixDigitCode</h1><br>"
             "<p>Yours Sincerely,</p>"
             "<p>Apex Solutions Limited</p>"
@@ -130,7 +129,9 @@ class TermsAndConditionsProvider extends ChangeNotifier {
           bodyData: jsonEncode(bodyData));
       turnOffLoading();
       if (response.statusCode == 200 &&
-          jsonDecode(response.body)["d"]["result"] == "Success") {
+          jsonDecode(response.body)["status"] == "Success") {
+        isRegisterClick = false;
+        notifyListeners();
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => EmailVerificationScreen(
                   recipientEmailAddress: recipientEmailAddress,
@@ -141,6 +142,8 @@ class TermsAndConditionsProvider extends ChangeNotifier {
                   isCenter: isCenter,
                 )));
       } else {
+        isRegisterClick = false;
+        notifyListeners();
         showSnackBar(
             context: context,
             content: 'Sorry, the email was not sent. Please try again later.',

@@ -29,11 +29,7 @@ class RegisterRepo {
     try {
       var url = kEmailRegistrationUrl;
       var response = await http.post(Uri.parse(url),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'key=' + kEmailRegistrationServerKey
-          },
-          body: bodyData);
+          headers: {'Content-Type': 'application/json'}, body: bodyData);
       return response;
     } on Exception {
       throw Exception("Unable to send email");

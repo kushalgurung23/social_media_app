@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/logic/providers/parent_register_provider.dart';
+import 'package:spa_app/logic/providers/registration_provider.dart';
 import 'package:spa_app/presentation/components/all/custom_dropdown_form_field.dart';
 import 'package:spa_app/presentation/components/all/custom_text_form_field.dart';
 import 'package:spa_app/presentation/components/all/rectangular_button.dart';
@@ -10,19 +10,19 @@ import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class ParentRegistrationScreen extends StatelessWidget {
-  static const String id = '/parent_register_screen';
+class RegistrationScreen extends StatelessWidget {
+  static const String id = '/register_screen';
 
-  const ParentRegistrationScreen({Key? key}) : super(key: key);
+  const RegistrationScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ParentRegisterProvider>(
+    return Consumer<RegistrationProvider>(
       builder: (context, data, child) {
         return WillPopScope(
             onWillPop: () async {
               data.clearData();
-              data.toggleRegionValidation(context: context, value: 'prev');
+              data.toggleUserTypeValidation(context: context, value: 'prev');
               return true;
             },
             child: Container(
@@ -40,7 +40,7 @@ class ParentRegistrationScreen extends StatelessWidget {
                           padding: EdgeInsets.symmetric(
                               horizontal: SizeConfig.defaultSize * 2),
                           child: Form(
-                            key: data.parentRegisterKey,
+                            key: data.userRegistrationKey,
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -57,6 +57,7 @@ class ParentRegistrationScreen extends StatelessWidget {
                                               SizeConfig.defaultSize * 1.6),
                                     ),
                                   ),
+                                  // USER TYPE
                                   Padding(
                                     padding: EdgeInsets.only(
                                         top: SizeConfig.defaultSize * 2),
@@ -66,15 +67,16 @@ class ParentRegistrationScreen extends StatelessWidget {
                                       children: [
                                         CustomDropdownFormField(
                                           validator: (value) {
-                                            return data.toggleRegionValidation(
-                                                context: context,
-                                                value: value.toString());
+                                            return data
+                                                .toggleUserTypeValidation(
+                                                    context: context,
+                                                    value: value.toString());
                                           },
                                           iconSize: SizeConfig.defaultSize * 3,
                                           boxDecoration: BoxDecoration(
                                               border: Border.all(
                                                   color:
-                                                      data.regionErrorMessage !=
+                                                      data.userTypeErrorMessage !=
                                                               null
                                                           ? Colors.red
                                                           : const Color(
@@ -82,22 +84,17 @@ class ParentRegistrationScreen extends StatelessWidget {
                                                   width: 0.5),
                                               borderRadius:
                                                   BorderRadius.circular(6)),
-                                          hintText:
-                                              (AppLocalizations.of(context)
-                                                      .region +
-                                                  ' (' +
-                                                  AppLocalizations.of(context)
-                                                      .optional +
-                                                  ')'),
-                                          value: data.regionValue,
-                                          listItems: data.regionList,
+                                          // translate
+                                          hintText: "User type",
+                                          value: data.userTypeValue,
+                                          listItems: data.userTypeList,
                                           onChanged: (value) {
-                                            data.setRegion(
+                                            data.setUserType(
                                                 context: context,
                                                 newValue: value.toString());
                                           },
                                         ),
-                                        data.regionErrorMessage == null
+                                        data.userTypeErrorMessage == null
                                             ? const SizedBox()
                                             : Padding(
                                                 padding: EdgeInsets.only(
@@ -106,7 +103,7 @@ class ParentRegistrationScreen extends StatelessWidget {
                                                         SizeConfig.defaultSize *
                                                             1.5),
                                                 child: Text(
-                                                  data.regionErrorMessage!,
+                                                  data.userTypeErrorMessage!,
                                                   textAlign: TextAlign.start,
                                                   style: TextStyle(
                                                     fontSize:
@@ -259,7 +256,7 @@ class ParentRegistrationScreen extends StatelessWidget {
                                                     4.4,
                                                 onPress: () {
                                                   data.clearData();
-                                                  data.toggleRegionValidation(
+                                                  data.toggleUserTypeValidation(
                                                       context: context,
                                                       value: 'prev');
                                                   Navigator.pop(context);
@@ -293,11 +290,11 @@ class ParentRegistrationScreen extends StatelessWidget {
                                                     4.4,
                                                 onPress: () async {
                                                   final isValid = data
-                                                      .parentRegisterKey
+                                                      .userRegistrationKey
                                                       .currentState!
                                                       .validate();
                                                   if (isValid &&
-                                                      data.regionErrorMessage ==
+                                                      data.userTypeErrorMessage ==
                                                           null) {
                                                     await data.goToTermsAndConditionScreen(
                                                         context: context,
@@ -314,7 +311,7 @@ class ParentRegistrationScreen extends StatelessWidget {
                                                         .nextButton,
                                                 textColor: Colors.white,
                                                 buttonColor:
-                                                    const Color(0xFF5545CF),
+                                                    const Color(0xFFA08875),
                                                 borderColor:
                                                     const Color(0xFFC5966F),
                                                 fontFamily: kHelveticaRegular)),

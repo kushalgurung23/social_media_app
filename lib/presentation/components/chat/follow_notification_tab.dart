@@ -148,7 +148,7 @@ class _FollowNotificationTabState extends State<FollowNotificationTab> {
                                                             .isRead ==
                                                         true
                                                     ? Colors.white
-                                                    : const Color(0xFF5545CF)
+                                                    : const Color(0xFFA08875)
                                                         .withOpacity(0.3),
                                               ),
                                               child: Padding(
@@ -385,7 +385,7 @@ class _FollowNotificationTabState extends State<FollowNotificationTab> {
                                                       child:
                                                           CircularProgressIndicator(
                                                               color: Color(
-                                                                  0xFF5545CF)))
+                                                                  0xFFA08875)))
                                                   : Center(
                                                       child: Text(
                                                         AppLocalizations.of(

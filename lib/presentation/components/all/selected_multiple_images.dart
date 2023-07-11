@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:spa_app/logic/providers/news_ad_provider.dart';
-import 'package:spa_app/logic/providers/paper_share_provider.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -49,10 +48,6 @@ class SelectedMultipleImages extends StatelessWidget {
                               onPressed: () {
                                 if (type == 'news_post') {
                                   Provider.of<NewsAdProvider>(context,
-                                          listen: false)
-                                      .removeSelectedImage(index: index);
-                                } else if (type == 'paper_share') {
-                                  Provider.of<PaperShareProvider>(context,
                                           listen: false)
                                       .removeSelectedImage(index: index);
                                 }

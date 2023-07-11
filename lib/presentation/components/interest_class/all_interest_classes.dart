@@ -181,7 +181,7 @@ class _AllInterestClassesState extends State<AllInterestClasses> {
                                                                   .interestClassHasMore
                                                               ? const CircularProgressIndicator(
                                                                   color: Color(
-                                                                      0xFF5545CF))
+                                                                      0xFFA08875))
                                                               : Text(
                                                                   AppLocalizations.of(
                                                                           context)

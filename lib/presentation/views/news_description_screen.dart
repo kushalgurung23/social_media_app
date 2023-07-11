@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:spa_app/data/constant/color_constant.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/data/enum/news_post_enum.dart';
 import 'package:spa_app/data/enum/post_type.dart';
@@ -382,6 +383,7 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
                                                     0.2),
                                             child: SvgPicture.asset(
                                               "assets/svg/post_comment.svg",
+
                                               height:
                                                   SizeConfig.defaultSize * 4,
                                               width: SizeConfig.defaultSize * 4,

@@ -99,7 +99,7 @@ class NewPostScreen extends StatelessWidget {
                       horizontal: SizeConfig.defaultSize * 2),
                   child: data.isPostClick
                       ? const CircularProgressIndicator(
-                          color: Color(0xFF5545CF))
+                          color: Color(0xFFA08875))
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -118,7 +118,7 @@ class NewPostScreen extends StatelessWidget {
                                 width: SizeConfig.defaultSize * 5,
                                 child: Center(
                                   child: Icon(Icons.image,
-                                      color: const Color(0xFF5545CF),
+                                      color: const Color(0xFFA08875),
                                       size: SizeConfig.defaultSize * 3.3),
                                 ),
                               ),
@@ -141,7 +141,7 @@ class NewPostScreen extends StatelessWidget {
                                     .post
                                     .toUpperCase(),
                                 textColor: Colors.white,
-                                buttonColor: const Color(0xFF5545CF),
+                                buttonColor: const Color(0xFFA08875),
                                 borderColor: const Color(0xFFFFFFFF),
                                 fontFamily: kHelveticaMedium,
                                 keepBoxShadow: true,

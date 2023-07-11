@@ -169,7 +169,7 @@ class _RecommendClassListState extends State<RecommendClassList> {
                                                             const Offset(0, 1),
                                                         blurRadius: 3,
                                                         color: const Color(
-                                                                0xFF5545CF)
+                                                                0xFFA08875)
                                                             .withOpacity(0.22))
                                                   ]),
                                               height:
@@ -294,6 +294,9 @@ class _RecommendClassListState extends State<RecommendClassList> {
                                                               .defaultSize,
                                                         ),
                                                         child: Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
                                                           mainAxisAlignment:
                                                               MainAxisAlignment
                                                                   .spaceBetween,
@@ -303,7 +306,7 @@ class _RecommendClassListState extends State<RecommendClassList> {
                                                                 interestClass
                                                                     .title
                                                                     .toString(),
-                                                                maxLines: 1,
+                                                                maxLines: 2,
                                                                 overflow:
                                                                     TextOverflow
                                                                         .ellipsis,
@@ -334,7 +337,7 @@ class _RecommendClassListState extends State<RecommendClassList> {
                                                                     interestClass
                                                                         .type
                                                                         .toString(),
-                                                                maxLines: 1,
+                                                                maxLines: 2,
                                                                 overflow:
                                                                     TextOverflow
                                                                         .ellipsis,
@@ -343,7 +346,7 @@ class _RecommendClassListState extends State<RecommendClassList> {
                                                                         .end,
                                                                 style: TextStyle(
                                                                     color: const Color(
-                                                                        0xFF5545CF),
+                                                                        0xFFA08875),
                                                                     fontFamily:
                                                                         kHelveticaMedium,
                                                                     fontSize:
@@ -359,26 +362,8 @@ class _RecommendClassListState extends State<RecommendClassList> {
                                                             bottom: SizeConfig
                                                                 .defaultSize),
                                                         child: Text(
-                                                          interestClass.brand
-                                                              .toString(),
-                                                          maxLines: 1,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style: TextStyle(
-                                                              fontFamily:
-                                                                  kHelveticaRegular,
-                                                              fontSize: SizeConfig
-                                                                      .defaultSize *
-                                                                  1.25),
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding: EdgeInsets.only(
-                                                            bottom: SizeConfig
-                                                                .defaultSize),
-                                                        child: Text(
-                                                          "${AppLocalizations.of(context).target}: ${data.getTargetAgeList(context: context).map((key, value) => MapEntry(value, key))[interestClass.targetAge.toString()] ?? interestClass.targetAge.toString()}",
-                                                          maxLines: 1,
+                                                          "${AppLocalizations.of(context).price}: ${interestClass.price.toString()}",
+                                                          maxLines: 2,
                                                           overflow: TextOverflow
                                                               .ellipsis,
                                                           style: TextStyle(
@@ -408,7 +393,7 @@ class _RecommendClassListState extends State<RecommendClassList> {
                                       child: Center(
                                           child: data.recommendClassHasMore
                                               ? const CircularProgressIndicator(
-                                                  color: Color(0xFF5545CF))
+                                                  color: Color(0xFFA08875))
                                               : Text(
                                                   AppLocalizations.of(context)
                                                       .caughtUp,

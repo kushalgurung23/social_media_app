@@ -1,208 +1,82 @@
 import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/data/repositories/register_repo.dart';
+import 'package:spa_app/logic/providers/drawer_provider.dart';
 import 'package:spa_app/logic/providers/login_screen_provider.dart';
 import 'package:spa_app/logic/providers/main_screen_provider.dart';
-import 'package:spa_app/presentation/components/all/custom_multiple_dropdown.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:spa_app/presentation/views/register_terms_and_conditions_screen.dart';
-import 'package:spa_app/presentation/views/tutor_register_screen_two.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class TutorRegisterProvider extends ChangeNotifier {
-  GlobalKey<FormState> tutorRegisterOneKey = GlobalKey<FormState>();
-  GlobalKey<FormState> tutorRegisterTwoKey = GlobalKey<FormState>();
+class RegistrationProvider extends ChangeNotifier {
+  GlobalKey<FormState> userRegistrationKey = GlobalKey<FormState>();
 
   late TextEditingController userNameTextController,
       emailTextController,
       passwordTextController,
       confirmPasswordTextController;
 
-  TutorRegisterProvider() {
+  // Constructor
+  RegistrationProvider() {
     userNameTextController = TextEditingController();
     emailTextController = TextEditingController();
     passwordTextController = TextEditingController();
     confirmPasswordTextController = TextEditingController();
   }
 
-  List<String> regionList = [
-    "Islands	離島區	New Territories (NT)",
-    "Kwai Tsing	葵青區",
-    "North	北區",
-    "Sai Kung	西貢區",
-    "Sha Tin	沙田區",
-    "Tai Po	大埔區",
-    "Tsuen Wan	荃灣區",
-    "Tuen Mun	屯門區",
-    "Yuen Long	元朗區 New Territories",
-    "Kowloon City	九龍城區",
-    "Kwun Tong	觀塘區",
-    "Sham Shui Po	深水埗區",
-    "Wong Tai Sin	黃大仙區",
-    "Yau Tsim Mong	油尖旺區 Kowloon",
-    "Central and Western	中西區	Hong Kong Island (HK)",
-    "Eastern	東區",
-    "Southern	南區",
-    "Wan Chai	灣仔區"
-  ];
+  List<String> userTypeList = ["Member", "Therapist"];
 
-  List<String> collegeTypeList = [
-    'School',
-    'Tutorial Club',
-    'Interest Class Center'
-  ];
+  String? userTypeValue;
 
-  List<String> teachingTypeList = [
-    'Middle',
-    'Primary',
-    'Children',
-  ];
-
-  String? regionValue;
-
-  void setRegion({required BuildContext context, required String newValue}) {
-    regionValue = newValue;
-    toggleRegionValidation(context: context, value: newValue);
+  void setUserType({required BuildContext context, required String newValue}) {
+    userTypeValue = newValue;
+    toggleUserTypeValidation(context: context, value: newValue);
     notifyListeners();
   }
 
-  String? regionErrorMessage;
-  String? toggleRegionValidation(
+  String? userTypeErrorMessage;
+  String? toggleUserTypeValidation(
       {required BuildContext context, required String value}) {
     try {
-      //if (value == 'null') {
-      //  regionErrorMessage = AppLocalizations.of(context).selectRegion;
-      //  return null;
-      //} else {
-      regionErrorMessage = null;
-      return null;
-      //}
+      if (value == 'null') {
+        // translate
+        userTypeErrorMessage = "Select user type";
+        return null;
+      } else {
+        userTypeErrorMessage = null;
+        return null;
+      }
     } finally {
       notifyListeners();
     }
   }
-
-  String? teachingAreaValue, collegeTypeValue;
 
   bool passwordVisibility = true;
   bool secondPasswordVisibility = true;
 
-  void setTeachingArea(
-      {required BuildContext context, required String newValue}) {
-    teachingAreaValue = newValue;
-    toggleTeachingAreaValidation(context: context, value: newValue);
+  void togglePasswordVisibility() {
+    if (passwordVisibility == false) {
+      passwordVisibility = true;
+    } else if (passwordVisibility == true) {
+      passwordVisibility = false;
+    }
     notifyListeners();
   }
 
-  void setCollegeType(
-      {required BuildContext context, required String newValue}) {
-    collegeTypeValue = newValue;
-    toggleCollegeTypeValidation(context: context, value: newValue);
+  void toggleSecondPasswordVisibility() {
+    if (secondPasswordVisibility == false) {
+      secondPasswordVisibility = true;
+    } else if (secondPasswordVisibility == true) {
+      secondPasswordVisibility = false;
+    }
     notifyListeners();
   }
 
-  // Multiple item selection list for teaching type dropdown in tutor register
-  List<String> selectedTeachingTypeItems = [];
-  String selectedTeachingType = '';
-  void showMultiSelect({required BuildContext context}) async {
-    List<String>? teachingTypeResults = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CustomMultipleDropdown(
-            titleHeading: AppLocalizations.of(context).selectType,
-            items: teachingTypeList,
-            selectedItems: selectedTeachingTypeItems);
-      },
-    );
-
-    // Update UI if user has selected teaching type value(s)
-    if (teachingTypeResults != null) {
-      selectedTeachingTypeItems = teachingTypeResults;
-      selectedTeachingType = selectedTeachingTypeItems.join(", ");
-      toggleTeachingTypeValidation(context: context);
-      notifyListeners();
-    }
-  }
-
-  String? teachingAreaErrorMessage;
-  String? toggleTeachingAreaValidation(
-      {required BuildContext context, required String value}) {
-    try {
-      if (value == 'null') {
-        teachingAreaErrorMessage =
-            AppLocalizations.of(context).selectTeachingArea;
-        return null;
-      } else {
-        teachingAreaErrorMessage = null;
-        return null;
-      }
-    } finally {
-      notifyListeners();
-    }
-  }
-
-  String? collegeTypeErrorMessage;
-  String? toggleCollegeTypeValidation(
-      {required BuildContext context, required String value}) {
-    try {
-      if (value == 'null') {
-        collegeTypeErrorMessage =
-            AppLocalizations.of(context).selectCollegeType;
-        return null;
-      } else {
-        collegeTypeErrorMessage = null;
-        return null;
-      }
-    } finally {
-      notifyListeners();
-    }
-  }
-
-  String? teachingTypeErrorMessage;
-  String? toggleTeachingTypeValidation(
-      {required BuildContext context, bool prev = false}) {
-    try {
-      // If prev button is clicked, remove validation error
-      if (prev == true) {
-        teachingTypeErrorMessage = null;
-        return null;
-      } else {
-        if (selectedTeachingType == '') {
-          teachingTypeErrorMessage =
-              AppLocalizations.of(context).selectTeachingType;
-          return null;
-        } else {
-          teachingTypeErrorMessage = null;
-          return null;
-        }
-      }
-    } finally {
-      notifyListeners();
-    }
-  }
-
-  void goBackFromScreenOne({required BuildContext context}) {
-    toggleTeachingAreaValidation(context: context, value: 'prev');
-    toggleCollegeTypeValidation(context: context, value: 'prev');
-    toggleTeachingTypeValidation(context: context, prev: true);
-    clearData();
-    notifyListeners();
-    Navigator.pop(context);
-  }
-
-  void goToSecondScreen({required BuildContext context}) {
-    if (teachingAreaErrorMessage == null &&
-        collegeTypeErrorMessage == null &&
-        teachingTypeErrorMessage == null) {
-      Navigator.pushNamed(context, TutorRegisterScreenTwo.id);
-    }
-  }
-
-  // Second screen
   String? validateUserName(
       {required BuildContext context, required String value}) {
     if (RegExp(r"\s").hasMatch(value)) {
@@ -269,24 +143,6 @@ class TutorRegisterProvider extends ChangeNotifier {
     }
   }
 
-  void togglePasswordVisibility() {
-    if (passwordVisibility == false) {
-      passwordVisibility = true;
-    } else if (passwordVisibility == true) {
-      passwordVisibility = false;
-    }
-    notifyListeners();
-  }
-
-  void toggleSecondPasswordVisibility() {
-    if (secondPasswordVisibility == false) {
-      secondPasswordVisibility = true;
-    } else if (secondPasswordVisibility == true) {
-      secondPasswordVisibility = false;
-    }
-    notifyListeners();
-  }
-
   Future<void> goToTermsAndConditionScreen(
       {required BuildContext context,
       required String username,
@@ -295,15 +151,16 @@ class TutorRegisterProvider extends ChangeNotifier {
         username: username, emailAddress: emailAddress);
     if (response.statusCode == 200) {
       List resultList = jsonDecode(response.body);
+
       // if username and email address are unique
       if (resultList.isEmpty) {
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => RegisterTermsAndConditionsScreen(
-                      isTutor: true,
+                      isTutor: false,
                       isCenter: false,
-                      isParent: false,
+                      isParent: true,
                       isStudent: false,
                       emailAddress: emailTextController.text,
                     )));
@@ -328,6 +185,14 @@ class TutorRegisterProvider extends ChangeNotifier {
           }
         }
       }
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
+      if (context.mounted) {
+        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+            dismissOnTap: false, duration: const Duration(seconds: 4));
+        Provider.of<DrawerProvider>(context, listen: false)
+            .removeCredentials(context: context);
+        return;
+      }
     } else {
       showSnackBar(
           context: context,
@@ -337,18 +202,14 @@ class TutorRegisterProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> registerTutor({required BuildContext context}) async {
+  Future<void> registerUser({required BuildContext context}) async {
     try {
       String? deviceToken = await FirebaseMessaging.instance.getToken();
       String body = jsonEncode({
-        "teaching_area": teachingAreaValue,
-        "college_type": collegeTypeValue,
-        "teaching_type": selectedTeachingType,
         "username": userNameTextController.text.trim(),
         "email": emailTextController.text,
         "password": confirmPasswordTextController.text,
-        "user_type": 'Tutor',
-        "region": regionValue,
+        "user_type": userTypeValue,
         "device_token": deviceToken,
       });
       Response registrationResponse =
@@ -423,15 +284,11 @@ class TutorRegisterProvider extends ChangeNotifier {
   }
 
   void clearData() {
-    collegeTypeValue = null;
-    teachingAreaValue = null;
-    selectedTeachingType = '';
-    selectedTeachingTypeItems.clear();
     userNameTextController.clear();
     emailTextController.clear();
     passwordTextController.clear();
     confirmPasswordTextController.clear();
-    regionValue = null;
+    userTypeValue = null;
   }
 
   @override

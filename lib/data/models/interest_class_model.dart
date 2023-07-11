@@ -4,8 +4,6 @@ import 'package:spa_app/data/models/all_news_post_model.dart';
 InterestClass interestClassFromJson(String str) =>
     InterestClass.fromJson(json.decode(str));
 
-String interestClassToJson(InterestClass data) => json.encode(data.toJson());
-
 class InterestClass {
   InterestClass({
     this.data,
@@ -22,11 +20,6 @@ class InterestClass {
                 json["data"].map((x) => InterestClassData.fromJson(x))),
         meta: Meta.fromJson(json["meta"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "data": List<dynamic>.from(data!.map((x) => x!.toJson())),
-        "meta": meta?.toJson(),
-      };
 }
 
 class InterestClassData {
@@ -45,18 +38,13 @@ class InterestClassData {
             ? null
             : InterestClassAttributes.fromJson(json["attributes"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "attributes": attributes?.toJson(),
-      };
 }
 
 class InterestClassAttributes {
   InterestClassAttributes(
       {this.title,
       this.type,
-      this.targetAge,
+      this.price,
       this.createdAt,
       this.updatedAt,
       this.publishedAt,
@@ -74,7 +62,7 @@ class InterestClassAttributes {
 
   String? title;
   String? type;
-  String? targetAge;
+  String? price;
   DateTime? createdAt;
   DateTime? updatedAt;
   DateTime? publishedAt;
@@ -94,7 +82,7 @@ class InterestClassAttributes {
       InterestClassAttributes(
         title: json["title"],
         type: json["type"],
-        targetAge: json["target_age"],
+        price: json["price"],
         createdAt: json["createdAt"] == null
             ? null
             : DateTime.parse(json["createdAt"]),
@@ -122,27 +110,6 @@ class InterestClassAttributes {
             ? null
             : InterestClassSaves.fromJson(json["interest_class_saves"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "title": title,
-        "type": type,
-        "target_age": targetAge,
-        "createdAt": createdAt.toString(),
-        "updatedAt": updatedAt.toString(),
-        "publishedAt": publishedAt.toString(),
-        "description": description,
-        "is_recommend": isRecommend,
-        "brand": brand == null ? null : brand!,
-        "main_image": mainImage?.toJson(),
-        "class_images": classImages?.toJson(),
-        "website": website,
-        "facebook_link": facebookLink,
-        "instagram_link": instagramLink,
-        "twitter_link": twitterLink,
-        "phone_number": phoneNumber,
-        "interest_class_saves":
-            interestClassSaves == null ? null : interestClassSaves!.toJson(),
-      };
 }
 
 class InterestClassSaves {
@@ -360,9 +327,6 @@ class UserAttributes {
 SingleInterestClass singleInterestClassFromJson(String str) =>
     SingleInterestClass.fromJson(json.decode(str));
 
-String singleInterestClassToJson(SingleInterestClass data) =>
-    json.encode(data.toJson());
-
 class SingleInterestClass {
   SingleInterestClass({
     this.data,
@@ -379,9 +343,4 @@ class SingleInterestClass {
             : InterestClassData.fromJson(json["data"]),
         meta: json["meta"] == null ? null : Meta.fromJson(json["meta"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "data": data!.toJson(),
-        "meta": meta!.toJson(),
-      };
 }

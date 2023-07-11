@@ -19,6 +19,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:collection/collection.dart';
 
+import '../../data/constant/color_constant.dart';
+
 // Last topic and bookmark topic
 // ignore: must_be_immutable
 class LastBookmarkTopicDescriptionScreen extends StatefulWidget {

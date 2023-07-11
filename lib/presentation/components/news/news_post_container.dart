@@ -15,6 +15,8 @@ import 'package:spa_app/presentation/components/all/rounded_text_form_field.dart
 import 'package:spa_app/presentation/views/news_liked_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../data/constant/color_constant.dart';
+
 class NewsPostContainer extends StatefulWidget {
   final NewsPost newsPost;
   final UserAttributes postedBy;
@@ -85,7 +87,7 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                        color: const Color(0xFF5545CF).withOpacity(0.22),
+                        color: const Color(0xFFA08875).withOpacity(0.22),
                         offset: const Offset(0, 1),
                         blurRadius: 3)
                   ],
@@ -235,6 +237,7 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                                 right: SizeConfig.defaultSize * 0.2),
                             child: SvgPicture.asset(
                               "assets/svg/post_comment.svg",
+
                               height: SizeConfig.defaultSize * 4,
                               width: SizeConfig.defaultSize * 4,
                               // color: Colors.white,
@@ -408,7 +411,7 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontFamily: kHelveticaMedium,
-                                        color: const Color(0xFF5545CF),
+                                        color: const Color(0xFFA08875),
                                         fontSize:
                                             SizeConfig.defaultSize * 1.2))))
                         : const SizedBox(),

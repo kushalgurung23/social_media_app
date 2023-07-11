@@ -198,6 +198,8 @@ class _PromotionTabState extends State<PromotionTab> {
                                                                             CachedNetworkImage(
                                                                           height:
                                                                               SizeConfig.defaultSize * 9,
+                                                                          width:
+                                                                              SizeConfig.defaultSize * 9,
                                                                           imageUrl:
                                                                               kIMAGEURL + promotionData.image!.data!.attributes!.url.toString(),
                                                                           fit: BoxFit
@@ -205,6 +207,8 @@ class _PromotionTabState extends State<PromotionTab> {
                                                                           placeholder: (context, url) =>
                                                                               Container(
                                                                             height:
+                                                                                SizeConfig.defaultSize * 9,
+                                                                            width:
                                                                                 SizeConfig.defaultSize * 9,
                                                                             decoration:
                                                                                 const BoxDecoration(
@@ -320,7 +324,7 @@ class _PromotionTabState extends State<PromotionTab> {
                                                 child: data.promotionHasMore
                                                     ? const CircularProgressIndicator(
                                                         color:
-                                                            Color(0xFF5545CF))
+                                                            Color(0xFFA08875))
                                                     : Text(
                                                         AppLocalizations.of(
                                                                 context)

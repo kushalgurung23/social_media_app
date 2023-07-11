@@ -148,7 +148,7 @@ class LoginScreenProvider extends ChangeNotifier {
                 context: context,
                 content:
                     '${AppLocalizations.of(context).welcome} ${user!.username}',
-                backgroundColor: const Color(0xFF5545CF),
+                backgroundColor: const Color(0xFFA08875),
                 contentColor: Colors.white);
             Navigator.pushNamedAndRemoveUntil(
                 context, HomeScreen.id, (route) => false);

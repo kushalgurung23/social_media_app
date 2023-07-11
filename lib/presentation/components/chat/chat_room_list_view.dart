@@ -359,13 +359,13 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                 ? ((conversationData.attributes!.firstUserLastRead != null && conversationData.attributes!.firstUserLastRead!.toLocal().isAtSameMomentAs(lastMessage.createdAt!.toLocal())) || (conversationData.attributes!.firstUserLastRead != null && conversationData.attributes!.firstUserLastRead!.toLocal().isAfter(lastMessage.createdAt!.toLocal()))
                                                                     ? Colors
                                                                         .white
-                                                                    : const Color(0xFF5545CF).withOpacity(
+                                                                    : const Color(0xFFA08875).withOpacity(
                                                                         0.3))
                                                                 // else if second user is the current user
                                                                 : ((conversationData.attributes!.secondUserLastRead != null && conversationData.attributes!.secondUserLastRead!.toLocal().isAtSameMomentAs(lastMessage.createdAt!.toLocal())) ||
                                                                         (conversationData.attributes!.secondUserLastRead != null && conversationData.attributes!.secondUserLastRead!.isAfter(lastMessage.createdAt!.toLocal()))
                                                                     ? Colors.white
-                                                                    : const Color(0xFF5545CF).withOpacity(0.3)),
+                                                                    : const Color(0xFFA08875).withOpacity(0.3)),
                                                       ),
                                                       child: Padding(
                                                         padding: EdgeInsets.symmetric(
@@ -641,7 +641,7 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                   child: data.hasMore
                                                       ? const CircularProgressIndicator(
                                                           color:
-                                                              Color(0xFF5545CF))
+                                                              Color(0xFFA08875))
                                                       : Text(
                                                           AppLocalizations.of(
                                                                   context)

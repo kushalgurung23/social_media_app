@@ -59,7 +59,7 @@ class _InterestCourseDetailScreenState
                   Navigator.pop(context);
                 },
               ),
-              title: AppLocalizations.of(context).interestClass,
+              title: AppLocalizations.of(context).serviceBottomTab,
               widgetList: [
                 Builder(builder: (context) {
                   return Container(
@@ -255,7 +255,7 @@ class _InterestCourseDetailScreenState
                                                                     courseData
                                                                         .id)
                                                             ? const Color(
-                                                                0xFF5545CF)
+                                                                0xFFA08875)
                                                             : const Color(
                                                                 0xFFD1D3D5),
                                                         size: SizeConfig
@@ -274,21 +274,6 @@ class _InterestCourseDetailScreenState
                                                     children: [
                                                       Text(
                                                         courseData
-                                                            .attributes!.brand
-                                                            .toString(),
-                                                        style: TextStyle(
-                                                            fontFamily:
-                                                                kHelveticaMedium,
-                                                            fontSize: SizeConfig
-                                                                    .defaultSize *
-                                                                1.6),
-                                                      ),
-                                                      SizedBox(
-                                                          height: SizeConfig
-                                                                  .defaultSize *
-                                                              0.8),
-                                                      Text(
-                                                        courseData
                                                             .attributes!.title
                                                             .toString(),
                                                         style: TextStyle(
@@ -303,7 +288,7 @@ class _InterestCourseDetailScreenState
                                                                   .defaultSize *
                                                               0.8),
                                                       Text(
-                                                        '${AppLocalizations.of(context).target}: ${data.getTargetAgeList(context: context).map((key, value) => MapEntry(value, key))[courseData.attributes!.targetAge] ?? courseData.attributes!.targetAge}',
+                                                        '${AppLocalizations.of(context).price}: ${courseData.attributes!.price}',
                                                         style: TextStyle(
                                                             color: const Color(
                                                                 0xFF8897A7),
@@ -338,7 +323,7 @@ class _InterestCourseDetailScreenState
                                               textAlign: TextAlign.end,
                                               style: TextStyle(
                                                   color:
-                                                      const Color(0xFF5545CF),
+                                                      const Color(0xFFA08875),
                                                   fontFamily: kHelveticaMedium,
                                                   fontSize:
                                                       SizeConfig.defaultSize *
@@ -470,7 +455,7 @@ class _InterestCourseDetailScreenState
                                                                         SizeConfig.defaultSize *
                                                                             1.45,
                                                                     color: const Color(
-                                                                        0xFF5545CF),
+                                                                        0xFFA08875),
                                                                     decoration:
                                                                         TextDecoration
                                                                             .underline,
@@ -560,7 +545,7 @@ class _InterestCourseDetailScreenState
                                                         const Color(0xFFFEB703),
                                                     text: AppLocalizations
                                                             .of(context)
-                                                        .joinNow,
+                                                        .bookNow,
                                                     textColor:
                                                         const Color(0xFFF1F0F1),
                                                     borderColor: Colors.white,

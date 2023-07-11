@@ -146,7 +146,7 @@ class _SearchInterestClassesState extends State<SearchInterestClasses> {
                                         child: Center(
                                             child: data.searchHasMore
                                                 ? const CircularProgressIndicator(
-                                                    color: Color(0xFF5545CF))
+                                                    color: Color(0xFFA08875))
                                                 : Text(
                                                     AppLocalizations.of(context)
                                                         .caughtUp,

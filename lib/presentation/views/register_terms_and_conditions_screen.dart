@@ -100,12 +100,8 @@ class _RegisterTermsAndConditionsScreenState
                         color: const Color(0xFF8897A7),
                         size: SizeConfig.defaultSize * 2.7),
                     onPressed: () {
-                      data.undoCheckBox(
-                          isParent: widget.isParent!,
-                          isTutor: widget.isTutor!,
-                          isStudent: widget.isStudent!,
-                          isCenter: widget.isCenter!);
-                      data.turnOffLoading();
+                      data.undoCheckBox();
+
                       Navigator.pop(context);
                     },
                   ),
@@ -141,12 +137,12 @@ class _RegisterTermsAndConditionsScreenState
                                     .termsAndConditions,
                                 textColor: (_selectedTabIndex == 0)
                                     ? Colors.white
-                                    : const Color(0xFF5545CF),
+                                    : const Color(0xFFA08875),
                                 buttonColor: (_selectedTabIndex == 0)
-                                    ? const Color(0xFF5545CF)
+                                    ? const Color(0xFFA08875)
                                     : Colors.white,
                                 borderColor: (_selectedTabIndex == 0)
-                                    ? const Color(0xFF5545CF)
+                                    ? const Color(0xFFA08875)
                                     : const Color(0xFF5349C7),
                                 fontFamily: kHelveticaMedium,
                                 keepBoxShadow: false,
@@ -171,12 +167,12 @@ class _RegisterTermsAndConditionsScreenState
                               text: AppLocalizations.of(context).privacyPolicy,
                               textColor: (_selectedTabIndex == 1)
                                   ? Colors.white
-                                  : const Color(0xFF5545CF),
+                                  : const Color(0xFFA08875),
                               buttonColor: (_selectedTabIndex == 1)
-                                  ? const Color(0xFF5545CF)
+                                  ? const Color(0xFFA08875)
                                   : Colors.white,
                               borderColor: (_selectedTabIndex == 1)
-                                  ? const Color(0xFF5545CF)
+                                  ? const Color(0xFFA08875)
                                   : const Color(0xFF5349C7),
                               fontFamily: kHelveticaMedium,
                               keepBoxShadow: false,
@@ -201,18 +197,9 @@ class _RegisterTermsAndConditionsScreenState
                     ),
                     Center(
                       child: CustomCheckbox(
-                        checkboxValue: data.returnCheckBoxValue(
-                            isParent: widget.isParent!,
-                            isCenter: widget.isCenter!,
-                            isStudent: widget.isStudent!,
-                            isTutor: widget.isTutor!),
+                        checkboxValue: data.returnCheckBoxValue(),
                         onChanged: (value) {
-                          data.setCheckBoxValue(
-                              isParent: widget.isParent!,
-                              isCenter: widget.isCenter!,
-                              isStudent: widget.isStudent!,
-                              isTutor: widget.isTutor!,
-                              newValue: value!);
+                          data.setCheckBoxValue(newValue: value!);
                         },
                         title: RichText(
                           maxLines: 3,
@@ -255,49 +242,33 @@ class _RegisterTermsAndConditionsScreenState
                         inCenter: false,
                       ),
                     ),
-                    data.isRegisterClick
-                        ? Padding(
-                            padding: EdgeInsets.only(
-                                top: SizeConfig.defaultSize * 3,
-                                bottom: SizeConfig.defaultSize * 2),
-                            child: const CircularProgressIndicator(
-                                color: Color(0xFF5545CF)),
-                          )
-                        : Padding(
-                            padding: EdgeInsets.only(
-                                top: SizeConfig.defaultSize * 2,
-                                bottom: SizeConfig.defaultSize * 2),
-                            child: RectangularButton(
-                                textPadding: EdgeInsets.symmetric(
-                                    horizontal: SizeConfig.defaultSize * 1.5),
-                                offset: const Offset(0, 3),
-                                borderRadius: 6,
-                                blurRadius: 6,
-                                fontSize: SizeConfig.defaultSize * 1.5,
-                                keepBoxShadow: true,
-                                height: SizeConfig.defaultSize * 4.2,
-                                width: SizeConfig.defaultSize * 21.4,
-                                onPress: () async {
-                                  await data.sendEmail(
-                                      context: context,
-                                      recipientEmailAddress:
-                                          widget.emailAddress,
-                                      isParent: widget.isParent,
-                                      isCenter: widget.isCenter,
-                                      isStudent: widget.isStudent,
-                                      isTutor: widget.isTutor);
-                                  data.undoCheckBox(
-                                      isParent: widget.isParent!,
-                                      isTutor: widget.isTutor!,
-                                      isStudent: widget.isStudent!,
-                                      isCenter: widget.isCenter!);
-                                },
-                                text: AppLocalizations.of(context).nextButton,
-                                textColor: Colors.white,
-                                buttonColor: const Color(0xFF5545CF),
-                                borderColor: const Color(0xFFC5966F),
-                                fontFamily: kHelveticaRegular),
-                          )
+                    Padding(
+                      padding: EdgeInsets.only(
+                          top: SizeConfig.defaultSize * 2,
+                          bottom: SizeConfig.defaultSize * 2),
+                      child: RectangularButton(
+                          textPadding: EdgeInsets.symmetric(
+                              horizontal: SizeConfig.defaultSize * 1.5),
+                          offset: const Offset(0, 3),
+                          borderRadius: 6,
+                          blurRadius: 6,
+                          fontSize: SizeConfig.defaultSize * 1.5,
+                          keepBoxShadow: true,
+                          height: SizeConfig.defaultSize * 4.2,
+                          width: SizeConfig.defaultSize * 21.4,
+                          onPress: () async {
+                            await data.sendEmail(
+                              context: context,
+                              recipientEmailAddress: widget.emailAddress,
+                            );
+                            data.undoCheckBox();
+                          },
+                          text: AppLocalizations.of(context).nextButton,
+                          textColor: Colors.white,
+                          buttonColor: const Color(0xFFA08875),
+                          borderColor: const Color(0xFFC5966F),
+                          fontFamily: kHelveticaRegular),
+                    )
                   ],
                 ),
               ),

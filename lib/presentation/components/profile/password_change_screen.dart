@@ -149,7 +149,7 @@ class PasswordChangeScreen extends StatelessWidget {
                               padding: EdgeInsets.only(
                                   bottom: SizeConfig.defaultSize * 2),
                               child: const CircularProgressIndicator(
-                                  color: Color(0xFF5545CF)),
+                                  color: Color(0xFFA08875)),
                             )
                           : RectangularButton(
                               textPadding: EdgeInsets.symmetric(
@@ -169,7 +169,7 @@ class PasswordChangeScreen extends StatelessWidget {
                               },
                               text: AppLocalizations.of(context).changePassword,
                               textColor: Colors.white,
-                              buttonColor: const Color(0xFF5545CF),
+                              buttonColor: const Color(0xFFA08875),
                               borderColor: const Color(0xFFFFFFFF),
                               fontFamily: kHelveticaMedium,
                               keepBoxShadow: true,

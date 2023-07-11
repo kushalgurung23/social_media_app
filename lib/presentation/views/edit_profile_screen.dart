@@ -102,7 +102,7 @@ class EditProfileScreen extends StatelessWidget {
                                     top: SizeConfig.defaultSize * 3,
                                     bottom: SizeConfig.defaultSize * 2),
                                 child: const CircularProgressIndicator(
-                                    color: Color(0xFF5545CF)),
+                                    color: Color(0xFFA08875)),
                               )
                             : Padding(
                                 padding: EdgeInsets.only(

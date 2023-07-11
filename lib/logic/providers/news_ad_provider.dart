@@ -20,7 +20,6 @@ import 'package:spa_app/data/repositories/report_news_post_repo.dart';
 import 'package:spa_app/data/repositories/profile_topic_repo.dart';
 import 'package:spa_app/logic/providers/bottom_nav_provider.dart';
 import 'package:spa_app/logic/providers/drawer_provider.dart';
-import 'package:spa_app/logic/providers/further_studies_provider.dart';
 import 'package:spa_app/logic/providers/main_screen_provider.dart';
 import 'package:spa_app/logic/providers/profile_provider.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
@@ -31,6 +30,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 
 class NewsAdProvider extends ChangeNotifier {
@@ -53,12 +53,9 @@ class NewsAdProvider extends ChangeNotifier {
 
   late final MainScreenProvider mainScreenProvider;
   late final BottomNavProvider bottomNavProvider;
-  late final FurtherStudiesProvider furtherStudiesProvider;
 
   NewsAdProvider(
-      {required this.mainScreenProvider,
-      required this.bottomNavProvider,
-      required this.furtherStudiesProvider}) {
+      {required this.mainScreenProvider, required this.bottomNavProvider}) {
     initial();
     postContentController = TextEditingController();
     postTitleController = TextEditingController();
@@ -87,18 +84,12 @@ class NewsAdProvider extends ChangeNotifier {
 
   String getUserType(
       {required String usertType, required BuildContext context}) {
-    if (usertType == 'Parent') {
-      return AppLocalizations.of(context).parent;
-    } else if (usertType == 'Student') {
-      return AppLocalizations.of(context).student;
-    }
-    if (usertType == 'Tutor') {
-      return AppLocalizations.of(context).tutor;
-    }
-    if (usertType == 'Center') {
-      return AppLocalizations.of(context).center;
+    if (usertType == 'Member') {
+      return AppLocalizations.of(context).member;
+    } else if (usertType == 'Therapist') {
+      return AppLocalizations.of(context).therapist;
     } else {
-      return AppLocalizations.of(context).deletedAccount;
+      return 'User';
     }
   }
 
@@ -235,29 +226,6 @@ class NewsAdProvider extends ChangeNotifier {
         allNewsPostController.sink.add(_allNewsPost!);
         notifyListeners();
       }
-
-      // if the post is from normal news post list or from profile, update news post list first
-      // if it is from further studies, we don't want to update the stream as it will be uploaded before this method is called
-      if (newsPostSource != NewsPostSource.furtherStudies) {
-        final furtherStudiesProvider =
-            Provider.of<FurtherStudiesProvider>(context, listen: false);
-        if (oneNewsPost != null &&
-            oneNewsPost.attributes!.postedBy != null &&
-            oneNewsPost.attributes!.postedBy!.data != null &&
-            oneNewsPost.attributes!.postedBy!.data!.attributes!.userType ==
-                'Parent') {
-          await furtherStudiesProvider.updateSelectedParentNewsPosts(
-              context: context, parentNewsPostId: newsPostId);
-        } else if (oneNewsPost != null &&
-            oneNewsPost.attributes!.postedBy != null &&
-            oneNewsPost.attributes!.postedBy!.data != null &&
-            oneNewsPost.attributes!.postedBy!.data!.attributes!.userType ==
-                'Student') {
-          await furtherStudiesProvider.updateSelectedStudentNewsPosts(
-              context: context, studentNewsPostId: newsPostId);
-        }
-        notifyListeners();
-      }
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context.mounted) {
         EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
@@ -287,18 +255,6 @@ class NewsAdProvider extends ChangeNotifier {
       _allNewsPost = allNewsPostFromJson(response.body);
       allNewsPostController.sink.add(_allNewsPost!);
       notifyListeners();
-      if (context != null) {
-        final furtherStudiesProvider =
-            Provider.of<FurtherStudiesProvider>(context, listen: false);
-        if (furtherStudiesProvider.isParentAsk == true) {
-          await furtherStudiesProvider.updateAllParentNewsPosts(
-              context: context);
-        } else {
-          await furtherStudiesProvider.updateAllStudentNewsPosts(
-              context: context);
-        }
-        notifyListeners();
-      }
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context != null && context.mounted) {
         EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
@@ -516,91 +472,6 @@ class NewsAdProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> toggleNewsPostSaveFromFurtherStudies(
-      {required UserType userType,
-      required String? newsPostSaveId,
-      required BuildContext context,
-      required String postId,
-      required bool setLikeSaveCommentFollow}) async {
-    if (toggleSaveOnProcess == true) {
-      // Please wait
-      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
-          dismissOnTap: false, duration: const Duration(seconds: 1));
-      return;
-    } else if (toggleSaveOnProcess == false) {
-      toggleSaveOnProcess = true;
-      Response response;
-      if (mainScreenProvider.savedNewsPostIdList.contains(int.parse(postId)) &&
-          newsPostSaveId != null) {
-        mainScreenProvider.savedNewsPostIdList.remove(int.parse(postId));
-        response = await NewsPostRepo.removeNewsPostSave(
-            newsPostSavedId: newsPostSaveId,
-            jwt: sharedPreferences.getString('jwt')!);
-      } else {
-        mainScreenProvider.savedNewsPostIdList.add(int.parse(postId));
-        Map bodyData = {
-          "data": {"saved_by": mainScreenProvider.userId, "news_post": postId}
-        };
-        response = await NewsPostRepo.addNewsPostSave(
-            bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
-      }
-      notifyListeners();
-      if (response.statusCode == 200) {
-        // if the post is from further studies, update further studies first
-        final furtherStudiesProvider =
-            Provider.of<FurtherStudiesProvider>(context, listen: false);
-        if (userType == UserType.parent) {
-          furtherStudiesProvider.updateSelectedParentNewsPosts(
-              context: context, parentNewsPostId: postId);
-        } else if (userType == UserType.student) {
-          furtherStudiesProvider.updateSelectedStudentNewsPosts(
-              context: context, studentNewsPostId: postId);
-        }
-        notifyListeners();
-        await Future.wait([
-          updateSelectedNewsPosts(
-              context: context,
-              newsPostId: postId,
-              newsPostSource: NewsPostSource.furtherStudies),
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context,
-              setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-        ]);
-        toggleSaveOnProcess = false;
-        notifyListeners();
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
-          'Not Found') {
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      } else {
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    }
-    toggleSaveOnProcess = false;
-    notifyListeners();
-  }
-
   bool toggleLikeOnProcess = false;
 
   Future<void> toggleNewsPostLike(
@@ -692,107 +563,6 @@ class NewsAdProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> toggleNewsPostLikeFromFurtherStudies(
-      {required UserType userType,
-      required String? newsPostLikeId,
-      required BuildContext context,
-      required String postId,
-      required bool setLikeSaveCommentFollow,
-      required int postLikeCount}) async {
-    if (toggleLikeOnProcess == true) {
-      // Please wait
-      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
-          dismissOnTap: false, duration: const Duration(seconds: 1));
-      return;
-    } else if (toggleLikeOnProcess == false) {
-      toggleLikeOnProcess = true;
-      Response response;
-
-      if (mainScreenProvider.likedPostIdList.contains(int.parse(postId)) &&
-          newsPostLikeId != null) {
-        mainScreenProvider.likedPostIdList.remove(int.parse(postId));
-        postLikeCount--;
-        Map bodyDataTwo = {
-          "data": {"like_count": postLikeCount.toString()}
-        };
-        response = await NewsPostRepo.removeNewsPostLike(
-            newsPostLikeId: newsPostLikeId,
-            jwt: sharedPreferences.getString('jwt')!,
-            bodyDataTwo: bodyDataTwo,
-            postId: postId);
-      } else {
-        mainScreenProvider.likedPostIdList.add(int.parse(postId));
-        postLikeCount++;
-        Map bodyDataOne = {
-          "data": {"liked_by": mainScreenProvider.userId, "news_post": postId}
-        };
-        Map bodyDataTwo = {
-          "data": {"like_count": postLikeCount.toString()}
-        };
-        response = await NewsPostRepo.addNewsPostLike(
-            bodyDataOne: bodyDataOne,
-            jwt: sharedPreferences.getString('jwt')!,
-            bodyDataTwo: bodyDataTwo,
-            postId: postId);
-      }
-      notifyListeners();
-
-      if (response.statusCode == 200) {
-        // if the post is from further studies, update further studies first
-        final furtherStudiesProvider =
-            Provider.of<FurtherStudiesProvider>(context, listen: false);
-        if (userType == UserType.parent) {
-          furtherStudiesProvider.updateSelectedParentNewsPosts(
-              context: context, parentNewsPostId: postId);
-        } else if (userType == UserType.student) {
-          furtherStudiesProvider.updateSelectedStudentNewsPosts(
-              context: context, studentNewsPostId: postId);
-        }
-        notifyListeners();
-        await Future.wait([
-          updateSelectedNewsPosts(
-              context: context,
-              newsPostId: postId,
-              newsPostSource: NewsPostSource.furtherStudies),
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context,
-              setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-        ]);
-        toggleLikeOnProcess = false;
-        notifyListeners();
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
-          'Not Found') {
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      } else {
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    }
-    toggleLikeOnProcess = false;
-    notifyListeners();
-  }
-
   // if the comment is posted in further studies news post, then we will require currentCommentCount and comment count from discussCommentCounts in order to provide color to fire icon accordingly.
   Future<void> postNewsComment(
       {required NewsPostSource newsPostSource,
@@ -829,85 +599,7 @@ class NewsAdProvider extends ChangeNotifier {
         showSnackBar(
             context: context,
             content: AppLocalizations.of(context).commentPosted,
-            backgroundColor: const Color(0xFF5545CF),
-            contentColor: Colors.white);
-        // if the comment is posted in further study discuss, then
-      } else if (commentResponse.statusCode == 401 ||
-          commentResponse.statusCode == 403) {
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    } on Exception {
-      throw (Exception);
-    }
-  }
-
-  // post comment from further studies
-  // if the comment is posted in further studies news post, then we will require currentCommentCount and comment count from discussCommentCounts in order to provide color to fire icon accordingly.
-  Future<void> postNewsCommentFromFurtherStudies(
-      {required UserType userType,
-      String? currentCommentCount,
-      DiscussCommentCounts? discussCommentCounts,
-      required BuildContext context,
-      required String newsPostId,
-      required TextEditingController newsCommentController,
-      required bool setLikeSaveCommentFollow}) async {
-    try {
-      String body = jsonEncode({
-        "data": {
-          "comment_by": sharedPreferences.getString('id')!,
-          "content": newsCommentController.text,
-          "news_post": newsPostId,
-        }
-      });
-
-      Response commentResponse = await NewsCommentRepo.saveNewsComment(
-          bodyData: body, jwt: sharedPreferences.getString('jwt')!);
-      if (commentResponse.statusCode == 200) {
-        newsCommentController.clear();
-        FocusScope.of(context).unfocus();
-        final furtherStudiesProvider =
-            Provider.of<FurtherStudiesProvider>(context, listen: false);
-        if (userType == UserType.parent) {
-          furtherStudiesProvider.updateSelectedParentNewsPosts(
-              context: context, parentNewsPostId: newsPostId);
-        } else if (userType == UserType.student) {
-          furtherStudiesProvider.updateSelectedStudentNewsPosts(
-              context: context, studentNewsPostId: newsPostId);
-        }
-        notifyListeners();
-        await Future.wait([
-          Provider.of<FurtherStudiesProvider>(context, listen: false)
-              .updateCommentCount(
-                  newsPostId: newsPostId.toString(),
-                  context: context,
-                  discussCommentCounts: discussCommentCounts,
-                  currentCommentCount:
-                      (int.parse(currentCommentCount!) + 1).toString()),
-          updateSelectedNewsPosts(
-              context: context,
-              newsPostId: newsPostId,
-              newsPostSource: NewsPostSource.furtherStudies),
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context,
-              setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-        ]);
-
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).commentPosted,
-            backgroundColor: const Color(0xFF5545CF),
+            backgroundColor: const Color(0xFFA08875),
             contentColor: Colors.white);
         // if the comment is posted in further study discuss, then
       } else if (commentResponse.statusCode == 401 ||
@@ -1175,7 +867,7 @@ class NewsAdProvider extends ChangeNotifier {
         showSnackBar(
             context: context,
             content: AppLocalizations.of(context).commentPosted,
-            backgroundColor: const Color(0xFF5545CF),
+            backgroundColor: const Color(0xFFA08875),
             contentColor: Colors.white);
         // if the comment is posted in further study discuss, then
       } else if (commentResponse.statusCode == 401 ||
@@ -2220,7 +1912,7 @@ class NewsAdProvider extends ChangeNotifier {
         showSnackBar(
             context: context,
             content: AppLocalizations.of(context).createdSuccessfully,
-            backgroundColor: const Color(0xFF5545CF),
+            backgroundColor: const Color(0xFFA08875),
             contentColor: Colors.white);
         goBack(context: context);
       } else if (createResponse.statusCode == 401 ||
@@ -2281,7 +1973,7 @@ class NewsAdProvider extends ChangeNotifier {
         showSnackBar(
             context: context,
             content: AppLocalizations.of(context).createdSuccessfully,
-            backgroundColor: const Color(0xFF5545CF),
+            backgroundColor: const Color(0xFFA08875),
             contentColor: Colors.white);
         goBack(context: context);
       } else if (createResponse.statusCode == 401 ||
@@ -2531,11 +2223,6 @@ class NewsAdProvider extends ChangeNotifier {
       allNewsPostController.sink.add(_allNewsPost!);
     }
 
-    // DO NOT DISPLAY REPORT NEWS POST IN PARENT NEWS POSTS
-    furtherStudiesProvider.removeReportedParentNewsPost(newsPostId: newsPostId);
-    // DO NOT DISPLAY REPORT NEWS POST IN STUDENT NEWS POSTS
-    furtherStudiesProvider.removeReportedStudentNewsPost(
-        newsPostId: newsPostId);
     // DO NOT DISPLAY REPORT NEWS POST IN PROFILE TAB
     mainScreenProvider.removeNewReportNews(
         newsPostId: newsPostId, context: context);
@@ -2603,11 +2290,6 @@ class NewsAdProvider extends ChangeNotifier {
       allNewsPostController.sink.add(_allNewsPost!);
     }
 
-    // DO NOT DISPLAY REPORT NEWS POST IN PARENT NEWS POSTS
-    furtherStudiesProvider.removeBlockParentNewsPost(otherUserId: otherUserId);
-    // DO NOT DISPLAY REPORT NEWS POST IN STUDENT NEWS POSTS
-    furtherStudiesProvider.removeBlockStudenttNewsPost(
-        otherUserId: otherUserId);
     // DO NOT DISPLAY REPORT NEWS POST IN PROFILE TAB
     mainScreenProvider.removeBlockedUsersNews(
         otherUserId: otherUserId, context: context);

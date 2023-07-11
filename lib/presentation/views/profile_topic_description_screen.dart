@@ -388,6 +388,7 @@ class _ProfileTopicDescriptionScreenState
                                                     0.2),
                                             child: SvgPicture.asset(
                                               "assets/svg/post_comment.svg",
+
                                               height:
                                                   SizeConfig.defaultSize * 4,
                                               width: SizeConfig.defaultSize * 4,

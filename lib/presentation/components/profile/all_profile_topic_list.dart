@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:spa_app/data/constant/color_constant.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/data/enum/news_post_enum.dart';
 import 'package:spa_app/data/enum/post_type.dart';
@@ -255,7 +256,7 @@ class _AllProfileTopicListState extends State<AllProfileTopicList> {
                                                       boxShadow: [
                                                         BoxShadow(
                                                             color: const Color(
-                                                                    0xFF5545CF)
+                                                                    0xFFA08875)
                                                                 .withOpacity(
                                                                     0.22),
                                                             offset:
@@ -467,6 +468,7 @@ class _AllProfileTopicListState extends State<AllProfileTopicList> {
                                                                       height:
                                                                           SizeConfig.defaultSize *
                                                                               4,
+
                                                                       width:
                                                                           SizeConfig.defaultSize *
                                                                               4,
@@ -597,7 +599,7 @@ class _AllProfileTopicListState extends State<AllProfileTopicList> {
                                                                                 .center,
                                                                             style: TextStyle(
                                                                                 fontFamily: kHelveticaMedium,
-                                                                                color: const Color(0xFF5545CF),
+                                                                                color: const Color(0xFFA08875),
                                                                                 fontSize: SizeConfig.defaultSize * 1.2))))
                                                             : const SizedBox()
                                                       ],

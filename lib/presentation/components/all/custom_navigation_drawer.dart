@@ -29,7 +29,7 @@ class CustomNavigationDrawer extends StatelessWidget {
                         SizedBox(height: SizeConfig.defaultSize * 4),
                         Divider(
                           thickness: SizeConfig.defaultSize * 0.6,
-                          color: const Color(0xFF5545CF),
+                          color: const Color(0xFFA08875),
                         ),
                         SizedBox(height: SizeConfig.defaultSize * 4),
                         DrawerItem(

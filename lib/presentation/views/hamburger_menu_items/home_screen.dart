@@ -17,10 +17,9 @@ import 'package:spa_app/logic/providers/news_ad_provider.dart';
 import 'package:spa_app/logic/providers/notification_provider.dart';
 import 'package:spa_app/presentation/components/all/bottom_nav_bar.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/tabs/further_studies_tab.dart';
 import 'package:spa_app/presentation/tabs/interest_class_tab.dart';
 import 'package:spa_app/presentation/tabs/news_tab.dart';
-import 'package:spa_app/presentation/tabs/paper_share_tab.dart';
+import 'package:spa_app/presentation/tabs/notification_tab.dart';
 import 'package:spa_app/presentation/tabs/profile_tab.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -337,9 +336,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   final bodyTabs = [
     const NewsTab(),
-    const PaperShareTab(),
-    const FurtherStudiesTab(),
     const InterestClassTab(),
+    const NotificationTab(),
     const ProfileTab()
   ];
 

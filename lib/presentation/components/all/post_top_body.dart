@@ -248,12 +248,12 @@ class PostTopBody extends StatelessWidget {
                   child: Text(userType,
                       style: TextStyle(
                           color: postType == PostType.newsPost
-                              ? const Color(0xFF5545CF)
+                              ? const Color(0xFFA08875)
                               : postType == PostType.recentTopic
                                   ? const Color(0xFF457ACF)
                                   : postType == PostType.profileTopic
                                       ? const Color(0xFF4ACF45)
-                                      : const Color(0xFF5545CF),
+                                      : const Color(0xFFA08875),
                           fontFamily: kHelveticaMedium,
                           fontSize: SizeConfig.defaultSize * 1.25)),
                 )
@@ -274,7 +274,7 @@ class PostTopBody extends StatelessWidget {
               maxLines: 5,
               textAlign: TextAlign.justify,
               linkStyle: TextStyle(
-                  color: const Color(0xFF5545CF),
+                  color: const Color(0xFFA08875),
                   fontFamily: kHelveticaMedium,
                   fontSize: SizeConfig.defaultSize * 1.3,
                   backgroundColor: Colors.transparent),

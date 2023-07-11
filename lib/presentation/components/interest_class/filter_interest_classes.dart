@@ -145,7 +145,7 @@ class _FilterInterestClassesState extends State<FilterInterestClasses> {
                                         child: Center(
                                             child: data.filterHasMore
                                                 ? const CircularProgressIndicator(
-                                                    color: Color(0xFF5545CF))
+                                                    color: Color(0xFFA08875))
                                                 : Text(
                                                     AppLocalizations.of(context)
                                                         .caughtUp,

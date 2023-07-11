@@ -9,9 +9,6 @@ import 'package:spa_app/data/models/user_model.dart';
 List<SearchUser> searchUserFromJson(String str) =>
     List<SearchUser>.from(json.decode(str).map((x) => SearchUser.fromJson(x)));
 
-String searchUserToJson(List<SearchUser> data) =>
-    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
-
 class SearchUser {
   SearchUser(
       {this.id,
@@ -78,25 +75,4 @@ class SearchUser {
             : AllImage.fromJson(json["profile_image"]),
         deviceToken: json["device_token"],
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "username": username,
-        "email": email,
-        "provider": provider,
-        "confirmed": confirmed,
-        "blocked": blocked,
-        "createdAt": createdAt!.toIso8601String(),
-        "updatedAt": updatedAt!.toIso8601String(),
-        "user_type": userType,
-        "grade": grade == null ? null : grade!,
-        "teaching_type": teachingType == null ? null : teachingType!,
-        "college_type": collegeType,
-        "teaching_area": teachingArea,
-        "region": region,
-        "category": category,
-        "center_name": centerName,
-        "profile_image": profileImage == null ? null : profileImage!.toJson(),
-        "device_token": deviceToken
-      };
 }

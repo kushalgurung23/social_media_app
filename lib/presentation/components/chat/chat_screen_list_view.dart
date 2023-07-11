@@ -118,7 +118,7 @@ class _ChatScreenListViewState extends State<ChatScreenListView> {
                                             SizeConfig.defaultSize * 2.5),
                                     decoration: BoxDecoration(
                                         color: isMe
-                                            ? const Color(0xFF5545CF)
+                                            ? const Color(0xFFA08875)
                                             : const Color(0xFFFFFFFF),
                                         borderRadius: BorderRadius.only(
                                           bottomLeft: isMe

@@ -288,7 +288,7 @@ class _ProfileFollowerScreenState extends State<ProfileFollowerScreen> {
                                                                       .id) ==
                                                           true
                                                       ? Colors.white
-                                                      : const Color(0xFF5545CF),
+                                                      : const Color(0xFFA08875),
                                                   buttonColor: data
                                                               .mainScreenProvider
                                                               .followingIdList
@@ -296,7 +296,7 @@ class _ProfileFollowerScreenState extends State<ProfileFollowerScreen> {
                                                                   followerUser
                                                                       .id) ==
                                                           true
-                                                      ? const Color(0xFF5545CF)
+                                                      ? const Color(0xFFA08875)
                                                       : Colors.white,
                                                   borderColor: data
                                                               .mainScreenProvider
@@ -305,7 +305,7 @@ class _ProfileFollowerScreenState extends State<ProfileFollowerScreen> {
                                                                   followerUser
                                                                       .id) ==
                                                           true
-                                                      ? const Color(0xFF5545CF)
+                                                      ? const Color(0xFFA08875)
                                                       : const Color(0xFF5349C7),
                                                   fontFamily: kHelveticaMedium,
                                                   keepBoxShadow: false,

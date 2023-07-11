@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+// ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -11,8 +12,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:spa_app/data/constant/connection_url.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/data/enum/interest_class_enum.dart';
-import 'package:spa_app/data/enum/news_board_enum.dart';
-import 'package:spa_app/data/enum/paper_share_enum.dart';
 import 'package:spa_app/data/models/all_news_post_model.dart';
 import 'package:spa_app/data/models/conversation_model.dart';
 import 'package:spa_app/data/models/socket_message_model.dart';
@@ -24,9 +23,7 @@ import 'package:spa_app/logic/providers/chat_message_provider.dart';
 import 'package:spa_app/logic/providers/drawer_provider.dart';
 import 'package:spa_app/logic/providers/profile_provider.dart';
 import 'package:spa_app/main.dart';
-import 'package:spa_app/presentation/components/further_studies/news_board_detail_screen.dart';
 import 'package:spa_app/presentation/components/interest_class/interest_course_detail_screen.dart';
-import 'package:spa_app/presentation/components/paper_share/paper_share_description_screen.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:spa_app/presentation/views/hamburger_menu_items/home_screen.dart';
 import 'package:spa_app/presentation/views/login_screen.dart';
@@ -706,7 +703,7 @@ class MainScreenProvider extends ChangeNotifier {
       Map bodyData = {
         "memberId": receiverUserId,
         "token": receiverUserDeviceToken,
-        "title": "P Daily",
+        "title": "YuYu Spa",
         "body": notificationAction == 'follow'
             ? "$initiatorUsername started following you."
             : "$initiatorUsername unfollowed you."
@@ -747,7 +744,7 @@ class MainScreenProvider extends ChangeNotifier {
       Map bodyData = {
         "memberId": receiverUserId,
         "token": receiverUserDeviceToken,
-        "title": "P Daily",
+        "title": "YuYu Spa",
         "body": "$initiatorUsername has sent you a message."
       };
       http.Response response = await PushNotificationRepo.sendPushNotification(
@@ -797,26 +794,6 @@ class MainScreenProvider extends ChangeNotifier {
       AppLocalizations.of(context).other: "Other",
     };
   }
-
-// // Crude counter to make messages unique
-//   int _messageCount = 0;
-
-//   /// The API endpoint here accepts a raw FCM payload for demonstration purposes.
-//   String constructFCMPayload(String token) {
-//     _messageCount++;
-//     return jsonEncode({
-//       'notification': {
-//         'title': 'P Daily',
-//         'body': 'This notification (#$_messageCount) was created via FCM!',
-//       },
-//       'priority': 'high',
-//       'data': {
-//         'via': 'FlutterFire Cloud Messaging!!!',
-//         'count': _messageCount.toString(),
-//       },
-//       'to': token,
-//     });
-//   }
 
   void showSnackBar(
       {required BuildContext context,
@@ -891,23 +868,6 @@ class MainScreenProvider extends ChangeNotifier {
 
   void navigateRouteFromDynamicLink(
       {required Uri deepLink, required BuildContext context}) {
-    // Checking for paper share
-    var isPaperShare = deepLink.pathSegments.contains('papershare');
-    if (isPaperShare) {
-      String paperShareId = deepLink.queryParameters["id"].toString();
-      try {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => PaperShareDescriptionScreen(
-                    source: PaperShareSourceType.fromShare,
-                    paperShareId: int.parse(paperShareId))));
-      } catch (e) {
-        throw Exception(
-            "Error occured while navigating to paper share on running state");
-      }
-    }
-
     // Checking for interest class
     var isInterestClass = deepLink.pathSegments.contains('interestclass');
     if (isInterestClass) {
@@ -923,24 +883,6 @@ class MainScreenProvider extends ChangeNotifier {
       } catch (e) {
         throw Exception(
             "Error occured while navigating to interest class on running state");
-      }
-    }
-
-    // Checking for news board
-    var isNewsBoard = deepLink.pathSegments.contains('newsboard');
-    if (isNewsBoard) {
-      String newsBoardId = deepLink.queryParameters["id"].toString();
-      try {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => NewsBoardDetailScreen(
-                      source: NewsBoardSourceType.fromShare,
-                      newsBoardId: newsBoardId,
-                    )));
-      } catch (e) {
-        throw Exception(
-            "Error occured while navigating to news board on running state");
       }
     }
   }

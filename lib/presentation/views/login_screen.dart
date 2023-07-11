@@ -7,7 +7,7 @@ import 'package:spa_app/presentation/components/all/custom_checkbox.dart';
 import 'package:spa_app/presentation/components/all/custom_text_form_field.dart';
 import 'package:spa_app/presentation/components/all/rectangular_button.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/views/register_screen.dart';
+import 'package:spa_app/presentation/views/registration_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,6 +55,8 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Scaffold(
               resizeToAvoidBottomInset: true,
               body: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics()),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                       horizontal: SizeConfig.defaultSize * 1),
@@ -70,11 +72,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontSize: SizeConfig.defaultSize * 1.9),
                         ),
                       ),
-                      SizedBox(height: SizeConfig.defaultSize * 5.5),
-                      Image.asset("assets/images/p_daily_logo.png",
-                          height: SizeConfig.defaultSize * 13,
-                          width: SizeConfig.defaultSize * 13),
-                      SizedBox(height: SizeConfig.defaultSize * 6.5),
+                      SizedBox(height: SizeConfig.defaultSize * 3),
+                      Image.asset("assets/images/logo_transparent.png",
+                          height: SizeConfig.defaultSize * 17,
+                          width: SizeConfig.defaultSize * 17),
+                      SizedBox(height: SizeConfig.defaultSize * 3.5),
                       Form(
                         key: data.formKey,
                         child: Column(
@@ -173,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             data.isLoginClick
                                 ? const CircularProgressIndicator(
-                                    color: Color(0xFF5545CF))
+                                    color: Color(0xFFA08875))
                                 : RectangularButton(
                                     textPadding: EdgeInsets.symmetric(
                                         horizontal:
@@ -194,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     },
                                     text: AppLocalizations.of(context).login,
                                     textColor: Colors.white,
-                                    buttonColor: const Color(0xFF5545CF),
+                                    buttonColor: const Color(0xFFA08875),
                                     borderColor: const Color(0xFFFFFFFF),
                                     fontFamily: kHelveticaMedium,
                                     keepBoxShadow: true,
@@ -225,7 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Text(
                                 AppLocalizations.of(context).register,
                                 style: TextStyle(
-                                    color: const Color(0xFF5545CF),
+                                    color: const Color(0xFFA08875),
                                     fontFamily: kHelveticaMedium,
                                     decoration: TextDecoration.underline,
                                     fontSize: SizeConfig.defaultSize * 1.5),
@@ -236,8 +238,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 }
                                 data.clearAll();
                                 data.hidePassword();
-                                Navigator.pushReplacementNamed(
-                                    context, RegisterScreen.id);
+                                Navigator.pushNamed(
+                                    context, RegistrationScreen.id);
                               },
                             ),
                           )

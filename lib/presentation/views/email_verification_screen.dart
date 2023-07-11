@@ -13,16 +13,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class EmailVerificationScreen extends StatelessWidget {
   final String recipientEmailAddress;
   final String verificationSixCode;
-  final bool? isParent, isStudent, isTutor, isCenter;
 
   const EmailVerificationScreen(
       {Key? key,
       required this.recipientEmailAddress,
-      required this.verificationSixCode,
-      this.isParent,
-      this.isStudent,
-      this.isTutor,
-      this.isCenter})
+      required this.verificationSixCode})
       : super(key: key);
 
   @override
@@ -41,12 +36,8 @@ class EmailVerificationScreen extends StatelessWidget {
                     Provider.of<TermsAndConditionsProvider>(context,
                         listen: false);
 
-                termsAndConditionsProvider.undoCheckBox(
-                    isParent: isParent!,
-                    isTutor: isTutor!,
-                    isStudent: isStudent!,
-                    isCenter: isCenter!);
-                termsAndConditionsProvider.turnOffLoading();
+                termsAndConditionsProvider.undoCheckBox();
+
                 data.sixDigitCodeTextController.clear();
                 Navigator.of(context).pop();
               },
@@ -107,7 +98,7 @@ class EmailVerificationScreen extends StatelessWidget {
                                   top: SizeConfig.defaultSize * 3,
                                   bottom: SizeConfig.defaultSize * 2),
                               child: const CircularProgressIndicator(
-                                  color: Color(0xFF5545CF)),
+                                  color: Color(0xFFA08875)),
                             ),
                           )
                         : Center(
@@ -130,26 +121,14 @@ class EmailVerificationScreen extends StatelessWidget {
                                         .emailVerificationFormKey.currentState!
                                         .validate();
                                     if (isValid) {
-                                      if (isParent == true) {
-                                        await data.parentRegister(
-                                            context: context);
-                                      } else if (isTutor == true) {
-                                        await data.tutorRegister(
-                                            context: context);
-                                      } else if (isStudent == true) {
-                                        await data.studentRegister(
-                                            context: context);
-                                      } else if (isCenter == true) {
-                                        await data.centerRegister(
-                                            context: context);
-                                      }
+                                      await data.registerUser(context: context);
                                       data.sixDigitCodeTextController.clear();
                                     }
                                   },
                                   text:
                                       AppLocalizations.of(context).verifyButton,
                                   textColor: Colors.white,
-                                  buttonColor: const Color(0xFF5545CF),
+                                  buttonColor: const Color(0xFFA08875),
                                   borderColor: const Color(0xFFC5966F),
                                   fontFamily: kHelveticaRegular),
                             ),

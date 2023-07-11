@@ -12,24 +12,20 @@ import 'package:spa_app/data/enum/network_status_enum.dart';
 import 'package:spa_app/data/service/network_service.dart';
 import 'package:spa_app/l10n/l10n.dart';
 import 'package:spa_app/logic/providers/bottom_nav_provider.dart';
-import 'package:spa_app/logic/providers/center_register_provider.dart';
 import 'package:spa_app/logic/providers/chat_message_provider.dart';
 import 'package:spa_app/logic/providers/discover_provider.dart';
 import 'package:spa_app/logic/providers/drawer_provider.dart';
 import 'package:spa_app/logic/providers/email_verification_provider.dart';
-import 'package:spa_app/logic/providers/further_studies_provider.dart';
 import 'package:spa_app/logic/providers/interest_class_provider.dart';
 import 'package:spa_app/logic/providers/locale_provider.dart';
 import 'package:spa_app/logic/providers/login_screen_provider.dart';
 import 'package:spa_app/logic/providers/main_screen_provider.dart';
 import 'package:spa_app/logic/providers/news_ad_provider.dart';
 import 'package:spa_app/logic/providers/notification_provider.dart';
-import 'package:spa_app/logic/providers/paper_share_provider.dart';
-import 'package:spa_app/logic/providers/parent_register_provider.dart';
 import 'package:spa_app/logic/providers/profile_provider.dart';
-import 'package:spa_app/logic/providers/student_register_provider.dart';
+import 'package:spa_app/logic/providers/registration_provider.dart';
 import 'package:spa_app/logic/providers/terms_and_conditions_provider.dart';
-import 'package:spa_app/logic/providers/tutor_register_provider.dart';
+
 import 'package:spa_app/presentation/router/app_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -169,26 +165,17 @@ class _MyAppState extends State<MyApp> {
             create: (context) => LoginScreenProvider(
                 mainScreenProvider:
                     Provider.of<MainScreenProvider>(context, listen: false))),
-        ChangeNotifierProvider(create: (context) => ParentRegisterProvider()),
-        ChangeNotifierProvider(create: (context) => TutorRegisterProvider()),
-        ChangeNotifierProvider(create: (context) => StudentRegisterProvider()),
-        ChangeNotifierProvider(create: (context) => CenterRegisterProvider()),
+        ChangeNotifierProvider(create: (context) => RegistrationProvider()),
         ChangeNotifierProvider(create: (context) => BottomNavProvider()),
         ChangeNotifierProvider(
             create: (context) => TermsAndConditionsProvider()),
         ChangeNotifierProvider(
-            create: (context) => FurtherStudiesProvider(
-                mainScreenProvider:
-                    Provider.of<MainScreenProvider>(context, listen: false))),
-        ChangeNotifierProvider(
             create: (context) => NewsAdProvider(
-                mainScreenProvider:
-                    Provider.of<MainScreenProvider>(context, listen: false),
-                bottomNavProvider:
-                    Provider.of<BottomNavProvider>(context, listen: false),
-                furtherStudiesProvider: Provider.of<FurtherStudiesProvider>(
-                    context,
-                    listen: false))),
+                  mainScreenProvider:
+                      Provider.of<MainScreenProvider>(context, listen: false),
+                  bottomNavProvider:
+                      Provider.of<BottomNavProvider>(context, listen: false),
+                )),
         ChangeNotifierProvider(
             create: (context) => NotificationProvider(
                 mainScreenProvider:
@@ -203,10 +190,6 @@ class _MyAppState extends State<MyApp> {
                   mainScreenProvider:
                       Provider.of<MainScreenProvider>(context, listen: false),
                 )),
-        ChangeNotifierProvider(
-            create: (context) => PaperShareProvider(
-                mainScreenProvider:
-                    Provider.of<MainScreenProvider>(context, listen: false))),
         ChangeNotifierProvider(
             create: (context) => EmailVerificationProvider()),
         ChangeNotifierProvider(
@@ -227,7 +210,7 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp(
             builder: EasyLoading.init(),
             navigatorKey: navigatorKey,
-            title: 'P Daily',
+            title: 'YuYu Spa',
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
               scaffoldBackgroundColor: const Color(0xFFFFFFFF),

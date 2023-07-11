@@ -157,7 +157,7 @@
 
    "socialMedia": "社交媒体",
 
-   "joinNow": "立即加入",
+   "bookNow": "立即预约",
 
    "contact": "联络我们",
 
@@ -395,15 +395,13 @@
 
    "newsBottomTab": "动态",
 
-    "paperShareBottomTab": "试题共享",
+   "notificationBottomTab": "通知",
 
-    "furtherStudiesBottomTab": "你问我答",
+   "serviceBottomTab": "愉愈疗程",
 
-    "interestClassBottomTab": "兴趣班",
+   "profileBottomTab": "个人手册",
 
-    "profileBottomTab": "个人手册",
-
-    "photos": "照片",
+   "photos": "照片",
 
    "lv": "lv",
 
@@ -613,6 +611,12 @@
 
    "pleaseLogin": "请重新登录",
 
-   "pleaseWait": "请稍等"
+   "pleaseWait": "请稍等",
+
+   "therapist": "治疗师",
+
+   "member": "会员",
+
+   "price": "价格"
 
 }

@@ -98,14 +98,14 @@ class OtherProfileTopContainer extends StatelessWidget {
                       textColor: data.mainScreenProvider.followingIdList
                               .contains(otherUser.id)
                           ? Colors.white
-                          : const Color(0xFF5545CF),
+                          : const Color(0xFFA08875),
                       buttonColor: data.mainScreenProvider.followingIdList
                               .contains(otherUser.id)
-                          ? const Color(0xFF5545CF)
+                          ? const Color(0xFFA08875)
                           : Colors.white,
                       borderColor: data.mainScreenProvider.followingIdList
                               .contains(otherUser.id)
-                          ? const Color(0xFF5545CF)
+                          ? const Color(0xFFA08875)
                           : const Color(0xFF5349C7),
                       fontFamily: kHelveticaMedium,
                       keepBoxShadow: false,

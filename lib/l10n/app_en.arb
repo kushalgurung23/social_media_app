@@ -157,7 +157,7 @@
 
    "socialMedia": "Social media",
 
-   "joinNow": "Join Now",
+   "bookNow": "Book Now",
 
    "contact": "Contact",
 
@@ -393,15 +393,13 @@
 
    "passwordShouldNotMatch": "Your old and new passwords should not match",
 
-   "newsBottomTab": "News\n",
+   "newsBottomTab": "News",
    
-   "paperShareBottomTab": "Paper \nShare",
+   "notificationBottomTab": "Notification",
 
-   "furtherStudiesBottomTab": "Further \nStudies",
+   "serviceBottomTab": "Service",
 
-   "interestClassBottomTab": "Interest \n Class",
-
-   "profileBottomTab": "Profile\n",
+   "profileBottomTab": "Profile",
 
    "photos": "Photos",
 
@@ -613,6 +611,12 @@
 
    "pleaseLogin": "Please login again",
 
-   "pleaseWait": "Please wait"
+   "pleaseWait": "Please wait",
+
+   "therapist": "Therapist",
+
+   "member": "Member",
+
+   "price": "Price"
 
 }

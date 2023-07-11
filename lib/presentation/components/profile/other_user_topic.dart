@@ -33,7 +33,7 @@ class OtherUserTopic extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                  color: const Color(0xFF5545CF).withOpacity(0.22),
+                  color: const Color(0xFFA08875).withOpacity(0.22),
                   offset: const Offset(0, 1),
                   blurRadius: 3)
             ]),
@@ -45,7 +45,7 @@ class OtherUserTopic extends StatelessWidget {
               child: Text(
                 AppLocalizations.of(context).userTopic,
                 style: TextStyle(
-                    color: const Color(0xFF5545CF),
+                    color: const Color(0xFFA08875),
                     fontFamily: kHelveticaMedium,
                     fontSize: SizeConfig.defaultSize * 2),
               ),

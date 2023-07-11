@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/logic/providers/center_register_provider.dart';
-import 'package:spa_app/logic/providers/parent_register_provider.dart';
-import 'package:spa_app/logic/providers/student_register_provider.dart';
-import 'package:spa_app/logic/providers/tutor_register_provider.dart';
+import 'package:spa_app/logic/providers/registration_provider.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 
@@ -42,31 +39,10 @@ class EmailVerificationProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> parentRegister({required BuildContext context}) async {
+  Future<void> registerUser({required BuildContext context}) async {
     turnOnLoading();
-    await Provider.of<ParentRegisterProvider>(context, listen: false)
-        .registerParent(context: context);
-    turnOffLoading();
-  }
-
-  Future<void> studentRegister({required BuildContext context}) async {
-    turnOnLoading();
-    await Provider.of<StudentRegisterProvider>(context, listen: false)
-        .registerStudent(context: context);
-    turnOffLoading();
-  }
-
-  Future<void> tutorRegister({required BuildContext context}) async {
-    turnOnLoading();
-    await Provider.of<TutorRegisterProvider>(context, listen: false)
-        .registerTutor(context: context);
-    turnOffLoading();
-  }
-
-  Future<void> centerRegister({required BuildContext context}) async {
-    turnOnLoading();
-    await Provider.of<CenterRegisterProvider>(context, listen: false)
-        .registerCenter(context: context);
+    await Provider.of<RegistrationProvider>(context, listen: false)
+        .registerUser(context: context);
     turnOffLoading();
   }
 

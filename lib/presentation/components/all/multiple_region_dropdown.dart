@@ -94,7 +94,7 @@ class _MultipleRegionDropdownState extends State<MultipleRegionDropdown> {
                         ),
                         controlAffinity: ListTileControlAffinity.leading,
                         onChanged: (isChecked) => _itemChange(item, isChecked!),
-                        activeColor: const Color(0xFF5545CF),
+                        activeColor: const Color(0xFFA08875),
                       ))
                   .toList(),
             ),
@@ -121,7 +121,7 @@ class _MultipleRegionDropdownState extends State<MultipleRegionDropdown> {
                         ),
                         controlAffinity: ListTileControlAffinity.leading,
                         onChanged: (isChecked) => _itemChange(item, isChecked!),
-                        activeColor: const Color(0xFF5545CF),
+                        activeColor: const Color(0xFFA08875),
                       ))
                   .toList(),
             ),
@@ -148,7 +148,7 @@ class _MultipleRegionDropdownState extends State<MultipleRegionDropdown> {
                         ),
                         controlAffinity: ListTileControlAffinity.leading,
                         onChanged: (isChecked) => _itemChange(item, isChecked!),
-                        activeColor: const Color(0xFF5545CF),
+                        activeColor: const Color(0xFFA08875),
                       ))
                   .toList(),
             ),
@@ -164,7 +164,7 @@ class _MultipleRegionDropdownState extends State<MultipleRegionDropdown> {
             child: Text(
               AppLocalizations.of(context).cancel,
               style: TextStyle(
-                  color: const Color(0xFF5545CF),
+                  color: const Color(0xFFA08875),
                   fontSize: SizeConfig.defaultSize * 2.1,
                   fontFamily: kHelveticaRegular),
             ),
@@ -186,7 +186,7 @@ class _MultipleRegionDropdownState extends State<MultipleRegionDropdown> {
             ),
             onPressed: _submit,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF5545CF),
+              backgroundColor: const Color(0xFFA08875),
             )),
       ],
     );

@@ -183,7 +183,7 @@ class _DiscoverPartTwoState extends State<DiscoverPartTwo> {
                                                 child: data.searchUserHasMore
                                                     ? const CircularProgressIndicator(
                                                         color:
-                                                            Color(0xFF5545CF))
+                                                            Color(0xFFA08875))
                                                     : Text(
                                                         AppLocalizations.of(
                                                                 context)

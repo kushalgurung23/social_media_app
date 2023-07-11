@@ -23,7 +23,7 @@ class DrawerItem extends StatelessWidget {
         color: Colors.transparent,
         child: ListTile(
           selected: selected,
-          selectedTileColor: const Color(0xFF5545CF),
+          selectedTileColor: const Color(0xFFA08875),
           onTap: onTap,
           title: Padding(
             padding: EdgeInsets.symmetric(vertical: SizeConfig.defaultSize),

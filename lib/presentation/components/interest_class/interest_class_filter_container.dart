@@ -174,7 +174,7 @@ Future<dynamic> showInterestClassFilerContainer(
                         },
                         text: AppLocalizations.of(context).filter.toUpperCase(),
                         textColor: Colors.white,
-                        buttonColor: const Color(0xFF5545CF),
+                        buttonColor: const Color(0xFFA08875),
                         borderColor: const Color(0xFFFFFFFF),
                         fontFamily: kHelveticaMedium,
                         keepBoxShadow: true,

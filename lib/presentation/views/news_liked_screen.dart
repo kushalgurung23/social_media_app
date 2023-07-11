@@ -320,18 +320,18 @@ class _NewsLikedScreenState extends State<NewsLikedScreen> {
                                                         .followingIdList
                                                         .contains(likedByUserId)
                                                     ? Colors.white
-                                                    : const Color(0xFF5545CF),
+                                                    : const Color(0xFFA08875),
                                                 buttonColor: data
                                                         .mainScreenProvider
                                                         .followingIdList
                                                         .contains(likedByUserId)
-                                                    ? const Color(0xFF5545CF)
+                                                    ? const Color(0xFFA08875)
                                                     : Colors.white,
                                                 borderColor: data
                                                         .mainScreenProvider
                                                         .followingIdList
                                                         .contains(likedByUserId)
-                                                    ? const Color(0xFF5545CF)
+                                                    ? const Color(0xFFA08875)
                                                     : const Color(0xFF5349C7),
                                                 fontFamily: kHelveticaMedium,
                                                 keepBoxShadow: false,

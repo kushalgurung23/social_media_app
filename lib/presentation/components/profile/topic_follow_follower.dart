@@ -46,7 +46,7 @@ class TopicFollowFollower extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                              color: const Color(0xFF5545CF).withOpacity(0.22),
+                              color: const Color(0xFFA08875).withOpacity(0.22),
                               offset: const Offset(0, 1),
                               blurRadius: 3)
                         ]),
@@ -229,7 +229,7 @@ class TopicFollowFollower extends StatelessWidget {
                             boxShadow: [
                               BoxShadow(
                                   color:
-                                      const Color(0xFF5545CF).withOpacity(0.22),
+                                      const Color(0xFFA08875).withOpacity(0.22),
                                   offset: const Offset(0, 0),
                                   blurRadius: 3)
                             ]),
@@ -243,7 +243,7 @@ class TopicFollowFollower extends StatelessWidget {
                                 fontSize: SizeConfig.defaultSize * 1.65,
                                 color: isOtherUser
                                     ? const Color(0xFF4ACF45)
-                                    : const Color(0xFF5545CF)),
+                                    : const Color(0xFFA08875)),
                           ),
                         ),
                       ),

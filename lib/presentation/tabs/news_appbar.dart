@@ -9,7 +9,6 @@ import 'package:spa_app/presentation/components/all/top_app_bar.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:spa_app/presentation/components/chat/chatroom_screen.dart';
 import 'package:spa_app/presentation/views/discover_screen.dart';
-import 'package:spa_app/presentation/views/notification_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -104,38 +103,8 @@ AppBar newsAppBar(BuildContext context) {
                 }),
               ));
         }),
-        Container(
-          margin: EdgeInsets.only(right: SizeConfig.defaultSize),
-          color: Colors.transparent,
-          height: SizeConfig.defaultSize * 5.3,
-          width: SizeConfig.defaultSize * 4.8,
-          child: Consumer<NewsAdProvider>(
-            builder: (context, data, child) {
-              return badges.Badge(
-                showBadge: data.followNotificationBadge == true ||
-                        data.sharedPreferences
-                                .getBool("follow_push_notification") ==
-                            true
-                    ? true
-                    : false,
-                badgeContent: const Text(''),
-                badgeColor: Colors.red,
-                position: badges.BadgePosition.topEnd(
-                    top: 0, end: SizeConfig.defaultSize * 0.8),
-                child: IconButton(
-                  splashRadius: SizeConfig.defaultSize * 2.5,
-                  icon: SvgPicture.asset("assets/svg/notification-bell.svg",
-                      color: const Color(0xFF8897A7),
-                      height: SizeConfig.defaultSize * 2.1,
-                      width: SizeConfig.defaultSize * 2.6),
-                  onPressed: () async {
-                    await Navigator.pushNamed(context, NotificationScreen.id);
-                    data.setUnreadNotificationBadge(context: context);
-                  },
-                ),
-              );
-            },
-          ),
+        SizedBox(
+          width: SizeConfig.defaultSize,
         )
       ]);
 }

@@ -2,8 +2,6 @@ import 'dart:convert';
 
 User userFromJson(String str) => User.fromJson(json.decode(str));
 
-String userToJson(User data) => json.encode(data.toJson());
-
 class User {
   User(
       {required this.id,
@@ -140,52 +138,6 @@ class User {
             : List<GotBlockedFrom>.from(json["got_blocked_from"]
                 .map((x) => GotBlockedFrom.fromJson(x))),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "username": username,
-        "center_name": centerName,
-        "email": email,
-        "provider": provider,
-        "confirmed": confirmed,
-        "blocked": blocked,
-        "createdAt": createdAt.toString(),
-        "updatedAt": updatedAt.toString(),
-        "user_type": userType,
-        "grade": grade,
-        "teaching_type": teachingType,
-        "college_type": collegeType,
-        "teaching_area": teachingArea,
-        "region": region,
-        "category": category,
-        "news_post_saves":
-            List<dynamic>.from(newsPostSaves!.map((x) => x!.toJson())),
-        "profile_image": profileImage?.toJson(),
-        "user_following": userFollowing == null
-            ? null
-            : List<dynamic>.from(userFollowing!.map((x) => x!.toJson())),
-        "user_follower": userFollower == null
-            ? null
-            : List<dynamic>.from(userFollower!.map((x) => x!.toJson())),
-        "created_post": createdPost == null
-            ? null
-            : List<dynamic>.from(createdPost!.map((x) => x!.toJson())),
-        "news_post_likes":
-            List<dynamic>.from(newsPostLikes!.map((x) => x!.toJson())),
-        "device_token": deviceToken,
-        "paper_share_saves": paperShareSaves == null
-            ? null
-            : List<dynamic>.from(paperShareSaves!.map((x) => x!.toJson())),
-        "interest_class_saves": interestClassSaves == null
-            ? null
-            : List<dynamic>.from(interestClassSaves!.map((x) => x!.toJson())),
-        "reported_news_posts":
-            List<dynamic>.from(reportedNewsPosts!.map((x) => x?.toJson())),
-        "reported_paper_shares":
-            List<dynamic>.from(reportedPaperShares!.map((x) => x?.toJson())),
-        "users_blocked":
-            List<dynamic>.from(usersBlocked!.map((x) => x?.toJson())),
-      };
 }
 
 class UsersBlocked {
@@ -218,14 +170,6 @@ class UsersBlocked {
             ? null
             : SecondUser.fromJson(json["blocked_to"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "createdAt": createdAt?.toIso8601String(),
-        "updatedAt": updatedAt?.toIso8601String(),
-        "publishedAt": publishedAt?.toIso8601String(),
-        "blocked_to": blockedTo?.toJson(),
-      };
 }
 
 class GotBlockedFrom {
@@ -258,14 +202,6 @@ class GotBlockedFrom {
             ? null
             : SecondUser.fromJson(json["blocked_by"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "createdAt": createdAt?.toIso8601String(),
-        "updatedAt": updatedAt?.toIso8601String(),
-        "publishedAt": publishedAt?.toIso8601String(),
-        "blocked_by": blockedBy?.toJson(),
-      };
 }
 
 class ReportedPaperShare {
@@ -302,15 +238,6 @@ class ReportedPaperShare {
             ? null
             : PaperShare.fromJson(json["paper_share"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "reason": reason,
-        "createdAt": createdAt?.toIso8601String(),
-        "updatedAt": updatedAt?.toIso8601String(),
-        "publishedAt": publishedAt?.toIso8601String(),
-        "paper_share": paperShare?.toJson(),
-      };
 }
 
 class ReportedNewsPost {
@@ -347,15 +274,6 @@ class ReportedNewsPost {
             ? null
             : UserPost.fromJson(json["news_post"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "createdAt": createdAt?.toIso8601String(),
-        "updatedAt": updatedAt?.toIso8601String(),
-        "publishedAt": publishedAt?.toIso8601String(),
-        "reason": reason,
-        "news_post": newsPost?.toJson(),
-      };
 }
 
 class UserPostSaveLike {
@@ -383,14 +301,6 @@ class UserPostSaveLike {
             ? null
             : UserPost.fromJson(json["news_post"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "createdAt": createdAt!.toIso8601String(),
-        "updatedAt": updatedAt!.toIso8601String(),
-        "publishedAt": publishedAt!.toIso8601String(),
-        "news_post": newsPost == null ? null : newsPost!.toJson(),
-      };
 }
 
 class InterestClassSave {
@@ -424,14 +334,6 @@ class InterestClassSave {
             ? null
             : UserInterestClassSave.fromJson(json["interest_class"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "createdAt": createdAt!.toIso8601String(),
-        "updatedAt": updatedAt!.toIso8601String(),
-        "publishedAt": publishedAt!.toIso8601String(),
-        "interest_class": interestClass!.toJson(),
-      };
 }
 
 class UserInterestClassSave {
@@ -440,7 +342,7 @@ class UserInterestClassSave {
     this.brand,
     this.type,
     this.title,
-    this.targetAge,
+    this.price,
     this.description,
     this.isRecommend,
     this.website,
@@ -458,7 +360,7 @@ class UserInterestClassSave {
   String? brand;
   String? type;
   String? title;
-  String? targetAge;
+  String? price;
   String? description;
   bool? isRecommend;
   String? website;
@@ -477,7 +379,7 @@ class UserInterestClassSave {
         brand: json["brand"],
         type: json["type"],
         title: json["title"],
-        targetAge: json["target_age"],
+        price: json["price"],
         description: json["description"],
         isRecommend: json["is_recommend"],
         website: json["website"],
@@ -496,25 +398,6 @@ class UserInterestClassSave {
             ? null
             : DateTime.parse(json["publishedAt"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "brand": brand,
-        "type": type,
-        "title": title,
-        "target_age": targetAge,
-        "description": description,
-        "is_recommend": isRecommend,
-        "website": website,
-        "facebook_link": facebookLink,
-        "instagram_link": instagramLink,
-        "twitter_link": twitterLink,
-        "phone_number": phoneNumber,
-        "location": location,
-        "createdAt": createdAt!.toIso8601String(),
-        "updatedAt": updatedAt!.toIso8601String(),
-        "publishedAt": publishedAt!.toIso8601String(),
-      };
 }
 
 class UserFollow {
@@ -552,15 +435,6 @@ class UserFollow {
             ? null
             : SecondUser.fromJson(json["followed_to"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "createdAt": createdAt!.toIso8601String(),
-        "updatedAt": updatedAt!.toIso8601String(),
-        "publishedAt": publishedAt!.toIso8601String(),
-        "followed_by": followedBy == null ? null : followedBy!.toJson(),
-        "followed_to": followedTo == null ? null : followedTo!.toJson(),
-      };
 }
 
 class SecondUser {
@@ -630,27 +504,6 @@ class SecondUser {
             ? null
             : AllImage.fromJson(json["profile_image"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "username": username,
-        "email": email,
-        "provider": provider,
-        "confirmed": confirmed,
-        "blocked": blocked,
-        "createdAt": createdAt!.toIso8601String(),
-        "updatedAt": updatedAt!.toIso8601String(),
-        "grade": grade,
-        "user_type": userType,
-        "teaching_type": teachingType,
-        "college_type": collegeType,
-        "teaching_area": teachingArea,
-        "region": region,
-        "category": category,
-        "center_name": centerName,
-        "device_token": deviceToken,
-        "profile_image": profileImage == null ? null : profileImage!.toJson(),
-      };
 }
 
 class AllImage {
@@ -716,26 +569,6 @@ class AllImage {
             ? DateTime.parse(json["updatedAt"])
             : null,
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "alternativeText": alternativeText,
-        "caption": caption,
-        "width": width,
-        "height": height,
-        "formats": formats?.toJson(),
-        "hash": hash,
-        "ext": ext,
-        "mime": mime,
-        "size": size,
-        "url": url,
-        "previewUrl": previewUrl,
-        "provider": provider,
-        "provider_metadata": providerMetadata,
-        "createdAt": createdAt.toString(),
-        "updatedAt": updatedAt.toString(),
-      };
 }
 
 class Formats {
@@ -759,13 +592,6 @@ class Formats {
         medium: json["medium"] != null ? Large.fromJson(json["medium"]) : null,
         small: json["small"] != null ? Large.fromJson(json["small"]) : null,
       );
-
-  Map<String, dynamic> toJson() => {
-        "thumbnail": thumbnail?.toJson(),
-        "large": large?.toJson(),
-        "medium": medium?.toJson(),
-        "small": small?.toJson(),
-      };
 }
 
 class Large {
@@ -802,18 +628,6 @@ class Large {
         size: json["size"].toString(),
         url: json["url"].toString(),
       );
-
-  Map<String, dynamic> toJson() => {
-        "name": name,
-        "hash": hash,
-        "ext": ext,
-        "mime": mime,
-        "path": path,
-        "width": width,
-        "height": height,
-        "size": size,
-        "url": url,
-      };
 }
 
 class UserPost {
@@ -878,23 +692,6 @@ class UserPost {
             ? null
             : SecondUser.fromJson(json["posted_by"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "createdAt": createdAt.toString(),
-        "updatedAt": updatedAt.toString(),
-        "publishedAt": publishedAt.toString(),
-        "content": content,
-        "title": title,
-        "like_count": likeCount,
-        "comments": comments == null
-            ? null
-            : List<dynamic>.from(comments!.map((x) => x!.toJson())),
-        "image": null,
-        "news_post_saves":
-            List<dynamic>.from(newsPostSaves!.map((x) => x!.toJson())),
-        "posted_by": postedBy?.toJson(),
-      };
 }
 
 class TopicSave {
@@ -920,14 +717,6 @@ class TopicSave {
         savedBy:
             json["saved_by"] == null ? null : User.fromJson(json["saved_by"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "createdAt": createdAt!.toIso8601String(),
-        "updatedAt": updatedAt!.toIso8601String(),
-        "publishedAt": publishedAt!.toIso8601String(),
-        "saved_by": savedBy == null ? null : savedBy!.toJson(),
-      };
 }
 
 class TopicLike {
@@ -953,14 +742,6 @@ class TopicLike {
         likedBy:
             json["liked_by"] == null ? null : User.fromJson(json["liked_by"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "createdAt": createdAt!.toIso8601String(),
-        "updatedAt": updatedAt!.toIso8601String(),
-        "publishedAt": publishedAt!.toIso8601String(),
-        "liked_by": likedBy == null ? null : likedBy!.toJson(),
-      };
 }
 
 class UserComment {
@@ -996,15 +777,6 @@ class UserComment {
             ? null
             : User.fromJson(json["comment_by"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "content": content,
-        "createdAt": createdAt.toString(),
-        "updatedAt": updatedAt.toString(),
-        "publishedAt": publishedAt.toString(),
-        "comment_by": commentBy?.toJson(),
-      };
 }
 
 class PaperShareSave {
@@ -1040,15 +812,6 @@ class PaperShareSave {
             ? null
             : PaperShare.fromJson(json["paper_share"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "content": content,
-        "createdAt": createdAt?.toIso8601String(),
-        "updatedAt": updatedAt?.toIso8601String(),
-        "publishedAt": publishedAt?.toIso8601String(),
-        "paper_share": paperShare == null ? null : paperShare!.toJson(),
-      };
 }
 
 class PaperShare {
@@ -1091,16 +854,4 @@ class PaperShare {
             ? null
             : DateTime.parse(json["publishedAt"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "topic": topic,
-        "content": content,
-        "subject": subject,
-        "level": level,
-        "type": type,
-        "createdAt": createdAt?.toIso8601String(),
-        "updatedAt": updatedAt?.toIso8601String(),
-        "publishedAt": publishedAt?.toIso8601String(),
-      };
 }

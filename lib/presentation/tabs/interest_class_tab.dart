@@ -62,7 +62,7 @@ class _InterestClassTabState extends State<InterestClassTab>
                                 height: SizeConfig.defaultSize * 2.5,
                                 width: SizeConfig.defaultSize * 2.5,
                                 color: data.isFilterButtonClick == true
-                                    ? const Color(0xFF5545CF)
+                                    ? const Color(0xFFA08875)
                                     : const Color(0xFFA1A1A1),
                               )),
                             ),

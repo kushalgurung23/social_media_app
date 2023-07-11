@@ -45,7 +45,7 @@ class LanguageScreen extends StatelessWidget {
                 SizeConfig.defaultSize * 2, SizeConfig.defaultSize * 7, 0),
             child: data.isLanguageChangeButtonClick == true
                 ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF5545CF)))
+                    child: CircularProgressIndicator(color: Color(0xFFA08875)))
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -65,7 +65,7 @@ class LanguageScreen extends StatelessWidget {
                             text: "English",
                             textColor: Colors.white,
                             buttonColor: data.locale == const Locale("en")
-                                ? const Color(0xFF5545CF)
+                                ? const Color(0xFFA08875)
                                 : const Color(0xFF8897A7),
                             borderColor: const Color(0xFFFFFFFF),
                             fontFamily: kHelveticaRegular,
@@ -96,7 +96,7 @@ class LanguageScreen extends StatelessWidget {
                             buttonColor: data.locale ==
                                     const Locale.fromSubtags(
                                         languageCode: 'zh', scriptCode: 'Hant')
-                                ? const Color(0xFF5545CF)
+                                ? const Color(0xFFA08875)
                                 : const Color(0xFF8897A7),
                             borderColor: const Color(0xFFFFFFFF),
                             fontFamily: kHelveticaRegular,
@@ -127,7 +127,7 @@ class LanguageScreen extends StatelessWidget {
                             buttonColor: data.locale ==
                                     const Locale.fromSubtags(
                                         languageCode: 'zh', scriptCode: 'Hans')
-                                ? const Color(0xFF5545CF)
+                                ? const Color(0xFFA08875)
                                 : const Color(0xFF8897A7),
                             borderColor: const Color(0xFFFFFFFF),
                             fontFamily: kHelveticaRegular,

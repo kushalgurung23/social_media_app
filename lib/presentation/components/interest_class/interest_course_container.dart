@@ -93,7 +93,7 @@ class InterestCourseContainer extends StatelessWidget {
                         boxShadow: [
                           BoxShadow(
                               blurRadius: 3,
-                              color: const Color(0xFF5545CF).withOpacity(0.22),
+                              color: const Color(0xFFA08875).withOpacity(0.22),
                               offset: const Offset(0, 1))
                         ]),
                     child: Column(
@@ -190,7 +190,7 @@ class InterestCourseContainer extends StatelessWidget {
                                         overflow: TextOverflow.ellipsis,
                                         textAlign: TextAlign.end,
                                         style: TextStyle(
-                                            color: const Color(0xFF5545CF),
+                                            color: const Color(0xFFA08875),
                                             fontFamily: kHelveticaMedium,
                                             fontSize:
                                                 SizeConfig.defaultSize * 1.4),
@@ -223,7 +223,7 @@ class InterestCourseContainer extends StatelessWidget {
                                   padding: EdgeInsets.only(
                                       bottom: SizeConfig.defaultSize * 1.5),
                                   child: Text(
-                                    '${AppLocalizations.of(context).target}: ${data.getTargetAgeList(context: context).map((key, value) => MapEntry(value, key))[courseData.attributes!.targetAge] ?? courseData.attributes!.targetAge}',
+                                    "${AppLocalizations.of(context).price}: ${courseData.attributes?.price.toString()}",
                                     style: TextStyle(
                                         color: const Color(0xFF8897A7),
                                         fontSize: SizeConfig.defaultSize * 1.3,
@@ -277,7 +277,7 @@ class InterestCourseContainer extends StatelessWidget {
                                             color: data.mainScreenProvider
                                                     .savedInterestClassIdList
                                                     .contains(courseData.id)
-                                                ? const Color(0xFF5545CF)
+                                                ? const Color(0xFFA08875)
                                                 : const Color(0xFFD1D3D5),
                                             size: SizeConfig.defaultSize * 3,
                                           )),

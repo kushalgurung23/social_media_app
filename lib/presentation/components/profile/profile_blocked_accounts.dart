@@ -198,8 +198,8 @@ class _ProfileBlockedAccountsScreenState
                                       text:
                                           AppLocalizations.of(context).unblock,
                                       textColor: Colors.white,
-                                      buttonColor: const Color(0xFF5545CF),
-                                      borderColor: const Color(0xFF5545CF),
+                                      buttonColor: const Color(0xFFA08875),
+                                      borderColor: const Color(0xFFA08875),
                                       fontFamily: kHelveticaMedium,
                                       keepBoxShadow: false,
                                       borderRadius:

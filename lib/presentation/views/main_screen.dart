@@ -34,9 +34,9 @@ class _MainScreenState extends State<MainScreen> {
           child: Padding(
             padding: EdgeInsets.only(top: SizeConfig.defaultSize * 2),
             child: Text(
-              'Welcome to\n P Daily Mobile Application',
+              'Welcome to\n YuYu Spa Mobile Application',
               style: TextStyle(
-                  color: const Color(0xFF5545CF),
+                  color: const Color(0xFFA08875),
                   fontFamily: kHelveticaMedium,
                   fontSize: SizeConfig.defaultSize * 1.5),
               textAlign: TextAlign.center,

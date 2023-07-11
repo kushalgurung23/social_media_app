@@ -25,6 +25,6 @@ Widget buildDotIndicator({required int activeIndex, required int count}) =>
       effect: JumpingDotEffect(
           dotWidth: SizeConfig.defaultSize * 1.2,
           dotHeight: SizeConfig.defaultSize * 1.2,
-          activeDotColor: const Color(0xFF5545CF),
+          activeDotColor: const Color(0xFFA08875),
           dotColor: const Color(0xFF8897A7)),
     );

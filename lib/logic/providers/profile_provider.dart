@@ -523,7 +523,7 @@ class ProfileProvider extends ChangeNotifier {
       showSnackBar(
           context: context,
           content: AppLocalizations.of(context).updatedSuccessfully,
-          backgroundColor: const Color(0xFF5545CF),
+          backgroundColor: const Color(0xFFA08875),
           contentColor: Colors.white);
       goBackFromProfileEdit(context: context);
       turnOffUpdateLoading();
@@ -593,7 +593,7 @@ class ProfileProvider extends ChangeNotifier {
       showSnackBar(
           context: context,
           content: AppLocalizations.of(context).passwordChanged,
-          backgroundColor: const Color(0xFF5545CF),
+          backgroundColor: const Color(0xFFA08875),
           contentColor: Colors.white);
       setNewPassword(context: context);
     } else if (editResponse.statusCode == 401 ||
@@ -638,11 +638,11 @@ class ProfileProvider extends ChangeNotifier {
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: AppLocalizations.of(context).photo,
-            toolbarColor: const Color(0xFF5545CF),
+            toolbarColor: const Color(0xFFA08875),
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
             lockAspectRatio: false,
-            activeControlsWidgetColor: const Color(0xFF5545CF),
+            activeControlsWidgetColor: const Color(0xFFA08875),
           ),
           IOSUiSettings(
             title: AppLocalizations.of(context).photo,
@@ -778,7 +778,7 @@ class ProfileProvider extends ChangeNotifier {
         showSnackBar(
             context: context,
             content: AppLocalizations.of(context).accountBlockedSuccessfully,
-            backgroundColor: const Color(0xFF5545CF),
+            backgroundColor: const Color(0xFFA08875),
             contentColor: Colors.white);
       } else if (reportResponse.statusCode == 401 ||
           reportResponse.statusCode == 403) {
@@ -824,7 +824,7 @@ class ProfileProvider extends ChangeNotifier {
       showSnackBar(
           context: context,
           content: AppLocalizations.of(context).accountUnblockedSuccessfully,
-          backgroundColor: const Color(0xFF5545CF),
+          backgroundColor: const Color(0xFFA08875),
           contentColor: Colors.white);
     } else if (reportResponse.statusCode == 401 ||
         reportResponse.statusCode == 403) {
@@ -905,7 +905,7 @@ class ProfileProvider extends ChangeNotifier {
       showSnackBar(
           context: context,
           content: AppLocalizations.of(context).accountDeleted,
-          backgroundColor: const Color(0xFF5545CF),
+          backgroundColor: const Color(0xFFA08875),
           contentColor: Colors.white);
 
       Navigator.pushNamedAndRemoveUntil(

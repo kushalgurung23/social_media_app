@@ -237,7 +237,7 @@ class _NewsPostListState extends State<NewsPostList>
                                   child: Center(
                                       child: data.hasMore
                                           ? const CircularProgressIndicator(
-                                              color: Color(0xFF5545CF))
+                                              color: Color(0xFFA08875))
                                           : Text(
                                               AppLocalizations.of(context)
                                                   .caughtUp,

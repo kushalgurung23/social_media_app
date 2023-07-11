@@ -75,7 +75,7 @@ AppBar profileAppBar({required BuildContext context}) {
                                         padding: EdgeInsetsDirectional.fromSTEB(
                                             0, 0, 10, 0),
                                         child: CircularProgressIndicator(
-                                            color: Color(0xFF5545CF))),
+                                            color: Color(0xFFA08875))),
                                   Flexible(
                                     child: Text(
                                       (isDeleting
@@ -98,7 +98,7 @@ AppBar profileAppBar({required BuildContext context}) {
                                       child: Text(
                                         AppLocalizations.of(context).cancel,
                                         style: TextStyle(
-                                            color: const Color(0xFF5545CF),
+                                            color: const Color(0xFFA08875),
                                             fontSize:
                                                 SizeConfig.defaultSize * 2.1,
                                             fontFamily: kHelveticaRegular),

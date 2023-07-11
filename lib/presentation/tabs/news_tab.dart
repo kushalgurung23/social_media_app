@@ -53,7 +53,7 @@ class _NewsTabState extends State<NewsTab> {
                   padding: EdgeInsets.only(right: SizeConfig.defaultSize * 0.2),
                   child: Icon(
                     Icons.add_circle,
-                    color: const Color(0xFF5545CF),
+                    color: const Color(0xFFA08875),
                     size: SizeConfig.defaultSize * 3.5,
                   ),
                 ),

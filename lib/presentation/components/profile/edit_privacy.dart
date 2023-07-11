@@ -90,7 +90,7 @@ class EditPrivacy extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: SizeConfig.defaultSize * 1.6,
                                     fontFamily: kHelveticaRegular,
-                                    color: const Color(0xFF5545CF),
+                                    color: const Color(0xFFA08875),
                                     decoration: TextDecoration.underline)),
                           ),
                         ),

@@ -65,9 +65,7 @@ class LoginScreenProvider extends ChangeNotifier {
   String? validateUserName(
       {required BuildContext context, required String value}) {
     if (value.isEmpty) {
-      return AppLocalizations.of(context).enterUsernameEmail;
-    } else if (value.length < 6) {
-      return AppLocalizations.of(context).enter6Characters;
+      return AppLocalizations.of(context).enterUsernameId;
     } else {
       return null;
     }

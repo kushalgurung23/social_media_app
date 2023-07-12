@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>14678057924-66bv8eu10d9cb915t0p2n5dpitfeoosq.apps.googleusercontent.com</string>
+	<string>154790314705-2k090ct47g8a46g6g44p42jr6jmvefa5.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.14678057924-66bv8eu10d9cb915t0p2n5dpitfeoosq</string>
+	<string>com.googleusercontent.apps.154790314705-2k090ct47g8a46g6g44p42jr6jmvefa5</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBXT9GGIjIR3wyjEBklFlR-9iO3WzhluLo</string>
+	<string>AIzaSyBo48R48RNu9HKeMPOfTLk0uHDAp3_A7r0</string>
 	<key>GCM_SENDER_ID</key>
-	<string>14678057924</string>
+	<string>154790314705</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.flutter.spa</string>
+	<string>com.yuyuspahk.yuyuspa</string>
 	<key>PROJECT_ID</key>
-	<string>spa-app-1</string>
+	<string>yuyu-spa</string>
 	<key>STORAGE_BUCKET</key>
-	<string>spa-app-1.appspot.com</string>
+	<string>yuyu-spa.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:14678057924:ios:6f596811c51fd5f36dba91</string>
+	<string>1:154790314705:ios:df1a8a04499fe914d23bf0</string>
 </dict>
 </plist>

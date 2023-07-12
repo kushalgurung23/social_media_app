@@ -85,13 +85,24 @@ class RegistrationScreen extends StatelessWidget {
                                               borderRadius:
                                                   BorderRadius.circular(6)),
                                           // translate
-                                          hintText: "User type",
-                                          value: data.userTypeValue,
-                                          listItems: data.userTypeList,
+                                          hintText: AppLocalizations.of(context)
+                                              .userType,
+                                          value: data
+                                              .getUserTypeList(context: context)
+                                              .map((key, value) => MapEntry(
+                                                  value,
+                                                  key))[data.userTypeValue],
+                                          listItems: data
+                                              .getUserTypeList(context: context)
+                                              .keys
+                                              .toList(),
                                           onChanged: (value) {
                                             data.setUserType(
                                                 context: context,
-                                                newValue: value.toString());
+                                                newValue: data
+                                                    .getUserTypeList(
+                                                        context: context)[value]
+                                                    .toString());
                                           },
                                         ),
                                         data.userTypeErrorMessage == null

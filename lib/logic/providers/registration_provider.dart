@@ -29,7 +29,12 @@ class RegistrationProvider extends ChangeNotifier {
     confirmPasswordTextController = TextEditingController();
   }
 
-  List<String> userTypeList = ["Member", "Therapist"];
+  Map<String, String> getUserTypeList({required BuildContext context}) {
+    return <String, String>{
+      AppLocalizations.of(context).member: "Member",
+      AppLocalizations.of(context).therapist: "Therapist"
+    };
+  }
 
   String? userTypeValue;
 
@@ -45,7 +50,7 @@ class RegistrationProvider extends ChangeNotifier {
     try {
       if (value == 'null') {
         // translate
-        userTypeErrorMessage = "Select user type";
+        userTypeErrorMessage = AppLocalizations.of(context).selectUserType;
         return null;
       } else {
         userTypeErrorMessage = null;

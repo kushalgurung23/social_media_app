@@ -27,7 +27,7 @@ class RegisterRepo {
 
   static Future sendEmailConfirmation({required String bodyData}) async {
     try {
-      var url = kEmailRegistrationUrl;
+      var url = "${kAPIURL}sendemail";
       var response = await http.post(Uri.parse(url),
           headers: {'Content-Type': 'application/json'}, body: bodyData);
       return response;

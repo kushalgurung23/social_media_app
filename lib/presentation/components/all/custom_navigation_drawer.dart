@@ -110,6 +110,21 @@ class CustomNavigationDrawer extends StatelessWidget {
                 padding: EdgeInsets.symmetric(
                     horizontal: SizeConfig.defaultSize * 3.5),
                 child: Text(
+                  'Copyright © 2023 Fame Standard Limited All Rights Reserved',
+                  style: TextStyle(
+                    fontSize: SizeConfig.defaultSize * 1.2,
+                    fontFamily: kHelveticaMedium,
+                    color: const Color(0xFFBABABA),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: SizeConfig.defaultSize / 2,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: SizeConfig.defaultSize * 3.5),
+                child: Text(
                   '${AppLocalizations.of(context).version} ${data.mainScreenProvider.version}',
                   style: TextStyle(
                     fontSize: SizeConfig.defaultSize * 1.2,

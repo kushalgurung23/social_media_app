@@ -7,7 +7,7 @@ class PushNotificationRepo {
   static Future sendPushNotification(
       {required String bodyData, required String jwt}) async {
     try {
-      var url = kPushNotificationUrl;
+      var url = "${kAPIURL}sendNotification";
       var response = await http.post(Uri.parse(url),
           headers: {
             'Content-Type': 'application/json',

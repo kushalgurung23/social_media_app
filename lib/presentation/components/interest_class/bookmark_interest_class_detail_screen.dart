@@ -79,8 +79,8 @@ class _BookmarkInterestClassDetailScreenState
                             width: SizeConfig.defaultSize * 2.6),
                         onPressed: () {
                           data.resetActiveDotIndex();
-                          data.shareInterestClass(
-                              interestClassId: widget.interestClassId,
+                          data.shareService(
+                              serviceId: widget.interestClassId,
                               context: context);
                         },
                       ));

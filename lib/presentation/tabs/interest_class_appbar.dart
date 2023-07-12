@@ -7,7 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 AppBar interestAppBar({required BuildContext context}) {
   return topAppBar(
-      title: AppLocalizations.of(context).interestClass,
+      title: AppLocalizations.of(context).serviceBottomTab,
       widgetList: [
         Builder(builder: (context) {
           return Container(

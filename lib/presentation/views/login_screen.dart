@@ -94,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 labelText:
                                     AppLocalizations.of(context).username +
                                         " / " +
-                                        AppLocalizations.of(context).email,
+                                        "ID",
                                 obscureText: false,
                                 validator: (value) {
                                   return data.validateUserName(

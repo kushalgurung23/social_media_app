@@ -534,11 +534,6 @@ class MainScreenProvider extends ChangeNotifier {
   }
 
   void connectToSocketServer({required BuildContext context}) {
-    //socket = i_o.io(kSocketIOUrl, <String, dynamic>{
-    // 'transports': ['websocket'],
-    // 'autoConnect': true,
-    //});
-    //socket.connect();
     socket.onConnect((data) {
       // Add socket user in socketio
       socket.emit("addUser", userId.toString());
@@ -649,10 +644,10 @@ class MainScreenProvider extends ChangeNotifier {
         'conversationId': conversationId,
         'jwt': jwt.toString()
       });
-
-      Conversation? allConversation =
-          Provider.of<ChatMessageProvider>(context, listen: false)
-              .allConversation;
+      final chatMessageProvider =
+          Provider.of<ChatMessageProvider>(context, listen: false);
+      Conversation? allConversation = chatMessageProvider.allConversation;
+      chatMessageProvider.chatTextController.clear();
       if (allConversation != null) {
         final oneConversationData = allConversation.data!.firstWhereOrNull(
             (element) => element.id.toString() == conversationId.toString());
@@ -701,7 +696,6 @@ class MainScreenProvider extends ChangeNotifier {
       required String? notificationAction}) async {
     if (receiverUserDeviceToken != null) {
       Map bodyData = {
-        "memberId": receiverUserId,
         "token": receiverUserDeviceToken,
         "title": "YuYu Spa",
         "body": notificationAction == 'follow'
@@ -712,7 +706,8 @@ class MainScreenProvider extends ChangeNotifier {
           bodyData: jsonEncode(bodyData),
           jwt: jwt ?? sharedPreferences.getString('jwt') ?? 'null');
       if (response.statusCode == 200 &&
-          jsonDecode(response.body)["d"]["result"] == "Success") {
+          jsonDecode(response.body)["status"] == "Success") {
+        print("Successfully sent message follow");
       } else if (response.statusCode == 401 || response.statusCode == 403) {
         if (context.mounted) {
           EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
@@ -742,7 +737,6 @@ class MainScreenProvider extends ChangeNotifier {
       required String? receiverUserDeviceToken}) async {
     if (receiverUserDeviceToken != null) {
       Map bodyData = {
-        "memberId": receiverUserId,
         "token": receiverUserDeviceToken,
         "title": "YuYu Spa",
         "body": "$initiatorUsername has sent you a message."
@@ -751,7 +745,8 @@ class MainScreenProvider extends ChangeNotifier {
           bodyData: jsonEncode(bodyData),
           jwt: jwt ?? sharedPreferences.getString('jwt') ?? 'null');
       if (response.statusCode == 200 &&
-          jsonDecode(response.body)["d"]["result"] == "Success") {
+          jsonDecode(response.body)["status"] == "Success") {
+        print("Successfully sent message msg");
       } else if (response.statusCode == 401 || response.statusCode == 403) {
         if (context.mounted) {
           EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
@@ -868,8 +863,8 @@ class MainScreenProvider extends ChangeNotifier {
 
   void navigateRouteFromDynamicLink(
       {required Uri deepLink, required BuildContext context}) {
-    // Checking for interest class
-    var isInterestClass = deepLink.pathSegments.contains('interestclass');
+    // Checking for service
+    var isInterestClass = deepLink.pathSegments.contains('service');
     if (isInterestClass) {
       String interestClassId = deepLink.queryParameters["id"].toString();
       try {

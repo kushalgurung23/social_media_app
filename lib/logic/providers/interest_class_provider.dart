@@ -726,24 +726,8 @@ class InterestClassProvider extends ChangeNotifier {
 
   Map<String, String> getCategoryTypeList({required BuildContext context}) {
     return <String, String>{
-      AppLocalizations.of(context).interestClass: "Interest Class",
-      AppLocalizations.of(context).homeworkTutorialClass:
-          "Homework Tutorial Class",
-      AppLocalizations.of(context).subjectTutorialClass:
-          "Subject Tutorial Class",
-      AppLocalizations.of(context).playGroup: "Play Group",
-      AppLocalizations.of(context).other: "Other",
-    };
-  }
-
-  Map<String, String> getTargetAgeList({required BuildContext context}) {
-    return <String, String>{
-      AppLocalizations.of(context).all: "All",
-      AppLocalizations.of(context).ageUnder5: "Age under 5",
-      AppLocalizations.of(context).age6To11: "Age 6 to 11",
-      AppLocalizations.of(context).age12To14: "Age 12 to 14",
-      AppLocalizations.of(context).age15To17: "Age 15 to 17",
-      AppLocalizations.of(context).ageAbove18: "Age above 18",
+      AppLocalizations.of(context).signature: "Signature",
+      AppLocalizations.of(context).indulgence: "Indulgence"
     };
   }
 
@@ -897,10 +881,10 @@ class InterestClassProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Share interest class and creating dynamic links
-  Future<void> shareInterestClass(
-      {required String? interestClassId, required BuildContext context}) async {
-    if (interestClassId == null) {
+  // Share service and creating dynamic links
+  Future<void> shareService(
+      {required String? serviceId, required BuildContext context}) async {
+    if (serviceId == null) {
       showSnackBar(
           context: context,
           content: AppLocalizations.of(context).tryAgainLater,
@@ -911,7 +895,7 @@ class InterestClassProvider extends ChangeNotifier {
     final dynamicLinkParameters = DynamicLinkParameters(
 
         /// when user opens on web browser
-        link: Uri.parse(dynamicLink + "/interestclass?id=" + interestClassId),
+        link: Uri.parse("$dynamicLink/service?id=$serviceId"),
 
         /// live URL
         uriPrefix: dynamicLink,

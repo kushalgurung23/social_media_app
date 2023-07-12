@@ -1,40 +1,41 @@
 {
   "project_info": {
-    "project_number": "14678057924",
-    "project_id": "spa-app-1",
-    "storage_bucket": "spa-app-1.appspot.com"
+    "project_number": "154790314705",
+    "project_id": "yuyu-spa",
+    "storage_bucket": "yuyu-spa.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:14678057924:android:5c94e61f09c4eabc6dba91",
+        "mobilesdk_app_id": "1:154790314705:android:d0eb5eaad580cab1d23bf0",
         "android_client_info": {
-          "package_name": "com.flutter.spa"
+          "package_name": "com.yuyuspahk.yuyuspa"
         }
       },
       "oauth_client": [
         {
-          "client_id": "14678057924-0vtqbkng2kl4ls0shh826id5ao4eh1ph.apps.googleusercontent.com",
+          "client_id": "154790314705-3mfdjmt7hm1vn1fm481bl39fsvnvd31q.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDNbHN7hQCi_0AWSsA95buj245KMvWq8Js"
+          "current_key": "AIzaSyBwqFJGa2UtiyIh9-vTR6B5F3tjdIc_PIw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "14678057924-0vtqbkng2kl4ls0shh826id5ao4eh1ph.apps.googleusercontent.com",
+              "client_id": "154790314705-3mfdjmt7hm1vn1fm481bl39fsvnvd31q.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "14678057924-66bv8eu10d9cb915t0p2n5dpitfeoosq.apps.googleusercontent.com",
+              "client_id": "154790314705-2k090ct47g8a46g6g44p42jr6jmvefa5.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.flutter.spa"
+                "bundle_id": "com.yuyuspahk.yuyuspa",
+                "app_store_id": "6451189098"
               }
             }
           ]

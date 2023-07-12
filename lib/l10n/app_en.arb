@@ -493,7 +493,7 @@
 
    "ok": "OK",
 
-   "enterUsernameEmail": "Enter username/email",
+   "enterUsernameId": "Enter username/ID",
 
    "usernameEmailPasswordNotMatch": "Username, e-mail or password does not match",
 
@@ -617,6 +617,14 @@
 
    "member": "Member",
 
-   "price": "Price"
+   "price": "Price",
+
+   "signature": "Signature",
+
+   "indulgence": "Indulgence",
+
+   "userType": "User type",
+
+   "selectUserType": "Select user type"
 
 }

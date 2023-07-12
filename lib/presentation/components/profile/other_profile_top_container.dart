@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:spa_app/data/constant/color_constant.dart';
 import 'package:spa_app/data/constant/connection_url.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/data/enum/user_follow_enum.dart';
@@ -38,11 +39,11 @@ class OtherProfileTopContainer extends StatelessWidget {
                 image: otherUser.profileImage == null
                     ? const DecorationImage(
                         image: AssetImage("assets/images/default_profile.jpg"),
-                        fit: BoxFit.fill)
+                        fit: BoxFit.cover)
                     : DecorationImage(
                         image: NetworkImage(
                             kIMAGEURL + otherUser.profileImage!.url!),
-                        fit: BoxFit.fill)),
+                        fit: BoxFit.cover)),
           ),
           Expanded(
             child: SizedBox(
@@ -53,12 +54,33 @@ class OtherProfileTopContainer extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(
-                        otherUser.username!,
-                        style: TextStyle(
-                          fontFamily: kHelveticaMedium,
-                          fontSize: SizeConfig.defaultSize * 2,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            otherUser.username.toString(),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: kHelveticaMedium,
+                              fontSize: SizeConfig.defaultSize * 2,
+                            ),
+                          ),
+                          SizedBox(
+                            height: SizeConfig.defaultSize * .5,
+                          ),
+                          Text(
+                            "ID: ${otherUser.id}",
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: kHelveticaRegular,
+                              color: kPrimaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: SizeConfig.defaultSize * 1.55,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     RectangularButton(
@@ -103,10 +125,7 @@ class OtherProfileTopContainer extends StatelessWidget {
                               .contains(otherUser.id)
                           ? const Color(0xFFA08875)
                           : Colors.white,
-                      borderColor: data.mainScreenProvider.followingIdList
-                              .contains(otherUser.id)
-                          ? const Color(0xFFA08875)
-                          : const Color(0xFF5349C7),
+                      borderColor: const Color(0xFFA08875),
                       fontFamily: kHelveticaMedium,
                       keepBoxShadow: false,
                       borderRadius: SizeConfig.defaultSize * 1.8,

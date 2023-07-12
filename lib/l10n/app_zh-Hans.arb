@@ -493,7 +493,7 @@
 
    "ok": "确定",
 
-   "enterUsernameEmail": "输入用户名称/电子邮件",
+   "enterUsernameId": "输入用户名称/ID",
 
    "usernameEmailPasswordNotMatch": "用户名称、电子邮件或密码不正确",
 
@@ -617,6 +617,14 @@
 
    "member": "会员",
 
-   "price": "价格"
+   "price": "价格",
+
+   "signature": "特色",
+
+   "indulgence": "從容",
+
+   "userType": "用户类型",
+
+   "selectUserType": "选择用户类型"
 
 }

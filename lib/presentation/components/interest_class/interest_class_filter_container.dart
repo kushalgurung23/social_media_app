@@ -95,50 +95,6 @@ Future<dynamic> showInterestClassFilerContainer(
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(bottom: SizeConfig.defaultSize * 1.5),
-              child: SizedBox(
-                height: SizeConfig.defaultSize * 4.5,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: SizeConfig.defaultSize * 10,
-                      child: Text('${AppLocalizations.of(context).target}:',
-                          style: TextStyle(
-                              fontSize: SizeConfig.defaultSize * 1.7,
-                              fontFamily: kHelveticaRegular,
-                              color: Colors.black)),
-                    ),
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                                color: const Color(0xFFD0E0F0), width: 1),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: CustomDropdownButton(
-                          iconSize: SizeConfig.defaultSize * 4.5,
-                          hintText: AppLocalizations.of(context).selectATarget,
-                          value: data.getTargetAgeList(context: context).map(
-                              (key, value) =>
-                                  MapEntry(value, key))[data.filterTargetAge],
-                          listItems: data
-                              .getTargetAgeList(context: context)
-                              .keys
-                              .toList(),
-                          onChanged: (newKey) {
-                            data.setFilterTargetAge(
-                                newValue: data
-                                    .getTargetAgeList(context: context)[newKey]
-                                    .toString());
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
                 padding:
                     EdgeInsets.symmetric(vertical: SizeConfig.defaultSize * 4),
                 child: Row(

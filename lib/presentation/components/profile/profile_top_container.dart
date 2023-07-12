@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:spa_app/data/constant/color_constant.dart';
 import 'package:spa_app/data/constant/connection_url.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/data/models/user_model.dart';
@@ -59,12 +60,33 @@ class ProfileTopContainer extends StatelessWidget {
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
           Expanded(
-            child: Text(
-              data.userNameTextController.text,
-              style: TextStyle(
-                fontFamily: kHelveticaMedium,
-                fontSize: SizeConfig.defaultSize * 2,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data.userNameTextController.text,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: kHelveticaMedium,
+                    fontSize: SizeConfig.defaultSize * 2,
+                  ),
+                ),
+                SizedBox(
+                  height: SizeConfig.defaultSize * .5,
+                ),
+                Text(
+                  "ID: ${user.id}",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: kHelveticaRegular,
+                    color: kPrimaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: SizeConfig.defaultSize * 1.55,
+                  ),
+                ),
+              ],
             ),
           )
         ],

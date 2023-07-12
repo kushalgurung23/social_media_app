@@ -493,7 +493,7 @@
 
    "ok": "確定",
 
-   "enterUsernameEmail": "輸入用戶名稱/電子郵件",
+   "enterUsernameId": "輸入用戶名稱/ID",
 
    "usernameEmailPasswordNotMatch": "用戶名稱、電子郵件或密碼不正確",
 
@@ -617,6 +617,14 @@
 
    "member": "會員",
 
-   "price": "價格"
+   "price": "價格",
+
+   "signature": "特色",
+
+   "indulgence": "從容",
+
+   "userType": "用戶類型",
+
+   "selectUserType": "選擇用戶類型"
 
 }

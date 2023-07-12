@@ -110,7 +110,6 @@ class _ChatScreenState extends State<ChatScreen> {
                               conversationId: widget.conversationId.toString(),
                               message: widget.chatTextEditingController.text,
                               receiverUserId: widget.otherUserId);
-                          data.chatTextController.clear();
                         }
                       },
                       borderRadius: SizeConfig.defaultSize * 1.5),

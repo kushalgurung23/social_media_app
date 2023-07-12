@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen>
     }
     if (!kIsWeb) {
       channel = const AndroidNotificationChannel(
-          'spa', // id
+          'yuyuspa', // id
           'High Importance Notifications', // title
           description:
               'This channel is used for important notifications.', // description
@@ -91,9 +91,6 @@ class _HomeScreenState extends State<HomeScreen>
   void showFlutterNotification(RemoteMessage message) async {
     sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.reload();
-
-    // Provider.of<NewsAdProvider>(context, listen: false)
-    //     .setUnreadNotificationBadge();
 
     // if is a chat message notification
     if ((message.notification != null && message.notification!.body != null) &&
@@ -175,6 +172,7 @@ class _HomeScreenState extends State<HomeScreen>
       // only show notification badge when user is not in the notification tab
       if (sharedPreferences.getBool("notification_tab_active_status") ==
           false) {
+        print("not in notification tab");
         sharedPreferences.setBool('follow_push_notification', true);
 
         if (mounted) {
@@ -183,6 +181,7 @@ class _HomeScreenState extends State<HomeScreen>
         }
       } else if (sharedPreferences.getBool("notification_tab_active_status") ==
           true) {
+        print("in notification tab");
         if (mounted) {
           Provider.of<NotificationProvider>(context, listen: false)
               .updateCurrentUserLatestNotification(context: context);

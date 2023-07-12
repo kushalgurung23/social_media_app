@@ -1,4 +1,4 @@
-package com.flutter.spa
+package com.yuyuspahk.yuyuspa
 
 import io.flutter.embedding.android.FlutterActivity
 

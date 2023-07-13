@@ -23,10 +23,12 @@ class BottomNavProvider extends ChangeNotifier {
       // the following two sharedPreferences are set to false, because if it is true notification badge won't be popped
       sharedPreferences.setBool("notification_tab_active_status", true);
       notifyListeners();
-      Provider.of<NewsAdProvider>(context, listen: false)
-          .setUnreadNotificationBadge(context: context);
-      Provider.of<NotificationProvider>(context, listen: false)
-          .refreshPushNotification(context: context);
+      if (context.mounted) {
+        Provider.of<NewsAdProvider>(context, listen: false)
+            .setUnreadNotificationBadge(context: context);
+        Provider.of<NotificationProvider>(context, listen: false)
+            .refreshPushNotification(context: context);
+      }
     }
 
     _selectedIndex = index;

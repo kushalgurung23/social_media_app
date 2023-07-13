@@ -46,16 +46,16 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
   }
 
   void setWeb() async {
-    String tncUrl = webUrl + '/TermsAndConditions/';
+    String tncUrl = '$webUrl/TermsAndConditions/';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String languageLocale =
         sharedPreferences.getString("language_locale") ?? 'zh_Hant';
     if (languageLocale == 'zh_Hant') {
-      tncUrl = webUrl + '/TermsAndConditions/tc.html';
+      tncUrl = '$webUrl/TermsAndConditions/tc.html';
     } else if (languageLocale == 'zh_Hans') {
-      tncUrl = webUrl + '/TermsAndConditions/sc.html';
+      tncUrl = '$webUrl/TermsAndConditions/sc.html';
     } else if (languageLocale == 'en') {
-      tncUrl = webUrl + '/TermsAndConditions/en.html';
+      tncUrl = '$webUrl/TermsAndConditions/en.html';
     }
     _controller.loadRequest(Uri.parse(tncUrl));
   }

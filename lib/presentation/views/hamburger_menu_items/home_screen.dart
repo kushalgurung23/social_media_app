@@ -172,7 +172,6 @@ class _HomeScreenState extends State<HomeScreen>
       // only show notification badge when user is not in the notification tab
       if (sharedPreferences.getBool("notification_tab_active_status") ==
           false) {
-        print("not in notification tab");
         sharedPreferences.setBool('follow_push_notification', true);
 
         if (mounted) {
@@ -181,7 +180,6 @@ class _HomeScreenState extends State<HomeScreen>
         }
       } else if (sharedPreferences.getBool("notification_tab_active_status") ==
           true) {
-        print("in notification tab");
         if (mounted) {
           Provider.of<NotificationProvider>(context, listen: false)
               .updateCurrentUserLatestNotification(context: context);
@@ -202,15 +200,17 @@ class _HomeScreenState extends State<HomeScreen>
     sharedPreferences = await SharedPreferences.getInstance();
     String languageLocale =
         sharedPreferences.getString("language_locale") ?? 'zh_Hant';
-    if (languageLocale == 'zh_Hant') {
-      Provider.of<LocaleProvider>(context, listen: false).setLocale(
-          const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'));
-    } else if (languageLocale == 'zh_Hans') {
-      Provider.of<LocaleProvider>(context, listen: false).setLocale(
-          const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'));
-    } else if (languageLocale == 'en') {
-      Provider.of<LocaleProvider>(context, listen: false)
-          .setLocale(const Locale("en"));
+    if (context.mounted) {
+      if (languageLocale == 'zh_Hant') {
+        Provider.of<LocaleProvider>(context, listen: false).setLocale(
+            const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'));
+      } else if (languageLocale == 'zh_Hans') {
+        Provider.of<LocaleProvider>(context, listen: false).setLocale(
+            const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'));
+      } else if (languageLocale == 'en') {
+        Provider.of<LocaleProvider>(context, listen: false)
+            .setLocale(const Locale("en"));
+      }
     }
   }
 

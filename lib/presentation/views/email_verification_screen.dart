@@ -61,9 +61,7 @@ class EmailVerificationScreen extends StatelessWidget {
                           top: SizeConfig.defaultSize,
                           bottom: SizeConfig.defaultSize * 2),
                       child: Text(
-                          AppLocalizations.of(context).enter6DigitCodeEmail +
-                              ': ' +
-                              recipientEmailAddress,
+                          '${AppLocalizations.of(context).enter6DigitCodeEmail}: $recipientEmailAddress',
                           textAlign: TextAlign.left,
                           style: TextStyle(
                               color: Colors.black,

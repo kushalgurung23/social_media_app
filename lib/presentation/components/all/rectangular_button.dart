@@ -49,6 +49,12 @@ class RectangularButton extends StatelessWidget {
       ),
       child: TextButton(
         onPressed: onPress,
+        style: TextButton.styleFrom(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(borderRadius),
+              side: BorderSide(color: borderColor, width: 0.5)),
+          backgroundColor: buttonColor,
+        ),
         child: Padding(
           padding: textPadding,
           child: Text(
@@ -61,12 +67,6 @@ class RectangularButton extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 letterSpacing: 2),
           ),
-        ),
-        style: TextButton.styleFrom(
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-              side: BorderSide(color: borderColor, width: 0.5)),
-          backgroundColor: buttonColor,
         ),
       ),
     );

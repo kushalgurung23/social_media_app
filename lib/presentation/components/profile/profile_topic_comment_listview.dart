@@ -106,9 +106,7 @@ class ProfileTopicCommentListview extends StatelessWidget {
                                                               color: Colors
                                                                   .transparent,
                                                               child: Text(
-                                                                commentBy
-                                                                        .username! +
-                                                                    " : ",
+                                                                "${commentBy.username!} : ",
                                                                 style: TextStyle(
                                                                     fontFamily:
                                                                         kHelveticaMedium,

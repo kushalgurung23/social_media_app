@@ -625,6 +625,8 @@
 
    "userType": "User type",
 
-   "selectUserType": "Select user type"
+   "selectUserType": "Select user type",
+
+   "loggingIn": "Logging in.."
 
 }

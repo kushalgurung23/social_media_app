@@ -243,7 +243,9 @@ class NotificationProvider extends ChangeNotifier {
         MaterialPageRoute(
             builder: (context) => OtherUserProfileScreen(
                 otherUserId: int.parse(notificationSenderId))));
-    refreshPushNotification(context: context);
+    if (context.mounted) {
+      refreshPushNotification(context: context);
+    }
   }
 
   bool isNotificationRefresh = false;

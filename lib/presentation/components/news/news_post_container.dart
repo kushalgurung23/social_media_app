@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
+import 'package:spa_app/data/enum/news_post_enum.dart';
+import 'package:spa_app/data/enum/post_type.dart';
 import 'package:spa_app/data/models/all_news_post_model.dart';
 import 'package:spa_app/logic/providers/news_ad_provider.dart';
+import 'package:spa_app/presentation/components/all/post_top_body.dart';
+import 'package:spa_app/presentation/components/all/rounded_text_form_field.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:spa_app/presentation/views/my_profile_screen.dart';
 import 'package:spa_app/presentation/views/news_description_screen.dart';
-import 'package:spa_app/presentation/views/other_user_profile_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spa_app/data/enum/news_post_enum.dart';
-import 'package:spa_app/data/enum/post_type.dart';
-import 'package:spa_app/presentation/components/all/post_top_body.dart';
-import 'package:spa_app/presentation/components/all/rounded_text_form_field.dart';
 import 'package:spa_app/presentation/views/news_liked_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-import '../../../data/constant/color_constant.dart';
+import 'package:spa_app/presentation/views/other_user_profile_screen.dart';
 
 class NewsPostContainer extends StatefulWidget {
   final NewsPost newsPost;

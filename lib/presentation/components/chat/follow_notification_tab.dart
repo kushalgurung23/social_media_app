@@ -201,13 +201,8 @@ class _FollowNotificationTabState extends State<FollowNotificationTab> {
                                                       children: [
                                                         RichText(
                                                           text: TextSpan(
-                                                            text: pushNotification
-                                                                    .sender!
-                                                                    .data!
-                                                                    .attributes!
-                                                                    .username
-                                                                    .toString() +
-                                                                " ",
+                                                            text:
+                                                                "${pushNotification.sender!.data!.attributes!.username} ",
                                                             style: TextStyle(
                                                               overflow:
                                                                   TextOverflow

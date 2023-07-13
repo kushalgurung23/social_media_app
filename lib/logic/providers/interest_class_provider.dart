@@ -209,8 +209,10 @@ class InterestClassProvider extends ChangeNotifier {
       _interestClass!.data!.clear();
       allInterestClassStreamController.sink.add(_interestClass!);
     }
+    if (context.mounted) {
+      await getInitialInterestClass(context: context);
+    }
 
-    await getInitialInterestClass(context: context);
     isInterestClassRefresh = false;
     notifyListeners();
   }
@@ -517,16 +519,19 @@ class InterestClassProvider extends ChangeNotifier {
       notifyListeners();
 
       if (response.statusCode == 200) {
-        if (source == InterestClassSourceType.fromShare) {
+        if (source == InterestClassSourceType.fromShare && context.mounted) {
           await getOneInterestClassForSharedInterestClass(
               context: context, interestClassId: interestClassCourseId);
         }
-        await Future.wait([
-          updateOneSelectedInterestClassForEveryStream(
-              context: context, interestClassId: interestClassCourseId),
-          updateBookmarkInterestClasses(context: context),
-          // updating all interest classes so that other streams will get latest interest class details
-        ]);
+        if (context.mounted) {
+          await Future.wait([
+            updateOneSelectedInterestClassForEveryStream(
+                context: context, interestClassId: interestClassCourseId),
+            updateBookmarkInterestClasses(context: context),
+            // updating all interest classes so that other streams will get latest interest class details
+          ]);
+        }
+
         toggleSaveOnProcess = false;
         notifyListeners();
       } else if (response.statusCode == 401 || response.statusCode == 403) {
@@ -542,11 +547,13 @@ class InterestClassProvider extends ChangeNotifier {
       } else {
         toggleSaveOnProcess = false;
         notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
+        if (context.mounted) {
+          showSnackBar(
+              context: context,
+              content: AppLocalizations.of(context).tryAgainLater,
+              contentColor: Colors.white,
+              backgroundColor: Colors.red);
+        }
       }
     }
     toggleSaveOnProcess = false;
@@ -787,7 +794,9 @@ class InterestClassProvider extends ChangeNotifier {
         throw Exception("Error occured while filtering interest class");
       }
       notifyListeners();
-      Navigator.pop(context);
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 

@@ -247,9 +247,7 @@ showReportNewsPostContainer(
                                                       AppLocalizations.of(
                                                               context)
                                                           .other)
-                                                  ? (': ' +
-                                                      data.reportNewsPostOtherReason
-                                                          .toString())
+                                                  ? (': ${data.reportNewsPostOtherReason}')
                                                   : ''));
                                     } else {
                                       data.showSnackBar(

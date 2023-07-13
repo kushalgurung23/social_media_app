@@ -66,20 +66,20 @@ class _RegisterTermsAndConditionsScreenState
   }
 
   void setWeb() async {
-    _tncUrl = webUrl + '/TermsAndConditions/';
-    _ppUrl = webUrl + '/PrivacyPolicy/';
+    _tncUrl = '$webUrl/TermsAndConditions/';
+    _ppUrl = '$webUrl/PrivacyPolicy/';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String languageLocale =
         sharedPreferences.getString("language_locale") ?? 'zh_Hant';
     if (languageLocale == 'zh_Hant') {
-      _tncUrl = webUrl + '/TermsAndConditions/tc.html';
-      _ppUrl = webUrl + '/PrivacyPolicy/tc.html';
+      _tncUrl = '$webUrl/TermsAndConditions/tc.html';
+      _ppUrl = '$webUrl/PrivacyPolicy/tc.html';
     } else if (languageLocale == 'zh_Hans') {
-      _tncUrl = webUrl + '/TermsAndConditions/sc.html';
-      _ppUrl = webUrl + '/PrivacyPolicy/sc.html';
+      _tncUrl = '$webUrl/TermsAndConditions/sc.html';
+      _ppUrl = '$webUrl/PrivacyPolicy/sc.html';
     } else if (languageLocale == 'en') {
-      _tncUrl = webUrl + '/TermsAndConditions/en.html';
-      _ppUrl = webUrl + '/PrivacyPolicy/en.html';
+      _tncUrl = '$webUrl/TermsAndConditions/en.html';
+      _ppUrl = '$webUrl/PrivacyPolicy/en.html';
     }
     _controller
         .loadRequest(Uri.parse((_selectedTabIndex == 0) ? _tncUrl : _ppUrl));

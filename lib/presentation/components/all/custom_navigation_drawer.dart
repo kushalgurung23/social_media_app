@@ -108,7 +108,7 @@ class CustomNavigationDrawer extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: SizeConfig.defaultSize * 3.5),
+                    horizontal: SizeConfig.defaultSize * 2.5),
                 child: Text(
                   'Copyright © 2023 Fame Standard Limited All Rights Reserved',
                   style: TextStyle(
@@ -123,7 +123,7 @@ class CustomNavigationDrawer extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: SizeConfig.defaultSize * 3.5),
+                    horizontal: SizeConfig.defaultSize * 2.5),
                 child: Text(
                   '${AppLocalizations.of(context).version} ${data.mainScreenProvider.version}',
                   style: TextStyle(

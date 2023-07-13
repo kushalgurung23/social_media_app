@@ -49,7 +49,6 @@ class RegistrationProvider extends ChangeNotifier {
       {required BuildContext context, required String value}) {
     try {
       if (value == 'null') {
-        // translate
         userTypeErrorMessage = AppLocalizations.of(context).selectUserType;
         return null;
       } else {
@@ -158,7 +157,7 @@ class RegistrationProvider extends ChangeNotifier {
       List resultList = jsonDecode(response.body);
 
       // if username and email address are unique
-      if (resultList.isEmpty) {
+      if (resultList.isEmpty && context.mounted) {
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -199,11 +198,13 @@ class RegistrationProvider extends ChangeNotifier {
         return;
       }
     } else {
-      showSnackBar(
-          context: context,
-          content: AppLocalizations.of(context).unsuccessfulTryAgainLater,
-          contentColor: Colors.white,
-          backgroundColor: Colors.red);
+      if (context.mounted) {
+        showSnackBar(
+            context: context,
+            content: AppLocalizations.of(context).unsuccessfulTryAgainLater,
+            contentColor: Colors.white,
+            backgroundColor: Colors.red);
+      }
     }
   }
 
@@ -219,7 +220,7 @@ class RegistrationProvider extends ChangeNotifier {
       });
       Response registrationResponse =
           await RegisterRepo.registerUser(bodyData: body);
-      if (registrationResponse.statusCode == 200) {
+      if (registrationResponse.statusCode == 200 && context.mounted) {
         // toggling check box to false to remove previously saved login credentials in login screen
         Provider.of<MainScreenProvider>(context, listen: false)
             .rememberMeCheckBox = false;

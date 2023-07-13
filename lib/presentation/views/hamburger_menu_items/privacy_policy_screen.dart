@@ -45,16 +45,16 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
   }
 
   void setWeb() async {
-    String ppUrl = webUrl + '/PrivacyPolicy/';
+    String ppUrl = '$webUrl/PrivacyPolicy/';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String languageLocale =
         sharedPreferences.getString("language_locale") ?? 'zh_Hant';
     if (languageLocale == 'zh_Hant') {
-      ppUrl = webUrl + '/PrivacyPolicy/tc.html';
+      ppUrl = '$webUrl/PrivacyPolicy/tc.html';
     } else if (languageLocale == 'zh_Hans') {
-      ppUrl = webUrl + '/PrivacyPolicy/sc.html';
+      ppUrl = '$webUrl/PrivacyPolicy/sc.html';
     } else if (languageLocale == 'en') {
-      ppUrl = webUrl + '/PrivacyPolicy/en.html';
+      ppUrl = '$webUrl/PrivacyPolicy/en.html';
     }
     _controller.loadRequest(Uri.parse(ppUrl));
   }

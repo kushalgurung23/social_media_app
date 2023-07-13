@@ -50,7 +50,7 @@ class ChatMessageProvider extends ChangeNotifier {
       _oneConversation = conversationFromJson(loadConversationResponse.body);
       notifyListeners();
       // If there is already previous conversation with the other user, we will navigate to chat screen and continue from the last conversation
-      if (_oneConversation!.data!.length.toString() == '1') {
+      if (_oneConversation!.data!.length.toString() == '1' && context.mounted) {
         navigateToChatScreenFromOtherUserProfile(context: context);
       }
       // If there is no previous conversation, we will create a new conversation first, and then navigate to chat screen
@@ -89,15 +89,18 @@ class ChatMessageProvider extends ChangeNotifier {
                 allConversationStreamController.sink.add(_allConversation!);
                 notifyListeners();
               }
-
-              navigateToChatScreenFromOtherUserProfile(context: context);
+              if (context.mounted) {
+                navigateToChatScreenFromOtherUserProfile(context: context);
+              }
             } else {
-              showSnackBar(
-                  context: context,
-                  content: AppLocalizations.of(context).tryAgainLater,
-                  backgroundColor: Colors.red,
-                  contentColor: Colors.white);
-              throw Exception('Conversation data is not equal to 1');
+              if (context.mounted) {
+                showSnackBar(
+                    context: context,
+                    content: AppLocalizations.of(context).tryAgainLater,
+                    backgroundColor: Colors.red,
+                    contentColor: Colors.white);
+                throw Exception('Conversation data is not equal to 1');
+              }
             }
           } else if (loadAfterCreatingConversationResponse.statusCode == 401 ||
               loadAfterCreatingConversationResponse.statusCode == 403) {
@@ -108,13 +111,15 @@ class ChatMessageProvider extends ChangeNotifier {
                   .removeCredentials(context: context);
             }
           } else {
-            showSnackBar(
-                context: context,
-                content: AppLocalizations.of(context).tryAgainLater,
-                backgroundColor: Colors.red,
-                contentColor: Colors.white);
-            throw Exception(
-                'Unable to load conversation after creating new conversation');
+            if (context.mounted) {
+              showSnackBar(
+                  context: context,
+                  content: AppLocalizations.of(context).tryAgainLater,
+                  backgroundColor: Colors.red,
+                  contentColor: Colors.white);
+              throw Exception(
+                  'Unable to load conversation after creating new conversation');
+            }
           }
         } else if (createConversationResponse.statusCode == 401 ||
             createConversationResponse.statusCode == 403) {
@@ -126,12 +131,14 @@ class ChatMessageProvider extends ChangeNotifier {
             return;
           }
         } else {
-          showSnackBar(
-              context: context,
-              content: AppLocalizations.of(context).tryAgainLater,
-              backgroundColor: Colors.red,
-              contentColor: Colors.white);
-          throw Exception('Unable to create new conversation');
+          if (context.mounted) {
+            showSnackBar(
+                context: context,
+                content: AppLocalizations.of(context).tryAgainLater,
+                backgroundColor: Colors.red,
+                contentColor: Colors.white);
+            throw Exception('Unable to create new conversation');
+          }
         }
       }
     } else if (loadConversationResponse.statusCode == 401 ||
@@ -144,12 +151,14 @@ class ChatMessageProvider extends ChangeNotifier {
         return;
       }
     } else {
-      showSnackBar(
-          context: context,
-          content: AppLocalizations.of(context).tryAgainLater,
-          backgroundColor: Colors.red,
-          contentColor: Colors.white);
-      throw Exception('Unable to create new conversation');
+      if (context.mounted) {
+        showSnackBar(
+            context: context,
+            content: AppLocalizations.of(context).tryAgainLater,
+            backgroundColor: Colors.red,
+            contentColor: Colors.white);
+        throw Exception('Unable to create new conversation');
+      }
     }
   }
 
@@ -208,12 +217,14 @@ class ChatMessageProvider extends ChangeNotifier {
                   lastReadDateTime.add(const Duration(seconds: 1)).toString()
             }
           };
-          // update the last time read for first user
-          await updateLastTimeRead(
-              conversationId: conversationId,
-              bodyData: bodyData,
-              context: context);
-          notifyListeners();
+          if (context.mounted) {
+            // update the last time read for first user
+            await updateLastTimeRead(
+                conversationId: conversationId,
+                bodyData: bodyData,
+                context: context);
+            notifyListeners();
+          }
         }
         // if we are second user
         else if (secondUser == receiverUserId &&
@@ -224,21 +235,25 @@ class ChatMessageProvider extends ChangeNotifier {
                   lastReadDateTime.add(const Duration(seconds: 1)).toString()
             }
           };
-          //  update the last time read for second user
-          await updateLastTimeRead(
-              conversationId: conversationId,
-              bodyData: bodyData,
-              context: context);
-          notifyListeners();
+          if (context.mounted) {
+            //  update the last time read for second user
+            await updateLastTimeRead(
+                conversationId: conversationId,
+                bodyData: bodyData,
+                context: context);
+            notifyListeners();
+          }
         }
       } else {
         return;
       }
     });
-    // finally this will help to update last time read, so that the color of container will be back to white if message is already seen
-    await updateOneConversationData(
-        conversationId: conversationId, context: context);
-    notifyListeners();
+    if (context.mounted) {
+      // finally this will help to update last time read, so that the color of container will be back to white if message is already seen
+      await updateOneConversationData(
+          conversationId: conversationId, context: context);
+      notifyListeners();
+    }
   }
 
   Future<void> updateOneConversationData(
@@ -328,9 +343,11 @@ class ChatMessageProvider extends ChangeNotifier {
     }
     await updateLastTimeRead(
         context: context, conversationId: conversationId, bodyData: bodyData);
-    await updateOneConversationData(
-        conversationId: conversationId, context: context);
-    notifyListeners();
+    if (context.mounted) {
+      await updateOneConversationData(
+          conversationId: conversationId, context: context);
+      notifyListeners();
+    }
   }
 
   void navigateToChatScreenFromOtherUserProfile(
@@ -401,9 +418,11 @@ class ChatMessageProvider extends ChangeNotifier {
         context: context,
         conversationId: conversationData.id.toString(),
         bodyData: bodyData);
-    await updateOneConversationData(
-        context: context, conversationId: conversationData.id.toString());
-    notifyListeners();
+    if (context.mounted) {
+      await updateOneConversationData(
+          context: context, conversationId: conversationData.id.toString());
+      notifyListeners();
+    }
   }
 
   void goBackFromUserChatScreen({required BuildContext context}) {

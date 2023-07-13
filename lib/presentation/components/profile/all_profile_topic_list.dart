@@ -1,8 +1,11 @@
 import 'dart:async';
+// ignore: depend_on_referenced_packages
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spa_app/data/constant/color_constant.dart';
+import 'package:provider/provider.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/data/enum/news_post_enum.dart';
 import 'package:spa_app/data/enum/post_type.dart';
@@ -11,12 +14,9 @@ import 'package:spa_app/logic/providers/news_ad_provider.dart';
 import 'package:spa_app/presentation/components/all/post_top_body.dart';
 import 'package:spa_app/presentation/components/all/rounded_text_form_field.dart';
 import 'package:spa_app/presentation/components/all/top_app_bar.dart';
-import 'package:spa_app/presentation/views/profile_topic_description_screen.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:spa_app/presentation/views/news_liked_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:collection/collection.dart';
+import 'package:spa_app/presentation/views/profile_topic_description_screen.dart';
 
 // ignore: must_be_immutable
 class AllProfileTopicList extends StatefulWidget {

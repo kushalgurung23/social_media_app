@@ -272,6 +272,7 @@ class _OtherUserFollowingScreenState extends State<OtherUserFollowingScreen> {
                                                     setLikeSaveCommentFollow:
                                                         false,
                                                   );
+                                                  // ignore: use_build_context_synchronously
                                                   data.getOtherUserProfile(
                                                       otherUserStreamController:
                                                           widget

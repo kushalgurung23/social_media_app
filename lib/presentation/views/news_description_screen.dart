@@ -1,7 +1,10 @@
+// ignore: depend_on_referenced_packages
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spa_app/data/constant/color_constant.dart';
+import 'package:provider/provider.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/data/enum/news_post_enum.dart';
 import 'package:spa_app/data/enum/post_type.dart';
@@ -15,9 +18,6 @@ import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:spa_app/presentation/views/my_profile_screen.dart';
 import 'package:spa_app/presentation/views/news_liked_screen.dart';
 import 'package:spa_app/presentation/views/other_user_profile_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:collection/collection.dart';
 
 class NewsDescriptionScreen extends StatefulWidget {
   final int newsPostId;
@@ -110,9 +110,8 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
                           postedById = newsPost.attributes!.postedBy!.data!.id;
                         } else {
                           postedBy = UserAttributes(
-                              username: "(" +
-                                  AppLocalizations.of(context).deletedAccount +
-                                  ")",
+                              username:
+                                  "(${AppLocalizations.of(context).deletedAccount})",
                               email: null,
                               provider: null,
                               confirmed: null,

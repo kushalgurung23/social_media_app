@@ -26,15 +26,17 @@ class _LoginScreenState extends State<LoginScreen> {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String languageLocale =
         sharedPreferences.getString("language_locale") ?? 'zh_Hant';
-    if (languageLocale == 'zh_Hant') {
-      Provider.of<LocaleProvider>(context, listen: false).setLocale(
-          const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'));
-    } else if (languageLocale == 'zh_Hans') {
-      Provider.of<LocaleProvider>(context, listen: false).setLocale(
-          const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'));
-    } else if (languageLocale == 'en') {
-      Provider.of<LocaleProvider>(context, listen: false)
-          .setLocale(const Locale("en"));
+    if (context.mounted) {
+      if (languageLocale == 'zh_Hant') {
+        Provider.of<LocaleProvider>(context, listen: false).setLocale(
+            const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'));
+      } else if (languageLocale == 'zh_Hans') {
+        Provider.of<LocaleProvider>(context, listen: false).setLocale(
+            const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'));
+      } else if (languageLocale == 'en') {
+        Provider.of<LocaleProvider>(context, listen: false)
+            .setLocale(const Locale("en"));
+      }
     }
   }
 
@@ -92,9 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onSaved: (value) {},
                                 isEnabled: true,
                                 labelText:
-                                    AppLocalizations.of(context).username +
-                                        " / " +
-                                        "ID",
+                                    "${AppLocalizations.of(context).username} / ID",
                                 obscureText: false,
                                 validator: (value) {
                                   return data.validateUserName(
@@ -173,38 +173,32 @@ class _LoginScreenState extends State<LoginScreen> {
                             SizedBox(
                               height: SizeConfig.defaultSize * 2,
                             ),
-                            data.isLoginClick
-                                ? const CircularProgressIndicator(
-                                    color: Color(0xFFA08875))
-                                : RectangularButton(
-                                    textPadding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            SizeConfig.defaultSize * 1.5),
-                                    height: SizeConfig.defaultSize * 5,
-                                    width: SizeConfig.defaultSize * 22,
-                                    onPress: () async {
-                                      final isValid =
-                                          data.formKey.currentState!.validate();
-                                      if (isValid) {
-                                        await data.userLogin(
-                                            context: context,
-                                            identifier:
-                                                data.userNameController.text,
-                                            password:
-                                                data.passwordController.text);
-                                      }
-                                    },
-                                    text: AppLocalizations.of(context).login,
-                                    textColor: Colors.white,
-                                    buttonColor: const Color(0xFFA08875),
-                                    borderColor: const Color(0xFFFFFFFF),
-                                    fontFamily: kHelveticaMedium,
-                                    keepBoxShadow: true,
-                                    offset: const Offset(0, 3),
-                                    borderRadius: 6,
-                                    blurRadius: 6,
-                                    fontSize: SizeConfig.defaultSize * 1.5,
-                                  ),
+                            RectangularButton(
+                              textPadding: EdgeInsets.symmetric(
+                                  horizontal: SizeConfig.defaultSize * 1.5),
+                              height: SizeConfig.defaultSize * 5,
+                              width: SizeConfig.defaultSize * 22,
+                              onPress: () async {
+                                final isValid =
+                                    data.formKey.currentState!.validate();
+                                if (isValid) {
+                                  await data.userLogin(
+                                      context: context,
+                                      identifier: data.userNameController.text,
+                                      password: data.passwordController.text);
+                                }
+                              },
+                              text: AppLocalizations.of(context).login,
+                              textColor: Colors.white,
+                              buttonColor: const Color(0xFFA08875),
+                              borderColor: const Color(0xFFFFFFFF),
+                              fontFamily: kHelveticaMedium,
+                              keepBoxShadow: true,
+                              offset: const Offset(0, 3),
+                              borderRadius: 6,
+                              blurRadius: 6,
+                              fontSize: SizeConfig.defaultSize * 1.5,
+                            ),
                           ],
                         ),
                       ),

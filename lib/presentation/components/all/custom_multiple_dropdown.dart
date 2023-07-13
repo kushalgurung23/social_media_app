@@ -87,6 +87,7 @@ class _CustomMultipleDropdownState extends State<CustomMultipleDropdown> {
               horizontal: SizeConfig.defaultSize,
               vertical: SizeConfig.defaultSize * 0.5),
           child: TextButton(
+            onPressed: _cancel,
             child: Text(
               AppLocalizations.of(context).cancel,
               style: TextStyle(
@@ -94,10 +95,13 @@ class _CustomMultipleDropdownState extends State<CustomMultipleDropdown> {
                   fontSize: SizeConfig.defaultSize * 2.1,
                   fontFamily: kHelveticaRegular),
             ),
-            onPressed: _cancel,
           ),
         ),
         ElevatedButton(
+            onPressed: _submit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFA08875),
+            ),
             child: Padding(
               padding: EdgeInsets.symmetric(
                   horizontal: SizeConfig.defaultSize,
@@ -109,10 +113,6 @@ class _CustomMultipleDropdownState extends State<CustomMultipleDropdown> {
                     fontSize: SizeConfig.defaultSize * 2.1,
                     fontFamily: kHelveticaRegular),
               ),
-            ),
-            onPressed: _submit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFA08875),
             )),
       ],
     );

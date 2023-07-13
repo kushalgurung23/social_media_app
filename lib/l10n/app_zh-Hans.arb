@@ -625,6 +625,8 @@
 
    "userType": "用户类型",
 
-   "selectUserType": "选择用户类型"
+   "selectUserType": "选择用户类型",
+
+   "loggingIn": "在登录.."
 
 }

@@ -84,7 +84,6 @@ class RegistrationScreen extends StatelessWidget {
                                                   width: 0.5),
                                               borderRadius:
                                                   BorderRadius.circular(6)),
-                                          // translate
                                           hintText: AppLocalizations.of(context)
                                               .userType,
                                           value: data

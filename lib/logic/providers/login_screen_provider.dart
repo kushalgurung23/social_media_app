@@ -89,7 +89,6 @@ class LoginScreenProvider extends ChangeNotifier {
       isLoginClick = false;
       notifyListeners();
     }
-    notifyListeners();
   }
 
   void makeLoginTrue() {
@@ -113,12 +112,13 @@ class LoginScreenProvider extends ChangeNotifier {
       required String password}) async {
     try {
       makeLoginTrue();
+      EasyLoading.show(status: AppLocalizations.of(context).loggingIn);
       String body =
           jsonEncode({"identifier": identifier, "password": password});
       Response loginResponse = await LoginRepo.loginUser(bodyData: body);
       if (isLoginClick == true) {
         // If login credentials matches
-        if (loginResponse.statusCode == 200) {
+        if (loginResponse.statusCode == 200 && context.mounted) {
           user = userFromJson(loginResponse.body);
           saveLoginCredentials(password: password);
           mainScreenProvider.currentUserController.sink.add(user!);
@@ -131,7 +131,7 @@ class LoginScreenProvider extends ChangeNotifier {
             bool isUpdate = await mainScreenProvider.updateUserDeviceToken(
                 userId: user!.id.toString(),
                 newDeviceToken: currentDeviceToken!);
-            if (isUpdate) {
+            if (isUpdate && context.mounted) {
               EasyLoading.showSuccess(
                   "${AppLocalizations.of(context).welcome} ${user!.username}",
                   dismissOnTap: true,
@@ -141,13 +141,12 @@ class LoginScreenProvider extends ChangeNotifier {
               makeLoginFalse();
               hidePassword();
             }
-          } else if (user!.deviceToken.toString() == currentDeviceToken) {
-            showSnackBar(
-                context: context,
-                content:
-                    '${AppLocalizations.of(context).welcome} ${user!.username}',
-                backgroundColor: const Color(0xFFA08875),
-                contentColor: Colors.white);
+          } else if (user!.deviceToken.toString() == currentDeviceToken &&
+              context.mounted) {
+            EasyLoading.showSuccess(
+                "${AppLocalizations.of(context).welcome} ${user!.username}",
+                dismissOnTap: true,
+                duration: const Duration(seconds: 2));
             Navigator.pushNamedAndRemoveUntil(
                 context, HomeScreen.id, (route) => false);
             hidePassword();
@@ -157,6 +156,7 @@ class LoginScreenProvider extends ChangeNotifier {
         else if (loginResponse.statusCode == 400 &&
             (jsonDecode(loginResponse.body))["error"]["message"] ==
                 "Invalid identifier or password") {
+          EasyLoading.dismiss();
           showSnackBar(
               context: context,
               content:
@@ -164,6 +164,7 @@ class LoginScreenProvider extends ChangeNotifier {
               contentColor: Colors.white,
               backgroundColor: Colors.red);
         } else if (loginResponse.statusCode == 400) {
+          EasyLoading.dismiss();
           showSnackBar(
               context: context,
               content: ((jsonDecode(loginResponse.body))["error"]["message"])
@@ -171,6 +172,7 @@ class LoginScreenProvider extends ChangeNotifier {
               contentColor: Colors.white,
               backgroundColor: Colors.red);
         } else {
+          EasyLoading.dismiss();
           showSnackBar(
               context: context,
               content: AppLocalizations.of(context).unsuccessfulTryAgainLater,
@@ -178,8 +180,10 @@ class LoginScreenProvider extends ChangeNotifier {
               backgroundColor: Colors.red);
         }
       }
+      EasyLoading.dismiss();
       makeLoginFalse();
     } on Exception {
+      EasyLoading.dismiss();
       makeLoginFalse();
       showSnackBar(
           context: context,

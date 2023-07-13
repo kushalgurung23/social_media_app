@@ -110,6 +110,18 @@ AppBar profileAppBar({required BuildContext context}) {
                                   ),
                                 if (!isDeleting)
                                   ElevatedButton(
+                                      onPressed: () async {
+                                        setState(() => isDeleting = true);
+                                        bool deleteSuccess = await data
+                                            .deleteUser(context: context);
+                                        if (!deleteSuccess) {
+                                          setState(() => isDeleting = false);
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            const Color(0xFFdc3545),
+                                      ),
                                       child: Padding(
                                         padding: EdgeInsets.symmetric(
                                             horizontal: SizeConfig.defaultSize,
@@ -123,18 +135,6 @@ AppBar profileAppBar({required BuildContext context}) {
                                                   SizeConfig.defaultSize * 2.1,
                                               fontFamily: kHelveticaRegular),
                                         ),
-                                      ),
-                                      onPressed: () async {
-                                        setState(() => isDeleting = true);
-                                        bool deleteSuccess = await data
-                                            .deleteUser(context: context);
-                                        if (!deleteSuccess) {
-                                          setState(() => isDeleting = false);
-                                        }
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            const Color(0xFFdc3545),
                                       )),
                               ],
                             ));

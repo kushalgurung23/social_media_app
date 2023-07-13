@@ -68,7 +68,7 @@ class ProfileEditRepo {
       request.files.add(profileImage);
       var response = await request.send();
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && context.mounted) {
         Provider.of<MainScreenProvider>(context, listen: false).isDeleteCache =
             true;
         // Text details upload

@@ -30,7 +30,9 @@ class DiscoverUserContainer extends StatelessWidget {
           } else {
             await Navigator.pushNamed(context, MyProfileScreen.id);
           }
-          await data.searchUser(query: '', context: context);
+          if (context.mounted) {
+            await data.searchUser(query: '', context: context);
+          }
         },
         child: Container(
           color: Colors.transparent,

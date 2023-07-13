@@ -18,6 +18,7 @@ import 'package:spa_app/presentation/views/news_liked_screen.dart';
 import 'package:spa_app/presentation/views/other_user_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 
 // ignore: must_be_immutable
@@ -299,9 +300,10 @@ class _ProfileTopicDescriptionScreenState
                                                             false);
                                                     // If we are working with different user, we will listen to it's streams which might have changed after performing this particular event.
                                                     if (postedBy.id
-                                                            .toString() !=
-                                                        data.mainScreenProvider
-                                                            .userId) {
+                                                                .toString() !=
+                                                            data.mainScreenProvider
+                                                                .userId &&
+                                                        context.mounted) {
                                                       Provider.of<ProfileProvider>(
                                                               context,
                                                               listen: false)
@@ -314,10 +316,12 @@ class _ProfileTopicDescriptionScreenState
                                                                       .toString(),
                                                               context: context);
                                                     }
-                                                    data.getSelectedUserProfileTopics(
-                                                        userId: postedBy.id
-                                                            .toString(),
-                                                        context: context);
+                                                    if (context.mounted) {
+                                                      data.getSelectedUserProfileTopics(
+                                                          userId: postedBy.id
+                                                              .toString(),
+                                                          context: context);
+                                                    }
                                                   },
                                                   hasLikes: topicPost.newsPostLikes == null
                                                       ? false

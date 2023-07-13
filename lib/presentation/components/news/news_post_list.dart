@@ -1,5 +1,4 @@
-// ignore_for_file: prefer_null_aware_operators
-
+// ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -115,10 +114,8 @@ class _NewsPostListState extends State<NewsPostList>
                                       newsPost.attributes!.postedBy!.data!.id;
                                 } else {
                                   postedBy = UserAttributes(
-                                      username: "(" +
-                                          AppLocalizations.of(context)
-                                              .deletedAccount +
-                                          ")",
+                                      username:
+                                          "(${AppLocalizations.of(context).deletedAccount})",
                                       email: null,
                                       provider: null,
                                       confirmed: null,
@@ -206,7 +203,7 @@ class _NewsPostListState extends State<NewsPostList>
                                         postedBy: postedBy,
                                         postedById: postedById,
                                         checkNewsPostLike: checkNewsPostLike,
-                                        // ignore: unnecessary_null_comparison
+                                        // ignore: unnecessary_null_comparison, prefer_null_aware_operators
                                         allComments: allComments == null
                                             ? null
                                             : allComments

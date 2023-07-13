@@ -86,10 +86,13 @@ class DrawerProvider extends ChangeNotifier {
     mainScreenProvider.savedNewsPostIdList.clear();
     mainScreenProvider.savedInterestClassIdList.clear();
     mainScreenProvider.savedPaperShareIdList.clear();
-    final newsAdProvider = Provider.of<NewsAdProvider>(context, listen: false);
-    newsAdProvider.newsCommentControllerList.clear();
-    notifyListeners();
-    Navigator.pushNamedAndRemoveUntil(
-        context, LoginScreen.id, (route) => false);
+    if (context.mounted) {
+      final newsAdProvider =
+          Provider.of<NewsAdProvider>(context, listen: false);
+      newsAdProvider.newsCommentControllerList.clear();
+      notifyListeners();
+      Navigator.pushNamedAndRemoveUntil(
+          context, LoginScreen.id, (route) => false);
+    }
   }
 }

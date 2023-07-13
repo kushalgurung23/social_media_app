@@ -157,6 +157,7 @@ class _MultipleRegionDropdownState extends State<MultipleRegionDropdown> {
       ),
       actions: [
         TextButton(
+          onPressed: _cancel,
           child: Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: SizeConfig.defaultSize,
@@ -169,9 +170,12 @@ class _MultipleRegionDropdownState extends State<MultipleRegionDropdown> {
                   fontFamily: kHelveticaRegular),
             ),
           ),
-          onPressed: _cancel,
         ),
         ElevatedButton(
+            onPressed: _submit,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFA08875),
+            ),
             child: Padding(
               padding: EdgeInsets.symmetric(
                   horizontal: SizeConfig.defaultSize,
@@ -183,10 +187,6 @@ class _MultipleRegionDropdownState extends State<MultipleRegionDropdown> {
                     fontSize: SizeConfig.defaultSize * 2.1,
                     fontFamily: kHelveticaRegular),
               ),
-            ),
-            onPressed: _submit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFA08875),
             )),
       ],
     );

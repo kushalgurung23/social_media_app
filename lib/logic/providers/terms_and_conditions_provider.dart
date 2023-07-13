@@ -54,7 +54,8 @@ class TermsAndConditionsProvider extends ChangeNotifier {
           bodyData: jsonEncode(bodyData));
       EasyLoading.dismiss();
       if (response.statusCode == 200 &&
-          jsonDecode(response.body)["status"] == "Success") {
+          jsonDecode(response.body)["status"] == "Success" &&
+          context.mounted) {
         notifyListeners();
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => EmailVerificationScreen(

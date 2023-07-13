@@ -500,8 +500,11 @@ class MainScreenProvider extends ChangeNotifier {
     await sharedPreferences.setString('user_name', userName);
     await sharedPreferences.remove('user_type');
     await sharedPreferences.setString('user_type', userType);
-    await updateAndSetUserDetails(
-        setLikeSaveCommentFollow: false, context: context);
+    if (context != null && context.mounted) {
+      await updateAndSetUserDetails(
+          setLikeSaveCommentFollow: false, context: context);
+    }
+
     if (isDeleteCache == true) {
       await _deleteImageFromCache(image: currentUser!.profileImage!.url!);
       isDeleteCache = false;
@@ -705,10 +708,7 @@ class MainScreenProvider extends ChangeNotifier {
       http.Response response = await PushNotificationRepo.sendPushNotification(
           bodyData: jsonEncode(bodyData),
           jwt: jwt ?? sharedPreferences.getString('jwt') ?? 'null');
-      if (response.statusCode == 200 &&
-          jsonDecode(response.body)["status"] == "Success") {
-        print("Successfully sent message follow");
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
+      if (response.statusCode == 401 || response.statusCode == 403) {
         if (context.mounted) {
           EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
               dismissOnTap: false, duration: const Duration(seconds: 4));
@@ -716,13 +716,6 @@ class MainScreenProvider extends ChangeNotifier {
               .removeCredentials(context: context);
           return;
         }
-      } else {
-        showSnackBar(
-            context: context,
-            content:
-                'Sorry, the notification was not sent. Please try again later.',
-            backgroundColor: Colors.red,
-            contentColor: Colors.white);
       }
     } else {
       return;
@@ -744,10 +737,7 @@ class MainScreenProvider extends ChangeNotifier {
       http.Response response = await PushNotificationRepo.sendPushNotification(
           bodyData: jsonEncode(bodyData),
           jwt: jwt ?? sharedPreferences.getString('jwt') ?? 'null');
-      if (response.statusCode == 200 &&
-          jsonDecode(response.body)["status"] == "Success") {
-        print("Successfully sent message msg");
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
+      if (response.statusCode == 401 || response.statusCode == 403) {
         if (context.mounted) {
           EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
               dismissOnTap: false, duration: const Duration(seconds: 4));
@@ -755,13 +745,6 @@ class MainScreenProvider extends ChangeNotifier {
               .removeCredentials(context: context);
           return;
         }
-      } else {
-        showSnackBar(
-            context: context,
-            content:
-                'Sorry, the message reply notification was not sent. Please try again later.',
-            backgroundColor: Colors.red,
-            contentColor: Colors.white);
       }
     } else {
       return;

@@ -10,6 +10,7 @@ import 'package:spa_app/presentation/components/all/rectangular_button.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+// ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 
 // ignore: must_be_immutable
@@ -107,6 +108,7 @@ class OtherProfileTopContainer extends StatelessWidget {
                           context: context,
                           setLikeSaveCommentFollow: false,
                         );
+                        // ignore: use_build_context_synchronously
                         data.getOtherUserProfile(
                             otherUserStreamController:
                                 otherUserStreamController,

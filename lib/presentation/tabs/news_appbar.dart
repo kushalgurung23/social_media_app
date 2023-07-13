@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:spa_app/data/enum/navigation_items.dart';
 import 'package:spa_app/logic/providers/chat_message_provider.dart';
 import 'package:spa_app/logic/providers/drawer_provider.dart';
-import 'package:spa_app/logic/providers/news_ad_provider.dart';
 import 'package:spa_app/presentation/components/all/top_app_bar.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:spa_app/presentation/components/chat/chatroom_screen.dart';

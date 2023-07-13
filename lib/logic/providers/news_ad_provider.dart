@@ -1,13 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
+// ignore: depend_on_referenced_packages
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:http/http.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spa_app/data/constant/color_constant.dart';
 import 'package:spa_app/data/constant/connection_url.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/data/enum/news_post_enum.dart';
-import 'package:spa_app/data/enum/user_type_enum.dart';
 import 'package:spa_app/data/models/all_news_post_model.dart';
 import 'package:spa_app/data/models/news_post_likes_model.dart';
 import 'package:spa_app/data/models/push_notification_model.dart';
@@ -15,9 +21,9 @@ import 'package:spa_app/data/models/user_model.dart';
 import 'package:spa_app/data/repositories/new_post_repo.dart';
 import 'package:spa_app/data/repositories/news_comment_repo.dart';
 import 'package:spa_app/data/repositories/news_post_repo.dart';
+import 'package:spa_app/data/repositories/profile_topic_repo.dart';
 import 'package:spa_app/data/repositories/push_notification_repo.dart';
 import 'package:spa_app/data/repositories/report_news_post_repo.dart';
-import 'package:spa_app/data/repositories/profile_topic_repo.dart';
 import 'package:spa_app/logic/providers/bottom_nav_provider.dart';
 import 'package:spa_app/logic/providers/drawer_provider.dart';
 import 'package:spa_app/logic/providers/main_screen_provider.dart';
@@ -25,13 +31,6 @@ import 'package:spa_app/logic/providers/profile_provider.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
 import 'package:spa_app/presentation/views/my_profile_screen.dart';
 import 'package:spa_app/presentation/views/other_user_profile_screen.dart';
-import 'package:http/http.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-// ignore: depend_on_referenced_packages
-import 'package:collection/collection.dart';
 
 class NewsAdProvider extends ChangeNotifier {
   GlobalKey<FormState> postContentKey = GlobalKey<FormState>();
@@ -68,7 +67,7 @@ class NewsAdProvider extends ChangeNotifier {
     if (likeCount == 1) {
       return "1 ${AppLocalizations.of(context).like}";
     } else if (likeCount <= 3) {
-      return likeCount.toString() + " ${AppLocalizations.of(context).likes}";
+      return "$likeCount ${AppLocalizations.of(context).likes}";
     } else if (likeCount == 4) {
       return "+${likeCount - 3} ${AppLocalizations.of(context).like}";
     } else if (likeCount - 3 <= 999) {
@@ -330,11 +329,13 @@ class NewsAdProvider extends ChangeNotifier {
         return;
       }
     } else {
-      showSnackBar(
-          context: context,
-          content: AppLocalizations.of(context).newsCouldNotLoad,
-          contentColor: Colors.white,
-          backgroundColor: Colors.red);
+      if (context.mounted) {
+        showSnackBar(
+            context: context,
+            content: AppLocalizations.of(context).newsCouldNotLoad,
+            contentColor: Colors.white,
+            backgroundColor: Colors.red);
+      }
     }
   }
 
@@ -365,7 +366,7 @@ class NewsAdProvider extends ChangeNotifier {
             .removeCredentials(context: context);
         return;
       }
-    } else if (response.statusCode == 400) {
+    } else if (response.statusCode == 400 && context.mounted) {
       showSnackBar(
           context: context,
           content: AppLocalizations.of(context).tryAgainLater,
@@ -427,7 +428,7 @@ class NewsAdProvider extends ChangeNotifier {
             bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
       }
       notifyListeners();
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && context.mounted) {
         await Future.wait([
           updateSelectedNewsPosts(
               context: context,
@@ -518,7 +519,7 @@ class NewsAdProvider extends ChangeNotifier {
             postId: postId);
       }
       notifyListeners();
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && context.mounted) {
         await Future.wait([
           updateSelectedNewsPosts(
               context: context,
@@ -583,7 +584,7 @@ class NewsAdProvider extends ChangeNotifier {
 
       Response commentResponse = await NewsCommentRepo.saveNewsComment(
           bodyData: body, jwt: sharedPreferences.getString('jwt')!);
-      if (commentResponse.statusCode == 200) {
+      if (commentResponse.statusCode == 200 && context.mounted) {
         newsCommentController.clear();
         FocusScope.of(context).unfocus();
         await Future.wait([
@@ -596,11 +597,13 @@ class NewsAdProvider extends ChangeNotifier {
               setLikeSaveCommentFollow: setLikeSaveCommentFollow)
         ]);
 
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).commentPosted,
-            backgroundColor: const Color(0xFFA08875),
-            contentColor: Colors.white);
+        if (context.mounted) {
+          showSnackBar(
+              context: context,
+              content: AppLocalizations.of(context).commentPosted,
+              backgroundColor: const Color(0xFFA08875),
+              contentColor: Colors.white);
+        }
         // if the comment is posted in further study discuss, then
       } else if (commentResponse.statusCode == 401 ||
           commentResponse.statusCode == 403) {
@@ -658,26 +661,28 @@ class NewsAdProvider extends ChangeNotifier {
       }
       notifyListeners();
       if (response.statusCode == 200) {
-        if (!isMe && otherUserStreamController != null) {
+        if (!isMe && otherUserStreamController != null && context.mounted) {
           Provider.of<ProfileProvider>(context, listen: false)
               .getOtherUserProfile(
                   otherUserStreamController: otherUserStreamController,
                   otherUserId: postedById,
                   context: context);
         }
-        await Future.wait([
-          updateOnlyOneTopic == true
-              ? getOneProfileTopic(topicId: postId, context: context)
-              : getSelectedUserProfileTopics(
-                  userId: postedById, context: context),
-          updateSelectedNewsPosts(
-              context: context,
-              newsPostId: postId,
-              newsPostSource: newsPostSource),
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context,
-              setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-        ]);
+        if (context.mounted) {
+          await Future.wait([
+            updateOnlyOneTopic == true
+                ? getOneProfileTopic(topicId: postId, context: context)
+                : getSelectedUserProfileTopics(
+                    userId: postedById, context: context),
+            updateSelectedNewsPosts(
+                context: context,
+                newsPostId: postId,
+                newsPostSource: newsPostSource),
+            mainScreenProvider.updateAndSetUserDetails(
+                context: context,
+                setLikeSaveCommentFollow: setLikeSaveCommentFollow)
+          ]);
+        }
         toggleSaveOnProcess = false;
         notifyListeners();
       } else if (response.statusCode == 401 || response.statusCode == 403) {
@@ -691,7 +696,8 @@ class NewsAdProvider extends ChangeNotifier {
           return;
         }
       } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
-          'Not Found') {
+              'Not Found' &&
+          context.mounted) {
         toggleSaveOnProcess = false;
         notifyListeners();
         showSnackBar(
@@ -763,26 +769,28 @@ class NewsAdProvider extends ChangeNotifier {
       }
       notifyListeners();
       if (response.statusCode == 200) {
-        if (!isMe && otherUserStreamController != null) {
+        if (!isMe && otherUserStreamController != null && context.mounted) {
           Provider.of<ProfileProvider>(context, listen: false)
               .getOtherUserProfile(
                   otherUserStreamController: otherUserStreamController,
                   otherUserId: postedById,
                   context: context);
         }
-        await Future.wait([
-          updateOnlyOneTopic == true
-              ? getOneProfileTopic(topicId: postId, context: context)
-              : getSelectedUserProfileTopics(
-                  userId: postedById, context: context),
-          updateSelectedNewsPosts(
-              context: context,
-              newsPostId: postId,
-              newsPostSource: newsPostSource),
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context,
-              setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-        ]);
+        if (context.mounted) {
+          await Future.wait([
+            updateOnlyOneTopic == true
+                ? getOneProfileTopic(topicId: postId, context: context)
+                : getSelectedUserProfileTopics(
+                    userId: postedById, context: context),
+            updateSelectedNewsPosts(
+                context: context,
+                newsPostId: postId,
+                newsPostSource: newsPostSource),
+            mainScreenProvider.updateAndSetUserDetails(
+                context: context,
+                setLikeSaveCommentFollow: setLikeSaveCommentFollow)
+          ]);
+        }
         toggleLikeOnProcess = false;
         notifyListeners();
       } else if (response.statusCode == 401 || response.statusCode == 403) {
@@ -796,7 +804,8 @@ class NewsAdProvider extends ChangeNotifier {
           return;
         }
       } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
-          'Not Found') {
+              'Not Found' &&
+          context.mounted) {
         toggleLikeOnProcess = false;
         notifyListeners();
         showSnackBar(
@@ -840,7 +849,7 @@ class NewsAdProvider extends ChangeNotifier {
 
       Response commentResponse = await NewsCommentRepo.saveNewsComment(
           bodyData: body, jwt: sharedPreferences.getString('jwt')!);
-      if (commentResponse.statusCode == 200) {
+      if (commentResponse.statusCode == 200 && context.mounted) {
         newsCommentController.clear();
         FocusScope.of(context).unfocus();
         if (!isMe && otherUserStreamController != null) {
@@ -864,11 +873,13 @@ class NewsAdProvider extends ChangeNotifier {
               setLikeSaveCommentFollow: setLikeSaveCommentFollow)
         ]);
 
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).commentPosted,
-            backgroundColor: const Color(0xFFA08875),
-            contentColor: Colors.white);
+        if (context.mounted) {
+          showSnackBar(
+              context: context,
+              content: AppLocalizations.of(context).commentPosted,
+              backgroundColor: const Color(0xFFA08875),
+              contentColor: Colors.white);
+        }
         // if the comment is posted in further study discuss, then
       } else if (commentResponse.statusCode == 401 ||
           commentResponse.statusCode == 403) {
@@ -1856,6 +1867,7 @@ class NewsAdProvider extends ChangeNotifier {
   List<XFile>? imageFileList = [];
 
   void selectMultiImages() async {
+    // ignore: unnecessary_nullable_for_final_variable_declarations
     final List<XFile>? selectedImages = await imagePicker.pickMultiImage();
     if (selectedImages != null && selectedImages.isNotEmpty) {
       imageFileList!.addAll(selectedImages);
@@ -1907,14 +1919,16 @@ class NewsAdProvider extends ChangeNotifier {
           }
         }
         // Since we have successfully added a new news post, we also want to add the length of total news posts list
-        mainScreenProvider.updateAndSetUserDetails(
-            context: context, setLikeSaveCommentFollow: false);
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).createdSuccessfully,
-            backgroundColor: const Color(0xFFA08875),
-            contentColor: Colors.white);
-        goBack(context: context);
+        if (context.mounted) {
+          mainScreenProvider.updateAndSetUserDetails(
+              context: context, setLikeSaveCommentFollow: false);
+          showSnackBar(
+              context: context,
+              content: AppLocalizations.of(context).createdSuccessfully,
+              backgroundColor: const Color(0xFFA08875),
+              contentColor: Colors.white);
+          goBack(context: context);
+        }
       } else if (createResponse.statusCode == 401 ||
           createResponse.statusCode == 403) {
         if (context.mounted) {
@@ -1925,11 +1939,13 @@ class NewsAdProvider extends ChangeNotifier {
           return;
         }
       } else {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
+        if (context.mounted) {
+          showSnackBar(
+              context: context,
+              content: AppLocalizations.of(context).tryAgainLater,
+              contentColor: Colors.white,
+              backgroundColor: Colors.red);
+        }
       }
     }
     // If there are images
@@ -1968,14 +1984,16 @@ class NewsAdProvider extends ChangeNotifier {
             return;
           }
         }
-        mainScreenProvider.updateAndSetUserDetails(
-            context: context, setLikeSaveCommentFollow: false);
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).createdSuccessfully,
-            backgroundColor: const Color(0xFFA08875),
-            contentColor: Colors.white);
-        goBack(context: context);
+        if (context.mounted) {
+          mainScreenProvider.updateAndSetUserDetails(
+              context: context, setLikeSaveCommentFollow: false);
+          showSnackBar(
+              context: context,
+              content: AppLocalizations.of(context).createdSuccessfully,
+              backgroundColor: const Color(0xFFA08875),
+              contentColor: Colors.white);
+          goBack(context: context);
+        }
       } else if (createResponse.statusCode == 401 ||
           createResponse.statusCode == 403) {
         if (context.mounted) {
@@ -1986,11 +2004,13 @@ class NewsAdProvider extends ChangeNotifier {
           return;
         }
       } else {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
+        if (context.mounted) {
+          showSnackBar(
+              context: context,
+              content: AppLocalizations.of(context).tryAgainLater,
+              contentColor: Colors.white,
+              backgroundColor: Colors.red);
+        }
       }
     }
     toggleIspostClick();
@@ -2159,7 +2179,7 @@ class NewsAdProvider extends ChangeNotifier {
       Response reportResponse = await ReportAndBlockRepo.reportNewsPost(
           bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
 
-      if (reportResponse.statusCode == 200) {
+      if (reportResponse.statusCode == 200 && context.mounted) {
         newsCommentControllerList.remove(newsCommentTextEditingController);
         removePostAfterReport(
             context: context,

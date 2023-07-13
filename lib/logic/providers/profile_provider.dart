@@ -205,7 +205,8 @@ class ProfileProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         // if user follow/unfollow is done from news post liked screen, update will be made there first
         if (userFollowSource == UserFollowSource.newsLikedScreen &&
-            newsPostId != null) {
+            newsPostId != null &&
+            context.mounted) {
           Provider.of<NewsAdProvider>(context, listen: false)
               .getNewsPostLikes(newsPostId: newsPostId, context: context);
           notifyListeners();
@@ -217,21 +218,25 @@ class ProfileProvider extends ChangeNotifier {
               otherUserStreamController: otherUserStreamController);
           notifyListeners();
         }
-        await Future.wait([
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context,
-              setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-        ]);
+        if (context.mounted) {
+          await Future.wait([
+            mainScreenProvider.updateAndSetUserDetails(
+                context: context,
+                setLikeSaveCommentFollow: setLikeSaveCommentFollow)
+          ]);
+        }
         notifyListeners();
         // sending push notification if device token of receiver user is not null.
         // if null, we can assume they have logged out of the app
         if (otherUserDeviceToken != null || otherUserDeviceToken != '') {
-          await mainScreenProvider.sendFollowPushNotification(
-              notificationAction: notificationAction,
-              receiverUserId: otherUserId.toString(),
-              receiverUserDeviceToken: otherUserDeviceToken,
-              context: context,
-              initiatorUsername: mainScreenProvider.userName.toString());
+          if (context.mounted) {
+            await mainScreenProvider.sendFollowPushNotification(
+                notificationAction: notificationAction,
+                receiverUserId: otherUserId.toString(),
+                receiverUserDeviceToken: otherUserDeviceToken,
+                context: context,
+                initiatorUsername: mainScreenProvider.userName.toString());
+          }
         }
         // Add notification in database
         Map notificationBodyData = {
@@ -261,8 +266,8 @@ class ProfileProvider extends ChangeNotifier {
         } else {
           toggleFollowOnProcess = false;
           notifyListeners();
-          throw Exception('notification addition unsuccessful' +
-              notificationResponse.statusCode.toString());
+          throw Exception(
+              'notification addition unsuccessful${notificationResponse.statusCode}');
         }
         toggleFollowOnProcess = false;
         notifyListeners();
@@ -279,11 +284,13 @@ class ProfileProvider extends ChangeNotifier {
       } else {
         toggleFollowOnProcess = false;
         notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
+        if (context.mounted) {
+          showSnackBar(
+              context: context,
+              content: AppLocalizations.of(context).tryAgainLater,
+              contentColor: Colors.white,
+              backgroundColor: Colors.red);
+        }
       }
     }
     toggleFollowOnProcess = false;
@@ -294,7 +301,7 @@ class ProfileProvider extends ChangeNotifier {
     if (likeCount == 1) {
       return "1 ${AppLocalizations.of(context).like}";
     } else if (likeCount <= 3) {
-      return likeCount.toString() + " ${AppLocalizations.of(context).likes}";
+      return "$likeCount ${AppLocalizations.of(context).likes}";
     } else if (likeCount == 4) {
       return "+${likeCount - 3} ${AppLocalizations.of(context).like}";
     } else {
@@ -378,7 +385,9 @@ class ProfileProvider extends ChangeNotifier {
       image = null;
     }
     await setUserDetails();
-    Navigator.pop(context);
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
   }
 
   User? _otherUser;
@@ -407,11 +416,13 @@ class ProfileProvider extends ChangeNotifier {
         if (_otherUser != null) {
           otherUserStreamController.sink.add(_otherUser!);
         } else {
-          showSnackBar(
-              context: context,
-              content: AppLocalizations.of(context).usersCouldNotLoad,
-              contentColor: Colors.white,
-              backgroundColor: Colors.red);
+          if (context.mounted) {
+            showSnackBar(
+                context: context,
+                content: AppLocalizations.of(context).usersCouldNotLoad,
+                contentColor: Colors.white,
+                backgroundColor: Colors.red);
+          }
         }
       }
       notifyListeners();
@@ -424,11 +435,13 @@ class ProfileProvider extends ChangeNotifier {
         return;
       }
     } else {
-      showSnackBar(
-          context: context,
-          content: AppLocalizations.of(context).usersCouldNotLoad,
-          contentColor: Colors.white,
-          backgroundColor: Colors.red);
+      if (context.mounted) {
+        showSnackBar(
+            context: context,
+            content: AppLocalizations.of(context).usersCouldNotLoad,
+            contentColor: Colors.white,
+            backgroundColor: Colors.red);
+      }
     }
   }
 
@@ -510,7 +523,7 @@ class ProfileProvider extends ChangeNotifier {
           profileId: sharedPreferences.getString('id')!);
     }
 
-    if (editResponse.statusCode == 200) {
+    if (editResponse.statusCode == 200 && context.mounted) {
       await Future.wait([
         Provider.of<NewsAdProvider>(context, listen: false)
             .updateAllNewsPosts(context: context),
@@ -520,12 +533,14 @@ class ProfileProvider extends ChangeNotifier {
             userName: userNameTextController.text,
             userType: userTypeTextController.text)
       ]);
-      showSnackBar(
-          context: context,
-          content: AppLocalizations.of(context).updatedSuccessfully,
-          backgroundColor: const Color(0xFFA08875),
-          contentColor: Colors.white);
-      goBackFromProfileEdit(context: context);
+      if (context.mounted) {
+        showSnackBar(
+            context: context,
+            content: AppLocalizations.of(context).updatedSuccessfully,
+            backgroundColor: const Color(0xFFA08875),
+            contentColor: Colors.white);
+        goBackFromProfileEdit(context: context);
+      }
       turnOffUpdateLoading();
     } else if (editResponse.statusCode == 401 ||
         editResponse.statusCode == 403) {
@@ -589,7 +604,7 @@ class ProfileProvider extends ChangeNotifier {
         jwt: sharedPreferences.getString('jwt')!,
         profileId: sharedPreferences.getString('id')!);
 
-    if (editResponse.statusCode == 200) {
+    if (editResponse.statusCode == 200 && context.mounted) {
       showSnackBar(
           context: context,
           content: AppLocalizations.of(context).passwordChanged,
@@ -629,7 +644,7 @@ class ProfileProvider extends ChangeNotifier {
 
   Future chooseImage({required BuildContext context}) async {
     var pickedImage = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedImage != null) {
+    if (pickedImage != null && context.mounted) {
       CroppedFile? croppedFile = await ImageCropper().cropImage(
         sourcePath: pickedImage.path,
         aspectRatioPresets: [
@@ -765,7 +780,7 @@ class ProfileProvider extends ChangeNotifier {
       };
       Response reportResponse = await ReportAndBlockRepo.blockUser(
           bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
-      if (reportResponse.statusCode == 200) {
+      if (reportResponse.statusCode == 200 && context.mounted) {
         mainScreenProvider.blockedUsersIdList.add(int.parse(otherUserId));
         mainScreenProvider.updateAndSetUserDetails(
           context: context,
@@ -815,7 +830,7 @@ class ProfileProvider extends ChangeNotifier {
         bodyData: bodyData,
         jwt: sharedPreferences.getString('jwt')!,
         userBlockId: userBlockId);
-    if (reportResponse.statusCode == 200) {
+    if (reportResponse.statusCode == 200 && context.mounted) {
       mainScreenProvider.blockedUsersIdList.remove(int.parse(otherUserId));
       mainScreenProvider.updateAndSetUserDetails(
         context: context,
@@ -859,7 +874,7 @@ class ProfileProvider extends ChangeNotifier {
         jwt: sharedPreferences.getString('jwt')!,
         profileId: sharedPreferences.getString('id')!);
 
-    if (deleteResponse.statusCode == 200) {
+    if (deleteResponse.statusCode == 200 && context.mounted) {
       Provider.of<BottomNavProvider>(context, listen: false)
           .setBottomIndex(index: 0, context: context);
 
@@ -898,18 +913,20 @@ class ProfileProvider extends ChangeNotifier {
       mainScreenProvider.loginPassword = '';
       mainScreenProvider.rememberMeCheckBox = false;
 
-      final newsAdProvider =
-          Provider.of<NewsAdProvider>(context, listen: false);
-      newsAdProvider.newsCommentControllerList.clear();
+      if (context.mounted) {
+        final newsAdProvider =
+            Provider.of<NewsAdProvider>(context, listen: false);
+        newsAdProvider.newsCommentControllerList.clear();
 
-      showSnackBar(
-          context: context,
-          content: AppLocalizations.of(context).accountDeleted,
-          backgroundColor: const Color(0xFFA08875),
-          contentColor: Colors.white);
+        showSnackBar(
+            context: context,
+            content: AppLocalizations.of(context).accountDeleted,
+            backgroundColor: const Color(0xFFA08875),
+            contentColor: Colors.white);
 
-      Navigator.pushNamedAndRemoveUntil(
-          context, LoginScreen.id, (route) => false);
+        Navigator.pushNamedAndRemoveUntil(
+            context, LoginScreen.id, (route) => false);
+      }
       return true;
     } else if (deleteResponse.statusCode == 401 ||
         deleteResponse.statusCode == 403) {

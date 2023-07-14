@@ -25,7 +25,6 @@ import 'package:spa_app/logic/providers/notification_provider.dart';
 import 'package:spa_app/logic/providers/profile_provider.dart';
 import 'package:spa_app/logic/providers/registration_provider.dart';
 import 'package:spa_app/logic/providers/terms_and_conditions_provider.dart';
-
 import 'package:spa_app/presentation/router/app_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -81,8 +80,7 @@ Future<void> main() async {
       Permission.notification.request();
     }
   });
-  SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   easyLoading();
   await Firebase.initializeApp();
 

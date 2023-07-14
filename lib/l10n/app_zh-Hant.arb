@@ -627,6 +627,8 @@
 
    "selectUserType": "選擇用戶類型",
 
-   "loggingIn": "在登錄.."
+   "loggingIn": "在登錄..",
+
+   "loggingOut": "註銷.."
 
 }

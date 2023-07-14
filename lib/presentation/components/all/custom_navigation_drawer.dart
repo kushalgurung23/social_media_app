@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/data/enum/navigation_items.dart';
 import 'package:spa_app/logic/providers/drawer_provider.dart';
-import 'package:spa_app/logic/providers/main_screen_provider.dart';
 import 'package:spa_app/presentation/components/all/drawer_item.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CustomNavigationDrawer extends StatelessWidget {
   const CustomNavigationDrawer({Key? key}) : super(key: key);
@@ -93,14 +92,7 @@ class CustomNavigationDrawer extends StatelessWidget {
                 text: AppLocalizations.of(context).logOut,
                 selected: NavigationItems.logOut == data.navigationItem,
                 onTap: () {
-                  Provider.of<MainScreenProvider>(context, listen: false)
-                      .socket
-                      .close();
-                  Provider.of<MainScreenProvider>(context, listen: false)
-                      .socket
-                      .dispose();
-                  data.setNavigationOnly(navigationItems: NavigationItems.home);
-                  data.removeCredentials(context: context);
+                  data.logOut(context: context);
                 },
               ),
               SizedBox(

@@ -627,6 +627,8 @@
 
    "selectUserType": "Select user type",
 
-   "loggingIn": "Logging in.."
+   "loggingIn": "Logging in..",
+
+   "loggingOut": "Logging out.."
 
 }

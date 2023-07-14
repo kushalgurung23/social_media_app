@@ -627,6 +627,8 @@
 
    "selectUserType": "选择用户类型",
 
-   "loggingIn": "在登录.."
+   "loggingIn": "在登录..",
+
+   "loggingOut": "注销.."
 
 }

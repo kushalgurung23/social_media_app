@@ -1,3 +1,4 @@
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:spa_app/data/enum/navigation_items.dart';
@@ -11,6 +12,7 @@ import 'package:spa_app/presentation/views/hamburger_menu_items/terms_and_condit
 import 'package:spa_app/presentation/views/login_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DrawerProvider extends ChangeNotifier {
   late SharedPreferences sharedPreferences;
@@ -52,7 +54,7 @@ class DrawerProvider extends ChangeNotifier {
     }
   }
 
-  void removeCredentials({required BuildContext context}) async {
+  Future<void> removeCredentials({required BuildContext context}) async {
     Provider.of<BottomNavProvider>(context, listen: false)
         .setBottomIndex(index: 0, context: context);
 
@@ -94,5 +96,15 @@ class DrawerProvider extends ChangeNotifier {
       Navigator.pushNamedAndRemoveUntil(
           context, LoginScreen.id, (route) => false);
     }
+  }
+
+  Future<void> logOut({required BuildContext context}) async {
+    EasyLoading.show(
+        status: AppLocalizations.of(context).loggingOut, dismissOnTap: false);
+    Provider.of<MainScreenProvider>(context, listen: false).socket.close();
+    Provider.of<MainScreenProvider>(context, listen: false).socket.dispose();
+    setNavigationOnly(navigationItems: NavigationItems.home);
+    await removeCredentials(context: context);
+    EasyLoading.dismiss();
   }
 }

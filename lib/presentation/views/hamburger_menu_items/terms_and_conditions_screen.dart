@@ -57,6 +57,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
     } else if (languageLocale == 'en') {
       tncUrl = '$webUrl/TermsAndConditions/en.html';
     }
+
     _controller.loadRequest(Uri.parse(tncUrl));
   }
 

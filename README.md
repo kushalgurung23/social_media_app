@@ -1,16 +1,113 @@
-# spa_app
+# YuYu Spa mobile application for iOS and Android
 
-A new Flutter project.
+## Version 1.0.0 (4)
 
-## Getting Started
+### Technology: 
+```
+Flutter 3.7.9
+Dart 2.19.6 
+```
 
-This project is a starting point for a Flutter application.
+### Test account:
+```
+Username: kushal
+Password: kushal
+```
 
-A few resources to get you started if this is your first Flutter project:
+### Android Package Name:
+```
+com.yuyuspahk.yuyuspa
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### IOS Bundle Identifier:
+```
+com.yuyuspahk.yuyuspa
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### App store id:
+```
+6451189098
+```
+
+### Apple Developer Account:
+```
+Email: devteam@apex.hk
+Password: ABcd@28937713
+```
+
+### Firebase Account:
+```
+Email: devteam@apex.hk
+Password: ABcd@28937713
+```
+
+### Google Play Store Account
+```
+Email: devteam@apex.hk
+Password: ABcd@28937713
+```
+
+### Android Key Store Properties
+```
+storePassword=ABcd@28937713
+keyPassword=ABcd@28937713
+keyAlias=upload
+storeFile=../app/upload-keystore.jks
+```
+
+### Google Play application signing key certificate
+```
+MD5 Credential Fingerprint: 
+
+SHA-1 Credential Fingerprint: 
+
+SHA-256 Credential Fingerprint: 
+
+```
+
+### Upload key certificate
+```
+MD5 Credential Fingerprint: 
+
+SHA-1 Credential Fingerprint: 
+
+SHA-256 Credential Fingerprint: 
+
+```
+
+### Firebase Dynamic Links:
+```
+PREFIX URL:
+https://yuyuspa.page.link
+
+URL links:
+1. https://yuyuspa.page.link/service
+```
+
+### Socket io
+```
+URL: http://kushal_chat.apex.hk
+```
+
+### Web url (Terms and conditions & Privacy policy)
+```
+URL: http://kushal.apex.hk/assets/yuyuspa
+
+1. Terms and conditions
+/TermsAndConditions/
+/TermsAndConditions/tc.html
+/TermsAndConditions/sc.html
+/TermsAndConditions/en.html
+
+2. Privacy policy
+/PrivacyPolicy/
+/PrivacyPolicy/tc.html
+/PrivacyPolicy/sc.html
+/PrivacyPolicy/en.html
+```
+
+### API 
+```
+API URL: http://kushal_app.apex.hk/api/
+```
+

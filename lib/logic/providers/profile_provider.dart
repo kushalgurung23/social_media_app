@@ -569,7 +569,7 @@ class ProfileProvider extends ChangeNotifier {
     turnOffUpdateLoading();
   }
 
-  // For keeping username in login text field if remember me is clicked
+  //For keeping username in login text field if remember me is clicked
   Future<void> setNewUsername() async {
     sharedPreferences.setString(
         'login_identifier', userNameTextController.text);
@@ -642,6 +642,7 @@ class ProfileProvider extends ChangeNotifier {
   File? image;
   final picker = ImagePicker();
 
+  // IMAGE WILL BE CROPPED AND COMPRESSED
   Future chooseImage({required BuildContext context}) async {
     var pickedImage = await picker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null && context.mounted) {
@@ -665,7 +666,8 @@ class ProfileProvider extends ChangeNotifier {
         ],
       );
       if (croppedFile != null) {
-        image = File(croppedFile.path);
+        File croppedImage = File(croppedFile.path);
+        image = await mainScreenProvider.compressImage(croppedImage);
       }
     }
 

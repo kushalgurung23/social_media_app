@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:spa_app/data/constant/connection_url.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -23,7 +24,7 @@ class NewPostRepo {
 
   static Future createNewPostWithImage(
       {required Map bodyData,
-      required List<XFile> imageList,
+      required List<File> imageList,
       required String jwt}) async {
     var url = "${kAPIURL}news-posts";
     try {

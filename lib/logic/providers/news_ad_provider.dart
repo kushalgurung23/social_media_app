@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -1950,10 +1951,12 @@ class NewsAdProvider extends ChangeNotifier {
     }
     // If there are images
     else {
+      final List<File> compressedPostImages = await mainScreenProvider
+          .compressAllImage(imageFileList: imageFileList!);
       for (int i = 0; i < imageFileList!.length; i++) {}
       final streamedResponse = await NewPostRepo.createNewPostWithImage(
           bodyData: bodyData,
-          imageList: imageFileList!,
+          imageList: compressedPostImages,
           jwt: sharedPreferences.getString('jwt')!);
       Response createResponse = await Response.fromStream(streamedResponse);
       if (createResponse.statusCode == 200) {

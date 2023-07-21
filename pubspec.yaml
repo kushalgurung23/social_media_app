@@ -4,7 +4,7 @@ description: A new Flutter project.
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+4
+version: 1.0.0+5
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
@@ -45,6 +45,8 @@ dependencies:
   webview_flutter: ^4.0.0 # to display e-commerce web view
   permission_handler: ^10.2.0 # permission request
   flutter_easyloading: ^3.0.5 # easy loading
+  flutter_image_compress: ^2.0.4 # compress image
+  path_provider: ^2.0.15 # gets temporary directory while compressing images
   
 dev_dependencies:
   flutter_test:

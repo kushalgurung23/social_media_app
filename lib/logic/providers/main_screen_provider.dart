@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
@@ -9,6 +10,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:spa_app/data/constant/connection_url.dart';
 import 'package:spa_app/data/constant/font_constant.dart';
 import 'package:spa_app/data/enum/interest_class_enum.dart';
@@ -863,6 +866,38 @@ class MainScreenProvider extends ChangeNotifier {
             "Error occured while navigating to interest class on running state");
       }
     }
+  }
+
+  // IMAGE COMPRESS
+  Future<File?> compressImage(File image) async {
+    final imageName = image.absolute.path.split('/').last.toString();
+    final result = await FlutterImageCompress.compressWithFile(
+        image.absolute.path,
+        quality: 80);
+    if (result != null) {
+      Uint8List imageInUnit8List = result; // store unit8List image here ;
+      final tempDir = await getTemporaryDirectory();
+      File file = await File('${tempDir.path}/$imageName').create();
+      file.writeAsBytesSync(imageInUnit8List);
+      return file;
+    } else {
+      return null;
+    }
+  }
+
+  Future<List<File>> compressAllImage(
+      {required List<XFile> imageFileList}) async {
+    List<File> compressedPostImages = [];
+    // Compressing each image
+    for (int i = 0; i < imageFileList.length; i++) {
+      final imageFile = File(imageFileList[i].path);
+
+      final compressedImage = await compressImage(imageFile);
+      if (compressedImage != null) {
+        compressedPostImages.add(compressedImage);
+      }
+    }
+    return compressedPostImages;
   }
 
   @override

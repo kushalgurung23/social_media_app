@@ -909,7 +909,6 @@ class ProfileProvider extends ChangeNotifier {
       mainScreenProvider.likedPostIdList.clear();
       mainScreenProvider.savedNewsPostIdList.clear();
       mainScreenProvider.savedInterestClassIdList.clear();
-      mainScreenProvider.savedPaperShareIdList.clear();
 
       mainScreenProvider.loginIdentifier = '';
       mainScreenProvider.loginPassword = '';

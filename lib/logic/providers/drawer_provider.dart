@@ -87,7 +87,6 @@ class DrawerProvider extends ChangeNotifier {
     mainScreenProvider.likedPostIdList.clear();
     mainScreenProvider.savedNewsPostIdList.clear();
     mainScreenProvider.savedInterestClassIdList.clear();
-    mainScreenProvider.savedPaperShareIdList.clear();
     if (context.mounted) {
       final newsAdProvider =
           Provider.of<NewsAdProvider>(context, listen: false);

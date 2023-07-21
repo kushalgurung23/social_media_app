@@ -129,9 +129,16 @@ class MainScreenProvider extends ChangeNotifier {
       }
       notifyListeners();
     } on SocketException {
+      EasyLoading.showInfo(
+          "Sorry, an error occurred. Please restart the application.",
+          dismissOnTap: false,
+          duration: const Duration(seconds: 60));
       return;
     } catch (e) {
-      throw Exception(e);
+      EasyLoading.showInfo(
+          "Sorry, an error occurred. Please restart the application.\nError: $e",
+          dismissOnTap: false,
+          duration: const Duration(seconds: 60));
     }
   }
 
@@ -221,9 +228,6 @@ class MainScreenProvider extends ChangeNotifier {
   // Interest class
   List<int> savedInterestClassIdList = [];
 
-  // Paper share
-  List<int> savedPaperShareIdList = [];
-
   // Reported news posts
   List<int> reportedNewsPostidList = [];
 
@@ -261,16 +265,6 @@ class MainScreenProvider extends ChangeNotifier {
                 .contains(user.interestClassSaves![i]!.interestClass!.id!)) {
           savedInterestClassIdList
               .add(user.interestClassSaves![i]!.interestClass!.id!);
-        }
-      }
-    }
-    // paper share save
-    if (user.paperShareSaves != null) {
-      for (int i = 0; i < user.paperShareSaves!.length; i++) {
-        if (user.paperShareSaves![i]!.paperShare != null &&
-            !savedPaperShareIdList
-                .contains(user.paperShareSaves![i]!.paperShare!.id)) {
-          savedPaperShareIdList.add(user.paperShareSaves![i]!.paperShare!.id!);
         }
       }
     }

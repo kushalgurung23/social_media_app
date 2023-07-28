@@ -1,6 +1,6 @@
 # YuYu Spa mobile application for iOS and Android
 
-## Version 1.0.0 (4)
+## Version 1.0.0 (6)
 
 ### Technology: 
 ```

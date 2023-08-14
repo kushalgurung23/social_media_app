@@ -27,7 +27,7 @@ class _NewsPostListState extends State<NewsPostList>
     final newsAdProvider = Provider.of<NewsAdProvider>(context, listen: false);
 
     // this will load initial 15 news posts in the news posts tab
-    newsAdProvider.refresh(context: context);
+    newsAdProvider.refreshNewsPosts(context: context);
 
     // this will load more data when we reach the end of news posts
 
@@ -88,7 +88,8 @@ class _NewsPostListState extends State<NewsPostList>
                       );
                     } else if (snapshot.hasData) {
                       return RefreshIndicator(
-                        onRefresh: () => data.refresh(context: context),
+                        onRefresh: () =>
+                            data.refreshNewsPosts(context: context),
                         child: ListView.builder(
                             physics: const AlwaysScrollableScrollPhysics(
                                 parent: BouncingScrollPhysics()),

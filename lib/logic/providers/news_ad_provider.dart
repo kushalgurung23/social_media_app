@@ -294,7 +294,7 @@ class NewsAdProvider extends ChangeNotifier {
     }
   }
 
-  Future refresh({required BuildContext context}) async {
+  Future refreshNewsPosts({required BuildContext context}) async {
     isLoading = false;
     hasMore = true;
     page = 1;

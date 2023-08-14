@@ -790,7 +790,7 @@ class ProfileProvider extends ChangeNotifier {
         notifyListeners();
         final newsAdProvider =
             Provider.of<NewsAdProvider>(context, listen: false);
-        newsAdProvider.refresh(context: context);
+        newsAdProvider.refreshNewsPosts(context: context);
         Navigator.of(context).pop();
         showSnackBar(
             context: context,

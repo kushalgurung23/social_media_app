@@ -1,4 +1,4 @@
-import 'package:spa_app/data/constant/connection_url.dart';
+import 'package:c_talent/data/constant/connection_url.dart';
 import 'package:http/http.dart' as http;
 
 class OtherUserProfileRepo {

@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:spa_app/data/models/all_news_post_model.dart';
+import 'package:c_talent/data/models/all_news_post_model.dart';
 
 Conversation conversationFromJson(String str) =>
     Conversation.fromJson(json.decode(str));

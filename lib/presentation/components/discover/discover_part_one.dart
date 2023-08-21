@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spa_app/logic/providers/discover_provider.dart';
+import 'package:c_talent/logic/providers/discover_provider.dart';
 import 'package:provider/provider.dart';
 
 class DiscoverPartOne extends StatelessWidget {

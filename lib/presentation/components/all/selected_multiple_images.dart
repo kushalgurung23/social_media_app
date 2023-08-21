@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:spa_app/logic/providers/news_ad_provider.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/logic/providers/news_ad_provider.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 

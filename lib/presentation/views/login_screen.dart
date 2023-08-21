@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/logic/providers/locale_provider.dart';
-import 'package:spa_app/logic/providers/login_screen_provider.dart';
-import 'package:spa_app/presentation/components/all/custom_checkbox.dart';
-import 'package:spa_app/presentation/components/all/custom_text_form_field.dart';
-import 'package:spa_app/presentation/components/all/rectangular_button.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/views/registration_screen.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/logic/providers/locale_provider.dart';
+import 'package:c_talent/logic/providers/login_screen_provider.dart';
+import 'package:c_talent/presentation/components/all/custom_checkbox.dart';
+import 'package:c_talent/presentation/components/all/custom_text_form_field.dart';
+import 'package:c_talent/presentation/components/all/rectangular_button.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/views/registration_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,7 +42,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
-    Provider.of<LoginScreenProvider>(context, listen: false).initial();
     super.initState();
     setLanguageCode();
   }
@@ -119,12 +118,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                 isEnabled: true,
                                 labelText:
                                     AppLocalizations.of(context).password,
-                                obscureText: data.passwordVisibility,
+                                obscureText: data.hidePasswordVisibility,
                                 iconButton: IconButton(
                                   splashRadius: 0.1,
                                   padding: EdgeInsets.only(
                                       right: SizeConfig.defaultSize),
-                                  icon: data.passwordVisibility
+                                  icon: data.hidePasswordVisibility
                                       ? Icon(CupertinoIcons.eye_slash,
                                           color: Colors.grey,
                                           size: SizeConfig.defaultSize * 2)
@@ -150,9 +149,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: CustomCheckbox(
                                 title: GestureDetector(
                                   onTap: () {
-                                    data.setCheckBoxValue(
-                                        checkBoxValue: !data.mainScreenProvider
-                                            .rememberMeCheckBox);
+                                    data.toggleKeepUserLoggedIn(
+                                        newValue: !data.isKeepUserLoggedIn);
                                   },
                                   child: Text(
                                     AppLocalizations.of(context).rememberMe,
@@ -162,10 +160,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                 ),
-                                checkboxValue:
-                                    data.mainScreenProvider.rememberMeCheckBox,
+                                checkboxValue: data.isKeepUserLoggedIn,
                                 onChanged: (value) {
-                                  data.setCheckBoxValue(checkBoxValue: value!);
+                                  data.toggleKeepUserLoggedIn(newValue: value!);
                                 },
                                 inCenter: false,
                               ),
@@ -184,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (isValid) {
                                   await data.userLogin(
                                       context: context,
-                                      identifier: data.userNameController.text,
+                                      email: data.userNameController.text,
                                       password: data.passwordController.text);
                                 }
                               },
@@ -226,15 +223,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     decoration: TextDecoration.underline,
                                     fontSize: SizeConfig.defaultSize * 1.5),
                               ),
-                              onTap: () {
-                                if (data.isLoginClick == true) {
-                                  data.makeLoginFalse();
-                                }
-                                data.clearAll();
-                                data.hidePassword();
-                                Navigator.pushNamed(
-                                    context, RegistrationScreen.id);
-                              },
+                              onTap: () {},
                             ),
                           )
                         ],

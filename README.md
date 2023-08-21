@@ -1,4 +1,4 @@
-# YuYu Spa mobile application for iOS and Android
+# C Talent mobile application for iOS and Android
 
 ## Version 1.0.0 (6)
 
@@ -16,12 +16,12 @@ Password: kushal
 
 ### Android Package Name:
 ```
-com.yuyuspahk.yuyuspa
+hk.apex.ctalent
 ```
 
 ### IOS Bundle Identifier:
 ```
-com.yuyuspahk.yuyuspa
+hk.apex.ctalent
 ```
 
 ### App store id:
@@ -78,10 +78,10 @@ SHA-256 Credential Fingerprint: 07:F0:D4:0C:A1:F8:6F:BC:66:C9:7D:2A:E9:F0:2E:E7:
 ### Firebase Dynamic Links:
 ```
 PREFIX URL:
-https://yuyuspa.page.link
+https://ctalent.page.link
 
 URL links:
-1. https://yuyuspa.page.link/service
+1. https://ctalent.page.link/service
 ```
 
 ### Socket io

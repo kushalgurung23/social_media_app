@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/data/models/user_model.dart';
-import 'package:spa_app/logic/providers/news_ad_provider.dart';
-import 'package:spa_app/presentation/components/all/custom_dropdown_button.dart';
-import 'package:spa_app/presentation/components/all/rectangular_button.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/models/user_model.dart';
+import 'package:c_talent/logic/providers/news_ad_provider.dart';
+import 'package:c_talent/presentation/components/all/custom_dropdown_button.dart';
+import 'package:c_talent/presentation/components/all/rectangular_button.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 
 showReportNewsPostContainer(

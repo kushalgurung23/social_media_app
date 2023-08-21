@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spa_app/presentation/components/all/top_app_bar.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/components/interest_class/bookmark_interest_classes.dart';
+import 'package:c_talent/presentation/components/all/top_app_bar.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/components/interest_class/bookmark_interest_classes.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 AppBar interestAppBar({required BuildContext context}) {

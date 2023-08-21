@@ -12,24 +12,24 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:spa_app/data/constant/connection_url.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/data/enum/interest_class_enum.dart';
-import 'package:spa_app/data/models/all_news_post_model.dart';
-import 'package:spa_app/data/models/conversation_model.dart';
-import 'package:spa_app/data/models/socket_message_model.dart';
-import 'package:spa_app/data/models/user_model.dart';
-import 'package:spa_app/data/repositories/device_token_repo.dart';
-import 'package:spa_app/data/repositories/login_repo.dart';
-import 'package:spa_app/data/repositories/push_notification_repo.dart';
-import 'package:spa_app/logic/providers/chat_message_provider.dart';
-import 'package:spa_app/logic/providers/drawer_provider.dart';
-import 'package:spa_app/logic/providers/profile_provider.dart';
-import 'package:spa_app/main.dart';
-import 'package:spa_app/presentation/components/interest_class/interest_course_detail_screen.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/views/hamburger_menu_items/home_screen.dart';
-import 'package:spa_app/presentation/views/login_screen.dart';
+import 'package:c_talent/data/constant/connection_url.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/enum/interest_class_enum.dart';
+import 'package:c_talent/data/models/all_news_post_model.dart';
+import 'package:c_talent/data/models/conversation_model.dart';
+import 'package:c_talent/data/models/socket_message_model.dart';
+import 'package:c_talent/data/models/user_model.dart';
+import 'package:c_talent/data/repositories/device_token_repo.dart';
+import 'package:c_talent/data/repositories/login_repo.dart';
+import 'package:c_talent/data/repositories/push_notification_repo.dart';
+import 'package:c_talent/logic/providers/chat_message_provider.dart';
+import 'package:c_talent/logic/providers/drawer_provider.dart';
+import 'package:c_talent/logic/providers/profile_provider.dart';
+import 'package:c_talent/main.dart';
+import 'package:c_talent/presentation/components/interest_class/interest_course_detail_screen.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/views/hamburger_menu_items/home_screen.dart';
+import 'package:c_talent/presentation/views/login_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
@@ -697,7 +697,7 @@ class MainScreenProvider extends ChangeNotifier {
     if (receiverUserDeviceToken != null) {
       Map bodyData = {
         "token": receiverUserDeviceToken,
-        "title": "YuYu Spa",
+        "title": "C Talent",
         "body": notificationAction == 'follow'
             ? "$initiatorUsername started following you."
             : "$initiatorUsername unfollowed you."
@@ -728,7 +728,7 @@ class MainScreenProvider extends ChangeNotifier {
     if (receiverUserDeviceToken != null) {
       Map bodyData = {
         "token": receiverUserDeviceToken,
-        "title": "YuYu Spa",
+        "title": "C Talent",
         "body": "$initiatorUsername has sent you a message."
       };
       http.Response response = await PushNotificationRepo.sendPushNotification(

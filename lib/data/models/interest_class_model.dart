@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:spa_app/data/models/all_news_post_model.dart';
+import 'package:c_talent/data/models/all_news_post_model.dart';
 
 InterestClass interestClassFromJson(String str) =>
     InterestClass.fromJson(json.decode(str));

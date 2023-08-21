@@ -1,4 +1,4 @@
-package com.yuyuspahk.yuyuspa
+package hk.apex.ctalent
 
 import io.flutter.embedding.android.FlutterActivity
 

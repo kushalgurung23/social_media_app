@@ -4,7 +4,7 @@
 
 import 'dart:convert';
 
-import 'package:spa_app/data/models/user_model.dart';
+import 'package:c_talent/data/models/user_model.dart';
 
 List<SearchUser> searchUserFromJson(String str) =>
     List<SearchUser>.from(json.decode(str).map((x) => SearchUser.fromJson(x)));

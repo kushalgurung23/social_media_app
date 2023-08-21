@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:spa_app/data/constant/connection_url.dart';
+import 'package:c_talent/data/constant/connection_url.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';

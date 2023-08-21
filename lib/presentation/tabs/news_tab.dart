@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:spa_app/logic/providers/main_screen_provider.dart';
-import 'package:spa_app/presentation/components/all/rounded_text_form_field.dart';
-import 'package:spa_app/presentation/components/news/news_post_list.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/tabs/news_appbar.dart';
-import 'package:spa_app/presentation/views/new_post_screen.dart';
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
+import 'package:c_talent/presentation/components/news/news_post_list.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/tabs/news_appbar.dart';
+import 'package:c_talent/presentation/views/new_post_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:spa_app/presentation/components/all/custom_navigation_drawer.dart';
+import 'package:c_talent/presentation/components/all/custom_navigation_drawer.dart';
 
 class NewsTab extends StatefulWidget {
   const NewsTab({Key? key}) : super(key: key);

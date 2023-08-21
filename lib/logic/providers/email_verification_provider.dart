@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/logic/providers/registration_provider.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/logic/providers/registration_provider.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 
 class EmailVerificationProvider extends ChangeNotifier {

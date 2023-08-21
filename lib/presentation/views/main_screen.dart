@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/logic/providers/main_screen_provider.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
@@ -34,7 +34,7 @@ class _MainScreenState extends State<MainScreen> {
           child: Padding(
             padding: EdgeInsets.only(top: SizeConfig.defaultSize * 2),
             child: Text(
-              'Welcome to\n YuYu Spa Mobile Application',
+              'Welcome to\n C Talent Mobile Application',
               style: TextStyle(
                   color: const Color(0xFFA08875),
                   fontFamily: kHelveticaMedium,

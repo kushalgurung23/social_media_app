@@ -1,4 +1,4 @@
-name: spa_app
+name: c_talent
 description: A new Flutter project.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -47,6 +47,7 @@ dependencies:
   flutter_easyloading: ^3.0.5 # easy loading
   flutter_image_compress: ^2.0.4 # compress image
   path_provider: ^2.0.15 # gets temporary directory while compressing images
+  flutter_secure_storage: ^8.0.0 # encrypt data before saving in mobile memory
   
 dev_dependencies:
   flutter_test:

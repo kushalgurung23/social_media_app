@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:spa_app/data/constant/connection_url.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/data/models/conversation_model.dart';
-import 'package:spa_app/data/repositories/chat_messages_repo.dart';
-import 'package:spa_app/logic/providers/chat_message_provider.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/data/constant/connection_url.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/models/conversation_model.dart';
+import 'package:c_talent/data/repositories/chat_messages_repo.dart';
+import 'package:c_talent/logic/providers/chat_message_provider.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

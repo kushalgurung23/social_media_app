@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/data/repositories/register_repo.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/views/email_verification_screen.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/repositories/register_repo.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/views/email_verification_screen.dart';
 import 'package:http/http.dart' as http;
 
 class TermsAndConditionsProvider extends ChangeNotifier {
@@ -42,12 +42,12 @@ class TermsAndConditionsProvider extends ChangeNotifier {
       var sixDigitCode = random.nextInt(900000) + 100000;
       Map bodyData = {
         "sendTo": recipientEmailAddress,
-        "subject": "YuYu Spa Email Verification",
+        "subject": "C Talent Email Verification",
         "body": "<p>Dear Madam/Sir,</p>"
-            "<p>Please enter the following 6 digit code in YuYu Spa application to verify your email address:</p>"
+            "<p>Please enter the following 6 digit code in C Talent application to verify your email address:</p>"
             "<h1>$sixDigitCode</h1><br>"
             "<p>Yours Sincerely,</p>"
-            "<p>YuYu Spa</p>"
+            "<p>C Talent</p>"
       };
 
       http.Response response = await RegisterRepo.sendEmailConfirmation(

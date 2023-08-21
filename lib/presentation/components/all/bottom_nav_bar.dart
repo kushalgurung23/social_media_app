@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spa_app/logic/providers/bottom_nav_provider.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/logic/providers/news_ad_provider.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/logic/providers/news_ad_provider.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:badges/badges.dart' as badges;

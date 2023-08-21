@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/logic/providers/profile_provider.dart';
-import 'package:spa_app/presentation/components/all/rounded_text_form_field.dart';
-import 'package:spa_app/presentation/components/profile/password_change_screen.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/logic/providers/profile_provider.dart';
+import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
+import 'package:c_talent/presentation/components/profile/password_change_screen.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

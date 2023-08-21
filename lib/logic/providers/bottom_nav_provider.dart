@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:spa_app/logic/providers/news_ad_provider.dart';
-import 'package:spa_app/logic/providers/notification_provider.dart';
+import 'package:c_talent/logic/providers/news_ad_provider.dart';
+import 'package:c_talent/logic/providers/notification_provider.dart';
 
 class BottomNavProvider extends ChangeNotifier {
   int _selectedIndex = 0;

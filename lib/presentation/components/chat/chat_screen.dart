@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:spa_app/data/models/conversation_model.dart';
-import 'package:spa_app/logic/providers/chat_message_provider.dart';
-import 'package:spa_app/presentation/components/all/rounded_text_form_field.dart';
-import 'package:spa_app/presentation/components/all/top_app_bar.dart';
-import 'package:spa_app/presentation/components/chat/chat_screen_list_view.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/data/models/conversation_model.dart';
+import 'package:c_talent/logic/providers/chat_message_provider.dart';
+import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
+import 'package:c_talent/presentation/components/all/top_app_bar.dart';
+import 'package:c_talent/presentation/components/chat/chat_screen_list_view.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {

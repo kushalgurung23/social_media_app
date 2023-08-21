@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:url_launcher/link.dart';
 
 class AllSocialIcons extends StatelessWidget {

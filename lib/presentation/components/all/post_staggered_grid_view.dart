@@ -1,11 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:spa_app/data/constant/connection_url.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/data/models/all_news_post_model.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/views/all_post_images.dart';
+import 'package:c_talent/data/constant/connection_url.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/models/all_news_post_model.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/views/all_post_images.dart';
 
 class PostStaggeredGridView extends StatelessWidget {
   final List<MultiImageData?>? postImage;

@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:spa_app/data/constant/connection_url.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/data/constant/connection_url.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 Widget buildImage({required String imageUrl, required int index}) {

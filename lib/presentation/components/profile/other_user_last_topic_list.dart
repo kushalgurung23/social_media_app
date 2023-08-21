@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/data/models/user_model.dart';
-import 'package:spa_app/logic/providers/profile_provider.dart';
-import 'package:spa_app/presentation/views/last_bookmark_topic_description_screen.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/models/user_model.dart';
+import 'package:c_talent/logic/providers/profile_provider.dart';
+import 'package:c_talent/presentation/views/last_bookmark_topic_description_screen.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

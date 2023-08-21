@@ -1,57 +1,40 @@
 {
   "project_info": {
-    "project_number": "154790314705",
-    "project_id": "yuyu-spa",
-    "storage_bucket": "yuyu-spa.appspot.com"
+    "project_number": "1005461380380",
+    "project_id": "c-talent",
+    "storage_bucket": "c-talent.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:154790314705:android:d0eb5eaad580cab1d23bf0",
+        "mobilesdk_app_id": "1:1005461380380:android:1a96deaab53129353caed9",
         "android_client_info": {
-          "package_name": "com.yuyuspahk.yuyuspa"
+          "package_name": "hk.apex.ctalent"
         }
       },
       "oauth_client": [
         {
-          "client_id": "154790314705-jbemdun30in6srmc9nvh6u1qs623rpeg.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.yuyuspahk.yuyuspa",
-            "certificate_hash": "f16dc475058e5f5fdd2894173d21f3a92b7edb97"
-          }
-        },
-        {
-          "client_id": "154790314705-ugl3slfqtnphhbm3hplvbrm75jjkiufm.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.yuyuspahk.yuyuspa",
-            "certificate_hash": "c063508f785a5944e7354043a6d7cc2a2bb1ce86"
-          }
-        },
-        {
-          "client_id": "154790314705-3mfdjmt7hm1vn1fm481bl39fsvnvd31q.apps.googleusercontent.com",
+          "client_id": "1005461380380-egl2u9da1hjts40346obgeul09hlvs0m.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBwqFJGa2UtiyIh9-vTR6B5F3tjdIc_PIw"
+          "current_key": "AIzaSyAf-_LhZ18jC-fcdk90VT3BzegKR8n1vXA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "154790314705-3mfdjmt7hm1vn1fm481bl39fsvnvd31q.apps.googleusercontent.com",
+              "client_id": "1005461380380-egl2u9da1hjts40346obgeul09hlvs0m.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "154790314705-2k090ct47g8a46g6g44p42jr6jmvefa5.apps.googleusercontent.com",
+              "client_id": "1005461380380-s7mjbimu3bodj2o4gcm9vkma9h5hbflq.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.yuyuspahk.yuyuspa",
-                "app_store_id": "6451189098"
+                "bundle_id": "hk.apex.ctalent"
               }
             }
           ]

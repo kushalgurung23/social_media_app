@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spa_app/logic/providers/profile_provider.dart';
-import 'package:spa_app/presentation/components/all/top_app_bar.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/views/edit_profile_screen.dart';
+import 'package:c_talent/logic/providers/profile_provider.dart';
+import 'package:c_talent/presentation/components/all/top_app_bar.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/views/edit_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

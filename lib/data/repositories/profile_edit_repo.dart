@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
-import 'package:spa_app/data/constant/connection_url.dart';
-import 'package:spa_app/data/models/user_model.dart';
-import 'package:spa_app/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/data/constant/connection_url.dart';
+import 'package:c_talent/data/models/user_model.dart';
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:spa_app/data/enum/network_status_enum.dart';
+import 'package:c_talent/data/enum/network_status_enum.dart';
 
 class NetworkService {
   StreamController<NetworkStatus> networkServiceController = StreamController();

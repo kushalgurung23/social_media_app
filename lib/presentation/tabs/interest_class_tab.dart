@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spa_app/logic/providers/interest_class_provider.dart';
-import 'package:spa_app/presentation/components/all/rounded_text_form_field.dart';
-import 'package:spa_app/presentation/components/interest_class/all_interest_classes.dart';
-import 'package:spa_app/presentation/components/interest_class/filter_interest_classes.dart';
-import 'package:spa_app/presentation/components/interest_class/interest_class_filter_container.dart';
-import 'package:spa_app/presentation/components/interest_class/search_interest_classes.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/tabs/interest_class_appbar.dart';
+import 'package:c_talent/logic/providers/interest_class_provider.dart';
+import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
+import 'package:c_talent/presentation/components/interest_class/all_interest_classes.dart';
+import 'package:c_talent/presentation/components/interest_class/filter_interest_classes.dart';
+import 'package:c_talent/presentation/components/interest_class/interest_class_filter_container.dart';
+import 'package:c_talent/presentation/components/interest_class/search_interest_classes.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/tabs/interest_class_appbar.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

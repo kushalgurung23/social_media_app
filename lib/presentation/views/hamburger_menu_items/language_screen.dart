@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/data/enum/navigation_items.dart';
-import 'package:spa_app/logic/providers/drawer_provider.dart';
-import 'package:spa_app/logic/providers/locale_provider.dart';
-import 'package:spa_app/presentation/components/all/custom_navigation_drawer.dart';
-import 'package:spa_app/presentation/components/all/rectangular_button.dart';
-import 'package:spa_app/presentation/components/all/top_app_bar.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/enum/navigation_items.dart';
+import 'package:c_talent/logic/providers/drawer_provider.dart';
+import 'package:c_talent/logic/providers/locale_provider.dart';
+import 'package:c_talent/presentation/components/all/custom_navigation_drawer.dart';
+import 'package:c_talent/presentation/components/all/rectangular_button.dart';
+import 'package:c_talent/presentation/components/all/top_app_bar.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

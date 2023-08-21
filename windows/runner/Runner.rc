@@ -89,12 +89,12 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.yuyuspahk" "\0"
+            VALUE "CompanyName", "hk.apex" "\0"
             VALUE "FileDescription", "SPA" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "SPA" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 com.yuyuspahk. All rights reserved." "\0"
-            VALUE "OriginalFilename", "spa_app.exe" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2023 hk.apex. All rights reserved." "\0"
+            VALUE "OriginalFilename", "c_talent.exe" "\0"
             VALUE "ProductName", "SPA" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END

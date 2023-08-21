@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CustomMultipleDropdown extends StatefulWidget {

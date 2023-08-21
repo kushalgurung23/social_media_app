@@ -7,20 +7,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/data/enum/network_status_enum.dart';
-import 'package:spa_app/logic/providers/bottom_nav_provider.dart';
-import 'package:spa_app/logic/providers/chat_message_provider.dart';
-import 'package:spa_app/logic/providers/locale_provider.dart';
-import 'package:spa_app/logic/providers/main_screen_provider.dart';
-import 'package:spa_app/logic/providers/news_ad_provider.dart';
-import 'package:spa_app/logic/providers/notification_provider.dart';
-import 'package:spa_app/presentation/components/all/bottom_nav_bar.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/tabs/interest_class_tab.dart';
-import 'package:spa_app/presentation/tabs/news_tab.dart';
-import 'package:spa_app/presentation/tabs/notification_tab.dart';
-import 'package:spa_app/presentation/tabs/profile_tab.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/enum/network_status_enum.dart';
+import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
+import 'package:c_talent/logic/providers/chat_message_provider.dart';
+import 'package:c_talent/logic/providers/locale_provider.dart';
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/logic/providers/news_ad_provider.dart';
+import 'package:c_talent/logic/providers/notification_provider.dart';
+import 'package:c_talent/presentation/components/all/bottom_nav_bar.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/tabs/interest_class_tab.dart';
+import 'package:c_talent/presentation/tabs/news_tab.dart';
+import 'package:c_talent/presentation/tabs/notification_tab.dart';
+import 'package:c_talent/presentation/tabs/profile_tab.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen>
     }
     if (!kIsWeb) {
       channel = const AndroidNotificationChannel(
-          'yuyuspa', // id
+          'ctalent', // id
           'High Importance Notifications', // title
           description:
               'This channel is used for important notifications.', // description

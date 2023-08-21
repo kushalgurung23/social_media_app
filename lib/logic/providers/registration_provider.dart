@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/data/repositories/register_repo.dart';
-import 'package:spa_app/logic/providers/drawer_provider.dart';
-import 'package:spa_app/logic/providers/login_screen_provider.dart';
-import 'package:spa_app/logic/providers/main_screen_provider.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/views/register_terms_and_conditions_screen.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/repositories/register_repo.dart';
+import 'package:c_talent/logic/providers/drawer_provider.dart';
+import 'package:c_talent/logic/providers/login_screen_provider.dart';
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/views/register_terms_and_conditions_screen.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -227,7 +227,7 @@ class RegistrationProvider extends ChangeNotifier {
         await Provider.of<LoginScreenProvider>(context, listen: false)
             .userLogin(
                 context: context,
-                identifier: userNameTextController.text,
+                email: userNameTextController.text,
                 password: confirmPasswordTextController.text);
         clearData();
       } else if (registrationResponse.statusCode == 400 &&

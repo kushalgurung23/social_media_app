@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/logic/providers/notification_provider.dart';
-import 'package:spa_app/presentation/components/all/top_app_bar.dart';
-import 'package:spa_app/presentation/components/chat/follow_notification_tab.dart';
-import 'package:spa_app/presentation/components/chat/promotion_tab.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/logic/providers/notification_provider.dart';
+import 'package:c_talent/presentation/components/all/top_app_bar.dart';
+import 'package:c_talent/presentation/components/chat/follow_notification_tab.dart';
+import 'package:c_talent/presentation/components/chat/promotion_tab.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 
 class NotificationTab extends StatefulWidget {
   const NotificationTab({Key? key}) : super(key: key);

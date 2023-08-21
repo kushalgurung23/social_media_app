@@ -1,19 +1,20 @@
 import 'dart:convert';
+
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/new_models/login_success.dart';
+import 'package:c_talent/data/new_repositories/auth/login_repo.dart';
+import 'package:c_talent/data/service/user_secure_storage.dart';
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/views/hamburger_menu_items/home_screen.dart';
+import 'package:c_talent/presentation/views/registration_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:spa_app/data/constant/font_constant.dart';
-import 'package:spa_app/data/models/user_model.dart';
-import 'package:spa_app/data/repositories/login_repo.dart';
-import 'package:spa_app/logic/providers/main_screen_provider.dart';
-import 'package:spa_app/presentation/helper/size_configuration.dart';
-import 'package:spa_app/presentation/views/hamburger_menu_items/home_screen.dart';
-import 'package:http/http.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:http/http.dart';
 
 class LoginScreenProvider extends ChangeNotifier {
-  late SharedPreferences sharedPreferences;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late TextEditingController userNameController, passwordController;
   late final MainScreenProvider mainScreenProvider;
@@ -21,43 +22,14 @@ class LoginScreenProvider extends ChangeNotifier {
   LoginScreenProvider({required this.mainScreenProvider}) {
     userNameController = TextEditingController();
     passwordController = TextEditingController();
-    initial();
   }
-
-  void initial() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    userNameController.text =
-        sharedPreferences.getString('login_identifier') ?? '';
-    passwordController.text =
-        sharedPreferences.getString('login_password') ?? '';
-  }
-
-  bool passwordVisibility = true;
-
-  void setCheckBoxValue({required bool checkBoxValue}) {
-    sharedPreferences.setBool('rememberMe', checkBoxValue);
-    mainScreenProvider.rememberMeCheckBox =
-        sharedPreferences.getBool('rememberMe') ?? false;
-    notifyListeners();
-  }
-
-  void clearAll() {
-    if (mainScreenProvider.loginIdentifier == '' &&
-        mainScreenProvider.loginPassword == '') {
-      userNameController.text = '';
-      passwordController.text = '';
-      sharedPreferences.setBool('rememberMe', false);
-      mainScreenProvider.rememberMeCheckBox =
-          sharedPreferences.getBool('rememberMe') ?? false;
-      notifyListeners();
-    }
-  }
+  bool hidePasswordVisibility = true;
 
   void togglePasswordVisibility() {
-    if (passwordVisibility == false) {
-      passwordVisibility = true;
-    } else if (passwordVisibility == true) {
-      passwordVisibility = false;
+    if (hidePasswordVisibility == false) {
+      hidePasswordVisibility = true;
+    } else if (hidePasswordVisibility == true) {
+      hidePasswordVisibility = false;
     }
     notifyListeners();
   }
@@ -82,116 +54,92 @@ class LoginScreenProvider extends ChangeNotifier {
     }
   }
 
-  bool isLoginClick = false;
-
-  void makeLoginFalse() {
-    if (isLoginClick == true) {
-      isLoginClick = false;
-      notifyListeners();
-    }
-  }
-
-  void makeLoginTrue() {
-    if (isLoginClick == false) {
-      isLoginClick = true;
-      notifyListeners();
-    }
-  }
-
   // when user clicks on login or register, make password field obscure
   void hidePassword() {
-    passwordVisibility = true;
+    hidePasswordVisibility = true;
     notifyListeners();
   }
 
-  User? user;
+  bool isKeepUserLoggedIn = false;
+  void toggleKeepUserLoggedIn({required bool newValue}) {
+    isKeepUserLoggedIn = newValue;
+    notifyListeners();
+  }
 
   Future<void> userLogin(
       {required BuildContext context,
-      required String identifier,
+      required String email,
       required String password}) async {
     try {
-      makeLoginTrue();
       EasyLoading.show(status: AppLocalizations.of(context).loggingIn);
-      String body =
-          jsonEncode({"identifier": identifier, "password": password});
-      Response loginResponse = await LoginRepo.loginUser(bodyData: body);
-      if (isLoginClick == true) {
-        // If login credentials matches
-        if (loginResponse.statusCode == 200 && context.mounted) {
-          user = userFromJson(loginResponse.body);
-          saveLoginCredentials(password: password);
-          mainScreenProvider.currentUserController.sink.add(user!);
-          mainScreenProvider.setUserInfo(user: user!, context: context);
-          String? currentDeviceToken =
-              await FirebaseMessaging.instance.getToken();
-          // Checking if the device token stored in user table matches the current device token
-          // if it doesnot match
-          if (user!.deviceToken.toString() != currentDeviceToken) {
-            bool isUpdate = await mainScreenProvider.updateUserDeviceToken(
-                userId: user!.id.toString(),
-                newDeviceToken: currentDeviceToken!);
-            if (isUpdate && context.mounted) {
-              EasyLoading.showSuccess(
-                  "${AppLocalizations.of(context).welcome} ${user!.username}",
-                  dismissOnTap: true,
-                  duration: const Duration(seconds: 2));
-              Navigator.pushNamedAndRemoveUntil(
-                  context, HomeScreen.id, (route) => false);
-              makeLoginFalse();
-              hidePassword();
-            }
-          } else if (user!.deviceToken.toString() == currentDeviceToken &&
-              context.mounted) {
-            EasyLoading.showSuccess(
-                "${AppLocalizations.of(context).welcome} ${user!.username}",
-                dismissOnTap: true,
-                duration: const Duration(seconds: 2));
-            Navigator.pushNamedAndRemoveUntil(
-                context, HomeScreen.id, (route) => false);
-            hidePassword();
-          }
+      String? currentDeviceToken = await FirebaseMessaging.instance.getToken();
+      String body = jsonEncode({
+        "email": email,
+        "password": password,
+        "device_token": currentDeviceToken
+      });
+      Response loginResponse = await NewLoginRepo.loginUser(bodyData: body);
+      if (loginResponse.statusCode == 200 &&
+          jsonDecode(loginResponse.body)['status'] == 'Success') {
+        LoginSuccess loginSuccess = loginSuccessFromJson(loginResponse.body);
+        if (loginSuccess.user == null) {
+          EasyLoading.showInfo("Please try again later.",
+              duration: const Duration(seconds: 3), dismissOnTap: true);
+          return;
         }
-        // If login credentials do not match
-        else if (loginResponse.statusCode == 400 &&
-            (jsonDecode(loginResponse.body))["error"]["message"] ==
-                "Invalid identifier or password") {
-          EasyLoading.dismiss();
-          showSnackBar(
-              context: context,
-              content:
-                  AppLocalizations.of(context).usernameEmailPasswordNotMatch,
-              contentColor: Colors.white,
-              backgroundColor: Colors.red);
-        } else if (loginResponse.statusCode == 400) {
-          EasyLoading.dismiss();
-          showSnackBar(
-              context: context,
-              content: ((jsonDecode(loginResponse.body))["error"]["message"])
-                  .toString(),
-              contentColor: Colors.white,
-              backgroundColor: Colors.red);
-        } else {
-          EasyLoading.dismiss();
-          showSnackBar(
-              context: context,
-              content: AppLocalizations.of(context).unsuccessfulTryAgainLater,
-              contentColor: Colors.white,
-              backgroundColor: Colors.red);
+        await saveUserCredentials(
+            userId: loginSuccess.user!.id.toString(),
+            refreshToken: loginSuccess.refreshToken.toString(),
+            accessToken: loginSuccess.accessToken.toString());
+        EasyLoading.dismiss();
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, HomeScreen.id, (route) => false);
         }
+      } else if (loginResponse.statusCode == 401 &&
+          jsonDecode(loginResponse.body)['status'] == 'Error') {
+        EasyLoading.showInfo(jsonDecode(loginResponse.body)['msg'],
+            duration: const Duration(seconds: 3), dismissOnTap: true);
+        return;
+      } else {
+        EasyLoading.showInfo("Please try again later.",
+            duration: const Duration(seconds: 3), dismissOnTap: true);
+        return;
       }
-      EasyLoading.dismiss();
-      makeLoginFalse();
     } on Exception {
-      EasyLoading.dismiss();
-      makeLoginFalse();
-      showSnackBar(
-          context: context,
-          content: AppLocalizations.of(context).unsuccessfulTryAgainLater,
-          contentColor: Colors.white,
-          backgroundColor: Colors.red);
-      throw (Exception);
+      EasyLoading.showInfo("Please try again later.",
+          duration: const Duration(seconds: 3), dismissOnTap: true);
+      return;
     }
+  }
+
+  Future<void> saveUserCredentials(
+      {required String userId,
+      required String refreshToken,
+      required String accessToken}) async {
+    if (isKeepUserLoggedIn) {
+      await UserSecureStorage.secureAndSaveUserDetails(
+          userId: userId,
+          refreshToken: refreshToken,
+          accessToken: accessToken,
+          isKeepUserLoggedIn: isKeepUserLoggedIn);
+    } else {
+      await UserSecureStorage.removeSecuredUserDetails();
+      toggleKeepUserLoggedIn(newValue: false);
+    }
+    clearAll();
+    notifyListeners();
+  }
+
+  void clearAll() {
+    userNameController.clear();
+    passwordController.clear();
+  }
+
+  void goToRegisterScreen({required BuildContext context}) {
+    hidePassword();
+    clearAll();
+    Navigator.pushNamed(context, RegistrationScreen.id);
   }
 
   void showSnackBar(
@@ -213,36 +161,6 @@ class LoginScreenProvider extends ChangeNotifier {
           ),
         ));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    notifyListeners();
-  }
-
-  void saveLoginCredentials({required String password}) {
-    sharedPreferences.setString('jwt', LoginRepo.jwt!);
-    sharedPreferences.setBool('isLogin', true);
-    sharedPreferences.setString('device_token', user!.deviceToken.toString());
-    mainScreenProvider.setJwToken(newJwt: LoginRepo.jwt!);
-    mainScreenProvider.isLogin = sharedPreferences.getBool('isLogin') ?? true;
-    sharedPreferences.setString('id', user!.id.toString());
-    sharedPreferences.setString('user_name', user!.username!);
-    sharedPreferences.setString('user_type', user!.userType!);
-    sharedPreferences.setString('current_password', password);
-    if (mainScreenProvider.rememberMeCheckBox == true) {
-      sharedPreferences.setString('login_identifier', userNameController.text);
-      sharedPreferences.setString('login_password', passwordController.text);
-      mainScreenProvider.loginIdentifier =
-          sharedPreferences.getString('login_identifier');
-      mainScreenProvider.loginPassword =
-          sharedPreferences.getString('login_password');
-    } else {
-      sharedPreferences.remove('rememberMe');
-      sharedPreferences.remove('login_identifier');
-      sharedPreferences.remove('login_password');
-      mainScreenProvider.loginIdentifier = '';
-      mainScreenProvider.loginPassword = '';
-      userNameController.text = '';
-      passwordController.text = '';
-    }
-
     notifyListeners();
   }
 

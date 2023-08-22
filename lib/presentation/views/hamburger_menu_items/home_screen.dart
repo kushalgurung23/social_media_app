@@ -185,14 +185,6 @@ class _HomeScreenState extends State<HomeScreen>
               .updateCurrentUserLatestNotification(context: context);
         }
       }
-      // to update user details including follow/follower when notification is received
-      if (mounted) {
-        Provider.of<MainScreenProvider>(context, listen: false)
-            .updateAndSetUserDetails(
-          setLikeSaveCommentFollow: false,
-          context: context,
-        );
-      }
     }
   }
 
@@ -283,21 +275,10 @@ class _HomeScreenState extends State<HomeScreen>
           notificationTabActiveStatus == false) {
         Provider.of<NewsAdProvider>(context, listen: false)
             .setFollowNotification();
-        Provider.of<MainScreenProvider>(context, listen: false)
-            .updateAndSetUserDetails(
-          setLikeSaveCommentFollow: false,
-          context: context,
-        );
       } else if (mounted && notificationTabActiveStatus) {
         // print('currently in notification tab');
         Provider.of<NotificationProvider>(context, listen: false)
             .updateCurrentUserLatestNotification(context: context);
-
-        Provider.of<MainScreenProvider>(context, listen: false)
-            .updateAndSetUserDetails(
-          setLikeSaveCommentFollow: false,
-          context: context,
-        );
       }
 
       // CHAT NOTIFICATION

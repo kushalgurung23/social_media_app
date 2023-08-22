@@ -28,7 +28,6 @@ class _ProfileTabState extends State<ProfileTab>
       appBar: profileAppBar(context: context),
       body: Consumer<ProfileProvider>(builder: (context, data, child) {
         return StreamBuilder<User>(
-            initialData: data.mainScreenProvider.currentUser,
             stream: data.mainScreenProvider.currentUserController.stream,
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {

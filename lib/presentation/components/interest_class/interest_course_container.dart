@@ -83,7 +83,7 @@ class InterestCourseContainer extends StatelessWidget {
                               element!.attributes!.savedBy!.data != null &&
                               element.attributes!.savedBy!.data!.id
                                       .toString() ==
-                                  data.mainScreenProvider.userId)
+                                  data.mainScreenProvider.currentUserId)
                       : null;
                   return Container(
                     margin: EdgeInsets.only(bottom: SizeConfig.defaultSize * 2),
@@ -99,7 +99,7 @@ class InterestCourseContainer extends StatelessWidget {
                         ]),
                     child: Column(
                       children: [
-                        courseData!.attributes!.mainImage!.data == null
+                        courseData!.attributes!.mainImage == null
                             ? Container(
                                 height: SizeConfig.defaultSize * 13,
                                 width: double.infinity,
@@ -122,8 +122,7 @@ class InterestCourseContainer extends StatelessWidget {
                                 child: PinchZoomImage(
                                   image: CachedNetworkImage(
                                     imageUrl: kIMAGEURL +
-                                        courseData.attributes!.mainImage!.data!
-                                            .attributes!.url
+                                        courseData.attributes!.mainImage
                                             .toString(),
                                     height: SizeConfig.defaultSize * 16,
                                     width: double.infinity,
@@ -235,32 +234,32 @@ class InterestCourseContainer extends StatelessWidget {
                                   children: [
                                     GestureDetector(
                                       onTap: () {
-                                        data.toggleInterestClassSave(
-                                            savedInterestClassId: source ==
-                                                    InterestClassSourceType
-                                                        .bookmark
-                                                ? (data.mainScreenProvider
-                                                            .savedInterestClassIdList
-                                                            .contains(
-                                                                courseData!
-                                                                    .id) &&
-                                                        interestClassBookmarkId !=
-                                                            null
-                                                    ? interestClassBookmarkId
-                                                        .toString()
-                                                    : null)
-                                                : (data.mainScreenProvider
-                                                        .savedInterestClassIdList
-                                                        .contains(
-                                                            courseData!.id)
-                                                    ? interestClassCoursSaveData
-                                                        ?.id
-                                                        .toString()
-                                                    : null),
-                                            source: source,
-                                            context: context,
-                                            interestClassCourseId:
-                                                courseData.id.toString());
+                                        // data.toggleInterestClassSave(
+                                        //     savedInterestClassId: source ==
+                                        //             InterestClassSourceType
+                                        //                 .bookmark
+                                        //         ? (data.mainScreenProvider
+                                        //                     .savedInterestClassIdList
+                                        //                     .contains(
+                                        //                         courseData!
+                                        //                             .id) &&
+                                        //                 interestClassBookmarkId !=
+                                        //                     null
+                                        //             ? interestClassBookmarkId
+                                        //                 .toString()
+                                        //             : null)
+                                        //         : (data.mainScreenProvider
+                                        //                 .savedInterestClassIdList
+                                        //                 .contains(
+                                        //                     courseData!.id)
+                                        //             ? interestClassCoursSaveData
+                                        //                 ?.id
+                                        //                 .toString()
+                                        //             : null),
+                                        //     source: source,
+                                        //     context: context,
+                                        //     interestClassCourseId:
+                                        //         courseData.id.toString());
                                       },
                                       child: Container(
                                           decoration: BoxDecoration(
@@ -275,11 +274,7 @@ class InterestCourseContainer extends StatelessWidget {
                                           width: SizeConfig.defaultSize * 4.5,
                                           child: Icon(
                                             Icons.bookmark,
-                                            color: data.mainScreenProvider
-                                                    .savedInterestClassIdList
-                                                    .contains(courseData.id)
-                                                ? const Color(0xFFA08875)
-                                                : const Color(0xFFD1D3D5),
+                                            color: const Color(0xFFD1D3D5),
                                             size: SizeConfig.defaultSize * 3,
                                           )),
                                     ),

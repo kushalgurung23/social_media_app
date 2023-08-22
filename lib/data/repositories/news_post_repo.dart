@@ -19,16 +19,14 @@ class NewsPostRepo {
   }
 
   static Future<http.Response> getAllNewsPosts(
-      {required String myId,
-      required String jwt,
+      {required String accessToken,
       required String page,
       required String pageSize}) async {
     try {
-      var url =
-          "${kAPIURL}news-posts?populate[0]=image&populate[1]=posted_by.profile_image&populate[2]=news_post_likes.liked_by.profile_image&populate[3]=news_post_saves.saved_by&populate[4]=comments.comment_by.profile_image&filters[\$and][0][\$or][0][report_news_posts][reported_by][id][\$ne]=$myId&filters[\$and][0][\$or][1][report_news_posts][reported_by][id][\$null]=true&filters[\$and][1][\$or][0][posted_by][got_blocked_from][blocked_by][id][\$ne]=$myId&filters[\$and][1][\$or][1][posted_by][got_blocked_from][blocked_by][id][\$null]=true&filters[\$and][2][\$or][0][posted_by][users_blocked][blocked_to][id][\$ne]=$myId&filters[\$and][2][\$or][1][posted_by][users_blocked][blocked_to][id][\$null]=true&sort=createdAt:desc&pagination[page]=$page&pagination[pageSize]=$pageSize";
+      var url = "${kAPIURL}posts?page=$page&limit=$pageSize";
 
-      var response = await http
-          .get(Uri.parse(url), headers: {'Authorization': 'Bearer $jwt'});
+      var response = await http.get(Uri.parse(url),
+          headers: {'Authorization': 'Bearer $accessToken'});
 
       return response;
     } on Exception {

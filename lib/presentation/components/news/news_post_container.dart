@@ -1,3 +1,4 @@
+import 'package:c_talent/data/new_models/all_news_posts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -5,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/data/enum/news_post_enum.dart';
 import 'package:c_talent/data/enum/post_type.dart';
-import 'package:c_talent/data/models/all_news_post_model.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/presentation/components/all/post_top_body.dart';
 import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
@@ -17,23 +17,9 @@ import 'package:c_talent/presentation/views/other_user_profile_screen.dart';
 
 class NewsPostContainer extends StatefulWidget {
   final NewsPost newsPost;
-  final UserAttributes postedBy;
-  final int? postedById;
-  final List<CommentsData>? allComments;
   final int index;
-  final NewsPostSavesData? checkNewsPostSave;
-  final TextEditingController newsCommentTextEditingController;
-  final AllNewsPostLikesData? checkNewsPostLike;
   const NewsPostContainer(
-      {Key? key,
-      required this.newsPost,
-      required this.postedBy,
-      required this.postedById,
-      required this.checkNewsPostLike,
-      required this.allComments,
-      required this.index,
-      required this.newsCommentTextEditingController,
-      required this.checkNewsPostSave})
+      {Key? key, required this.index, required this.newsPost})
       : super(key: key);
 
   @override
@@ -42,21 +28,11 @@ class NewsPostContainer extends StatefulWidget {
 
 class _NewsPostContainerState extends State<NewsPostContainer>
     with AutomaticKeepAliveClientMixin {
+  TextEditingController newsTextEditingController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Consumer<NewsAdProvider>(builder: (context, data, child) {
-      // blocked and deleted users won't be included
-      final totalLikeCountList = widget
-          .newsPost.attributes!.newsPostLikes!.data!
-          .where((element) =>
-              element != null &&
-              element.attributes != null &&
-              element.attributes!.likedBy != null &&
-              element.attributes!.likedBy!.data != null &&
-              !data.mainScreenProvider.blockedUsersIdList
-                  .contains(element.attributes!.likedBy!.data!.id))
-          .toList();
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: SizeConfig.defaultSize),
         child: Column(
@@ -69,9 +45,9 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                         builder: (context) => NewsDescriptionScreen(
                               focusTextfield: false,
                               scrollToBottom: false,
-                              newsPostId: widget.newsPost.id!,
+                              newsPost: widget.newsPost,
                               newsCommentTextEditingController:
-                                  widget.newsCommentTextEditingController,
+                                  newsTextEditingController,
                             )));
               },
               child: Container(
@@ -99,24 +75,27 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                     //News post upper body
                     PostTopBody(
                       newsCommentTextEditingController:
-                          widget.newsCommentTextEditingController,
+                          newsTextEditingController,
                       isOtherUserProfile: false,
                       isFromDescriptionScreen: false,
                       newsPostId: widget.newsPost.id.toString(),
                       postedByOnPress: () {
-                        if (widget.postedById != null) {
-                          if (widget.postedById !=
-                              int.parse(data.mainScreenProvider.userId!)) {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        OtherUserProfileScreen(
-                                          otherUserId: widget.postedById!,
-                                        )));
-                          } else {
-                            Navigator.pushNamed(context, MyProfileScreen.id);
-                          }
+                        if (widget.newsPost.postedBy == null ||
+                            widget.newsPost.postedBy?.id == null) {
+                          return;
+                        } else if (widget.newsPost.postedBy?.id !=
+                            int.parse(data.mainScreenProvider.currentUserId
+                                .toString())) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => OtherUserProfileScreen(
+                                        otherUserId: int.parse(widget
+                                            .newsPost.postedBy!.id
+                                            .toString()),
+                                      )));
+                        } else {
+                          Navigator.pushNamed(context, MyProfileScreen.id);
                         }
                       },
                       commentOnPress: () {
@@ -126,64 +105,52 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                                 builder: (context) => NewsDescriptionScreen(
                                       focusTextfield: true,
                                       scrollToBottom: true,
-                                      newsPostId: widget.newsPost.id!,
-                                      newsCommentTextEditingController: widget
-                                          .newsCommentTextEditingController,
+                                      newsPost: widget.newsPost,
+                                      newsCommentTextEditingController:
+                                          newsTextEditingController,
                                     )));
                       },
                       postType: PostType.newsPost,
                       showLevel: true,
-                      title: widget.newsPost.attributes!.title!,
-                      userName: widget.postedBy.username!,
-                      postContent: widget.newsPost.attributes!.content!,
-                      postImage: widget.newsPost.attributes!.image!.data == null
-                          ? null
-                          : widget.newsPost.attributes!.image!.data!,
-                      postedTime: data.mainScreenProvider.convertDateTimeToAgo(
-                          widget.newsPost.attributes!.createdAt!, context),
-                      userImage: (widget.postedBy.profileImage == null ||
-                              widget.postedBy.profileImage!.data == null)
-                          ? null
-                          : widget.postedBy.profileImage!.data!.attributes!.url,
+                      title: widget.newsPost.title.toString(),
+                      userName: widget.newsPost.postedBy?.username ?? 'User',
+                      postContent: widget.newsPost.content.toString(),
+                      postImage: widget.newsPost.images,
+                      postedTime: widget.newsPost.createdAt == null
+                          ? ''
+                          : data.mainScreenProvider.convertDateTimeToAgo(
+                              widget.newsPost.createdAt!, context),
+                      userImage: widget.newsPost.postedBy?.profilePicture,
                       userType: data.getUserType(
-                          usertType: widget.postedBy.userType ?? '',
+                          userType: widget.newsPost.postedBy?.userType ?? '',
                           context: context),
                       isSave: data.checkNewsPostSaveStatus(
                           postId: widget.newsPost.id!),
                       saveOnPress: () async {
-                        await data.toggleNewsPostSave(
-                            newsPostSource: NewsPostSource.all,
-                            newsPostSaveId:
-                                widget.checkNewsPostSave?.id.toString(),
-                            postId: widget.newsPost.id.toString(),
-                            context: context,
-                            setLikeSaveCommentFollow: false);
+                        // await data.toggleNewsPostSave(
+                        //     newsPostSource: NewsPostSource.all,
+                        //     newsPostSaveId:
+                        //         widget.checkNewsPostSave?.id.toString(),
+                        //     postId: widget.newsPost.id.toString(),
+                        //     context: context,
+                        //     setLikeSaveCommentFollow: false);
                       },
                       isLike: data.checkNewsPostLikeStatus(
                           postId: widget.newsPost.id!),
                       likeOnPress: () async {
-                        await data.toggleNewsPostLike(
-                            newsPostSource: NewsPostSource.all,
-                            newsPostLikeId:
-                                widget.checkNewsPostLike?.id.toString(),
-                            postId: widget.newsPost.id.toString(),
-                            postLikeCount:
-                                widget.newsPost.attributes!.newsPostLikes ==
-                                            null ||
-                                        widget.newsPost.attributes!
-                                                .newsPostLikes!.data ==
-                                            null
-                                    ? 0
-                                    : totalLikeCountList.length,
-                            context: context,
-                            setLikeSaveCommentFollow: false);
+                        // await data.toggleNewsPostLike(
+                        //     newsPostSource: NewsPostSource.all,
+                        //     newsPostLikeId:
+                        //         widget.checkNewsPostLike?.id.toString(),
+                        //     postId: widget.newsPost.id.toString(),
+                        //     postLikeCount: 0,
+                        //     context: context,
+                        //     setLikeSaveCommentFollow: false);
                       },
-                      hasLikes: widget.newsPost.attributes!.newsPostLikes ==
-                                  null ||
-                              widget.newsPost.attributes!.newsPostLikes!.data ==
-                                  null
+                      hasLikes: widget.newsPost.likesCount == null ||
+                              widget.newsPost.likesCount! < 1
                           ? false
-                          : totalLikeCountList.isNotEmpty,
+                          : true,
                       seeLikesOnPress: () {
                         Navigator.push(
                             context,
@@ -192,27 +159,11 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                                       postId: widget.newsPost.id!,
                                     )));
                       },
-                      likedAvtars: data.mainScreenProvider.userId == null
-                          ? const SizedBox()
-                          : data.likedAvatars(
-                              likeCount:
-                                  widget.newsPost.attributes!.newsPostLikes ==
-                                              null ||
-                                          widget.newsPost.attributes!
-                                                  .newsPostLikes!.data ==
-                                              null
-                                      ? null
-                                      : totalLikeCountList,
-                              isLike: data.mainScreenProvider.likedPostIdList
-                                  .contains(widget.newsPost.id)),
+                      likedAvtars: data.likedAvatars(
+                          likes: widget.newsPost.likes,
+                          isLike: widget.newsPost.isLiked == 1 ? true : false),
                       totalLikes: data.getLike(
-                        likeCount:
-                            widget.newsPost.attributes!.newsPostLikes == null ||
-                                    widget.newsPost.attributes!.newsPostLikes!
-                                            .data ==
-                                        null
-                                ? 0
-                                : totalLikeCountList.length,
+                        likeCount: widget.newsPost.likesCount ?? 0,
                         context: context,
                       ),
                     ),
@@ -221,8 +172,7 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                       padding:
                           EdgeInsets.only(top: SizeConfig.defaultSize * 1.5),
                       child: RoundedTextFormField(
-                          textEditingController:
-                              widget.newsCommentTextEditingController,
+                          textEditingController: newsTextEditingController,
                           textInputType: TextInputType.text,
                           isEnable: true,
                           isReadOnly: false,
@@ -242,149 +192,153 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                             ),
                           ),
                           suffixOnPress: () async {
-                            if (widget.newsCommentTextEditingController.text
+                            if (newsTextEditingController.text
                                 .trim()
                                 .isNotEmpty) {
-                              await data.postNewsComment(
-                                newsPostSource: NewsPostSource.all,
-                                context: context,
-                                newsPostId: widget.newsPost.id.toString(),
-                                newsCommentController:
-                                    widget.newsCommentTextEditingController,
-                                setLikeSaveCommentFollow: false,
-                              );
+                              // await data.postNewsComment(
+                              //   newsPostSource: NewsPostSource.all,
+                              //   context: context,
+                              //   newsPostId: widget.newsPost.id.toString(),
+                              //   newsCommentController:
+                              //       widget.newsCommentTextEditingController,
+                              //   setLikeSaveCommentFollow: false,
+                              // );
                             }
                           },
                           borderRadius: SizeConfig.defaultSize * 1.5),
                     ),
                     SizedBox(
-                      child: widget.allComments == null ||
-                              (widget.allComments != null &&
-                                  widget.allComments!.isEmpty)
-                          ? SizedBox(
-                              height: SizeConfig.defaultSize,
-                            )
-                          : Padding(
-                              padding: EdgeInsets.only(
-                                  top: SizeConfig.defaultSize * 2),
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  primary: false,
-                                  itemCount:
-                                      widget.allComments!.length >= 2 ? 2 : 1,
-                                  itemBuilder: (context, index) {
-                                    widget.allComments!.sort((a, b) => a
-                                        .attributes!.createdAt!
-                                        .compareTo(b.attributes!.createdAt!));
-                                    final commentData =
-                                        widget.allComments!.length > 2
-                                            ? widget.allComments![
-                                                (widget.allComments!.length -
-                                                        2) +
-                                                    index]
-                                            : widget.allComments![index];
-                                    return Padding(
-                                      padding: EdgeInsets.only(
-                                          bottom: SizeConfig.defaultSize * 0.6),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Flexible(
-                                            child: Row(
-                                              children: [
-                                                Flexible(
-                                                    child: Row(children: [
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      if (commentData
-                                                              .attributes!
-                                                              .commentBy!
-                                                              .data!
-                                                              .id !=
-                                                          null) {
-                                                        if (commentData
-                                                                .attributes!
-                                                                .commentBy!
-                                                                .data!
-                                                                .id !=
-                                                            int.parse(data
-                                                                .mainScreenProvider
-                                                                .userId!)) {
-                                                          Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                  builder:
-                                                                      (context) =>
-                                                                          OtherUserProfileScreen(
-                                                                            otherUserId:
-                                                                                commentData.attributes!.commentBy!.data!.id!,
-                                                                          )));
-                                                        } else {
-                                                          Navigator.pushNamed(
-                                                              context,
-                                                              MyProfileScreen
-                                                                  .id);
-                                                        }
-                                                      }
-                                                    },
-                                                    child: Container(
-                                                      color: Colors.transparent,
-                                                      child: Text(
-                                                        '${commentData.attributes!.commentBy!.data!.attributes!.username} : ',
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: TextStyle(
-                                                            fontFamily:
-                                                                kHelveticaMedium,
-                                                            fontSize: SizeConfig
-                                                                    .defaultSize *
-                                                                1.3,
-                                                            color:
-                                                                Colors.black),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    child: Text(
-                                                        commentData
-                                                            .attributes!.content
-                                                            .toString(),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: TextStyle(
-                                                            fontFamily:
-                                                                kHelveticaRegular,
-                                                            fontSize: SizeConfig
-                                                                    .defaultSize *
-                                                                1.4)),
-                                                  )
-                                                ])),
-                                                SizedBox(
-                                                    width:
-                                                        SizeConfig.defaultSize *
-                                                            1)
-                                              ],
-                                            ),
-                                          ),
-                                          Text(
-                                              data.mainScreenProvider
-                                                  .convertDateTimeToAgo(
-                                                      commentData.attributes!
-                                                          .createdAt!,
-                                                      context),
-                                              style: TextStyle(
-                                                  fontFamily: kHelveticaRegular,
-                                                  fontSize:
-                                                      SizeConfig.defaultSize *
-                                                          1.1)),
-                                        ],
-                                      ),
-                                    );
-                                  }),
-                            ),
-                    ),
-                    widget.allComments!.length > 2
+                        child: SizedBox(
+                      height: SizeConfig.defaultSize,
+                    )
+                        //   widget.allComments == null ||
+                        //     (widget.allComments != null &&
+                        //         widget.allComments!.isEmpty)
+                        // ? SizedBox(
+                        //     height: SizeConfig.defaultSize,
+                        //   )
+                        // : Padding(
+                        //     padding: EdgeInsets.only(
+                        //         top: SizeConfig.defaultSize * 2),
+                        //     child: ListView.builder(
+                        //         shrinkWrap: true,
+                        //         primary: false,
+                        //         itemCount:
+                        //             widget.allComments!.length >= 2 ? 2 : 1,
+                        //         itemBuilder: (context, index) {
+                        //           widget.allComments!.sort((a, b) => a
+                        //               .attributes!.createdAt!
+                        //               .compareTo(b.attributes!.createdAt!));
+                        //           final commentData =
+                        //               widget.allComments!.length > 2
+                        //                   ? widget.allComments![
+                        //                       (widget.allComments!.length -
+                        //                               2) +
+                        //                           index]
+                        //                   : widget.allComments![index];
+                        //           return Padding(
+                        //             padding: EdgeInsets.only(
+                        //                 bottom: SizeConfig.defaultSize * 0.6),
+                        //             child: Row(
+                        //               mainAxisAlignment:
+                        //                   MainAxisAlignment.spaceBetween,
+                        //               children: [
+                        //                 Flexible(
+                        //                   child: Row(
+                        //                     children: [
+                        //                       Flexible(
+                        //                           child: Row(children: [
+                        //                         GestureDetector(
+                        //                           onTap: () {
+                        //                             if (commentData
+                        //                                     .attributes!
+                        //                                     .commentBy!
+                        //                                     .data!
+                        //                                     .id !=
+                        //                                 null) {
+                        //                               if (commentData
+                        //                                       .attributes!
+                        //                                       .commentBy!
+                        //                                       .data!
+                        //                                       .id !=
+                        //                                   int.parse(data
+                        //                                       .mainScreenProvider
+                        //                                       .currentUserId!)) {
+                        //                                 Navigator.push(
+                        //                                     context,
+                        //                                     MaterialPageRoute(
+                        //                                         builder:
+                        //                                             (context) =>
+                        //                                                 OtherUserProfileScreen(
+                        //                                                   otherUserId:
+                        //                                                       commentData.attributes!.commentBy!.data!.id!,
+                        //                                                 )));
+                        //                               } else {
+                        //                                 Navigator.pushNamed(
+                        //                                     context,
+                        //                                     MyProfileScreen
+                        //                                         .id);
+                        //                               }
+                        //                             }
+                        //                           },
+                        //                           child: Container(
+                        //                             color: Colors.transparent,
+                        //                             child: Text(
+                        //                               '${commentData.attributes!.commentBy!.data!.attributes!.username} : ',
+                        //                               overflow: TextOverflow
+                        //                                   .ellipsis,
+                        //                               style: TextStyle(
+                        //                                   fontFamily:
+                        //                                       kHelveticaMedium,
+                        //                                   fontSize: SizeConfig
+                        //                                           .defaultSize *
+                        //                                       1.3,
+                        //                                   color:
+                        //                                       Colors.black),
+                        //                             ),
+                        //                           ),
+                        //                         ),
+                        //                         Expanded(
+                        //                           child: Text(
+                        //                               commentData
+                        //                                   .attributes!.content
+                        //                                   .toString(),
+                        //                               overflow: TextOverflow
+                        //                                   .ellipsis,
+                        //                               style: TextStyle(
+                        //                                   fontFamily:
+                        //                                       kHelveticaRegular,
+                        //                                   fontSize: SizeConfig
+                        //                                           .defaultSize *
+                        //                                       1.4)),
+                        //                         )
+                        //                       ])),
+                        //                       SizedBox(
+                        //                           width:
+                        //                               SizeConfig.defaultSize *
+                        //                                   1)
+                        //                     ],
+                        //                   ),
+                        //                 ),
+                        //                 Text(
+                        //                     data.mainScreenProvider
+                        //                         .convertDateTimeToAgo(
+                        //                             commentData.attributes!
+                        //                                 .createdAt!,
+                        //                             context),
+                        //                     style: TextStyle(
+                        //                         fontFamily: kHelveticaRegular,
+                        //                         fontSize:
+                        //                             SizeConfig.defaultSize *
+                        //                                 1.1)),
+                        //               ],
+                        //             ),
+                        //           );
+                        //         }),
+                        //   ),
+                        ),
+                    widget.newsPost.commentCount != null &&
+                            widget.newsPost.commentCount! > 2
                         ? Center(
                             child: TextButton(
                                 onPressed: () {
@@ -395,17 +349,16 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                                               NewsDescriptionScreen(
                                                 focusTextfield: false,
                                                 scrollToBottom: true,
-                                                newsPostId: widget.newsPost.id!,
+                                                newsPost: widget.newsPost,
                                                 newsCommentTextEditingController:
-                                                    widget
-                                                        .newsCommentTextEditingController,
+                                                    newsTextEditingController,
                                               )));
                                 },
                                 child: Text(
-                                    widget.allComments != null &&
-                                            widget.allComments!.length > 3
-                                        ? "${AppLocalizations.of(context).seeOther} ${widget.allComments!.length - 2}\n${AppLocalizations.of(context).comments}\n..."
-                                        : "${AppLocalizations.of(context).seeOther} ${widget.allComments!.length - 2}\n${AppLocalizations.of(context).comment}\n...",
+                                    widget.newsPost.commentCount != null &&
+                                            widget.newsPost.commentCount! > 3
+                                        ? "${AppLocalizations.of(context).seeOther} ${widget.newsPost.commentCount! - 2}\n${AppLocalizations.of(context).comments}\n..."
+                                        : "${AppLocalizations.of(context).seeOther} ${widget.newsPost.commentCount! - 2}\n${AppLocalizations.of(context).comment}\n...",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontFamily: kHelveticaMedium,
@@ -421,6 +374,12 @@ class _NewsPostContainerState extends State<NewsPostContainer>
         ),
       );
     });
+  }
+
+  @override
+  void dispose() {
+    newsTextEditingController.dispose();
+    super.dispose();
   }
 
   @override

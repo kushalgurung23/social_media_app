@@ -1,3 +1,4 @@
+import 'package:c_talent/data/new_models/all_news_posts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -8,7 +9,7 @@ import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/views/all_post_images.dart';
 
 class PostStaggeredGridView extends StatelessWidget {
-  final List<MultiImageData?>? postImage;
+  final List<NewsPostImage?>? postImage;
 
   const PostStaggeredGridView({Key? key, required this.postImage})
       : super(key: key);
@@ -30,7 +31,7 @@ class PostStaggeredGridView extends StatelessWidget {
                               )));
                 },
                 child: CachedNetworkImage(
-                  imageUrl: kIMAGEURL + postImage![0]!.attributes!.url!,
+                  imageUrl: kIMAGEURL + postImage![0]!.url.toString(),
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
                     height: SizeConfig.defaultSize * 20,
@@ -100,7 +101,7 @@ class PostStaggeredGridView extends StatelessWidget {
                                         height: double.infinity,
                                         width: double.infinity,
                                         imageUrl: kIMAGEURL +
-                                            postImage![index]!.attributes!.url!,
+                                            postImage![index]!.url.toString(),
                                         fit: BoxFit.cover,
                                         placeholder: (context, url) =>
                                             Container(
@@ -133,7 +134,7 @@ class PostStaggeredGridView extends StatelessWidget {
                                   )
                                 : CachedNetworkImage(
                                     imageUrl: kIMAGEURL +
-                                        postImage![index]!.attributes!.url!,
+                                        postImage![index]!.url.toString(),
                                     fit: BoxFit.cover,
                                     placeholder: (context, url) => Container(
                                       height: SizeConfig.defaultSize * 20,

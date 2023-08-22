@@ -42,184 +42,187 @@ class _OtherUserProfileScreenState extends State<OtherUserProfileScreen> {
   Widget build(BuildContext context) {
     return Consumer<ProfileProvider>(builder: (context, data, child) {
       return Scaffold(
-        appBar: topAppBar(
-            title: AppLocalizations.of(context).userInfo,
-            leadingWidget: IconButton(
-              splashRadius: SizeConfig.defaultSize * 2.5,
-              icon: Icon(CupertinoIcons.back,
-                  color: const Color(0xFF8897A7),
-                  size: SizeConfig.defaultSize * 2.7),
-              onPressed: () {
-                data.resetOtherUserLastTopicIndex();
-                Navigator.pop(context);
-              },
-            ),
-            widgetList: [
-              data.mainScreenProvider.blockedUsersIdList
-                      .contains(widget.otherUserId)
-                  ? const SizedBox()
-                  : Padding(
-                      padding:
-                          EdgeInsets.only(right: SizeConfig.defaultSize * 0.5),
-                      child: Center(
-                        child: IconButton(
-                          onPressed: () {
-                            data.startChatWithOneUser(
-                                otherUserId: widget.otherUserId.toString(),
-                                context: context);
-                          },
-                          icon: SvgPicture.asset(
-                            'assets/svg/chat.svg',
-                            color: const Color(0xFF8897A7),
-                            height: SizeConfig.defaultSize * 2.5,
-                            width: SizeConfig.defaultSize * 2.5,
-                          ),
-                          splashRadius: SizeConfig.defaultSize * 2.5,
-                        ),
-                      ),
-                    ),
-              data.mainScreenProvider.blockedUsersIdList
-                      .contains(widget.otherUserId)
-                  ? const SizedBox()
-                  : Padding(
-                      padding:
-                          EdgeInsets.only(right: SizeConfig.defaultSize * 1.5),
-                      child: PopupMenuButton(
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          position: PopupMenuPosition.under,
-                          child: Icon(
-                            Icons.more_vert,
-                            color: const Color(0xFF8897A7),
-                            size: SizeConfig.defaultSize * 2.5,
-                          ),
-                          onSelected: (value) {
-                            if (value ==
-                                AppLocalizations.of(context).blockAccount) {
-                              data.blockUser(
-                                  isOtherUserProfile: true,
-                                  otherUserStreamController:
-                                      otherUserStreamController,
-                                  context: context,
-                                  otherUserId: widget.otherUserId.toString());
-                            }
-                          },
-                          itemBuilder: (context) {
-                            return data
-                                .getUserBlockOptionList(context: context)
-                                .map((e) => PopupMenuItem(
-                                    value: e,
-                                    child: Text(
-                                      e,
-                                      style: TextStyle(
-                                          fontFamily: kHelveticaRegular,
-                                          fontSize:
-                                              SizeConfig.defaultSize * 1.5,
-                                          color: Colors.red),
-                                    )))
-                                .toList();
-                          }),
-                    ),
-            ]),
-        body: data.mainScreenProvider.blockedUsersIdList
-                .contains(widget.otherUserId)
-            ? Center(
-                child: Text(
-                  "User info not available",
-                  style: TextStyle(
-                    fontFamily: kHelveticaRegular,
-                    fontSize: SizeConfig.defaultSize * 1.5,
-                    color: Colors.black,
-                  ),
-                ),
-              )
-            : Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: SizeConfig.defaultSize * 2),
-                child: SingleChildScrollView(
-                  child: StreamBuilder<User?>(
-                      stream: otherUserStreamController.stream,
-                      builder: (context, snapshot) {
-                        switch (snapshot.connectionState) {
-                          case ConnectionState.waiting:
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                  top: SizeConfig.defaultSize * 30),
-                              child: Center(
-                                child: Text(
-                                  AppLocalizations.of(context).loading,
-                                  style: TextStyle(
-                                    fontFamily: kHelveticaRegular,
-                                    fontSize: SizeConfig.defaultSize * 1.5,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            );
-                          case ConnectionState.done:
-                          default:
-                            if (!snapshot.hasData) {
-                              return Center(
-                                child: Text(
-                                  AppLocalizations.of(context)
-                                      .usersCouldNotLoad,
-                                  style: TextStyle(
-                                    fontFamily: kHelveticaRegular,
-                                    fontSize: SizeConfig.defaultSize * 1.5,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              );
-                            } else if (snapshot.hasError) {
-                              return Center(
-                                child: Text(
-                                  AppLocalizations.of(context).refreshPage,
-                                  style: TextStyle(
-                                    fontFamily: kHelveticaRegular,
-                                    fontSize: SizeConfig.defaultSize * 1.5,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              final allCreatedPost =
-                                  snapshot.data!.createdPost!;
-                              return Column(
-                                children: [
-                                  SizedBox(height: SizeConfig.defaultSize * 2),
-                                  OtherProfileTopContainer(
-                                      otherUser: snapshot.data!,
-                                      otherUserStreamController:
-                                          otherUserStreamController),
-                                  SizedBox(
-                                    height: SizeConfig.defaultSize * 2.5,
-                                  ),
-                                  TopicFollowFollower(
-                                      otherUserStreamController:
-                                          otherUserStreamController,
-                                      user: snapshot.data!,
-                                      isOtherUser: true),
-                                  SizedBox(
-                                    height: SizeConfig.defaultSize * 2.5,
-                                  ),
-
-                                  // My Topic
-                                  OtherUserTopic(
-                                      otherUserStreamController:
-                                          otherUserStreamController,
-                                      otherUserId: widget.otherUserId,
-                                      allCreatedPost: allCreatedPost),
-                                  SizedBox(
-                                    height: SizeConfig.defaultSize * 10,
-                                  ),
-                                ],
-                              );
-                            }
-                        }
-                      }),
-                ),
+          appBar: topAppBar(
+              title: AppLocalizations.of(context).userInfo,
+              leadingWidget: IconButton(
+                splashRadius: SizeConfig.defaultSize * 2.5,
+                icon: Icon(CupertinoIcons.back,
+                    color: const Color(0xFF8897A7),
+                    size: SizeConfig.defaultSize * 2.7),
+                onPressed: () {
+                  data.resetOtherUserLastTopicIndex();
+                  Navigator.pop(context);
+                },
               ),
-      );
+              widgetList: [
+                const SizedBox(),
+                const SizedBox()
+                // data.mainScreenProvider.blockedUsersIdList
+                //         .contains(widget.otherUserId)
+                //     ? const SizedBox()
+                //     : Padding(
+                //         padding:
+                //             EdgeInsets.only(right: SizeConfig.defaultSize * 0.5),
+                //         child: Center(
+                //           child: IconButton(
+                //             onPressed: () {
+                //               data.startChatWithOneUser(
+                //                   otherUserId: widget.otherUserId.toString(),
+                //                   context: context);
+                //             },
+                //             icon: SvgPicture.asset(
+                //               'assets/svg/chat.svg',
+                //               color: const Color(0xFF8897A7),
+                //               height: SizeConfig.defaultSize * 2.5,
+                //               width: SizeConfig.defaultSize * 2.5,
+                //             ),
+                //             splashRadius: SizeConfig.defaultSize * 2.5,
+                //           ),
+                //         ),
+                //       ),
+                // data.mainScreenProvider.blockedUsersIdList
+                //         .contains(widget.otherUserId)
+                //     ? const SizedBox()
+                //     : Padding(
+                //         padding:
+                //             EdgeInsets.only(right: SizeConfig.defaultSize * 1.5),
+                //         child: PopupMenuButton(
+                //             padding: EdgeInsets.zero,
+                //             constraints: const BoxConstraints(),
+                //             position: PopupMenuPosition.under,
+                //             child: Icon(
+                //               Icons.more_vert,
+                //               color: const Color(0xFF8897A7),
+                //               size: SizeConfig.defaultSize * 2.5,
+                //             ),
+                //             onSelected: (value) {
+                //               if (value ==
+                //                   AppLocalizations.of(context).blockAccount) {
+                //                 data.blockUser(
+                //                     isOtherUserProfile: true,
+                //                     otherUserStreamController:
+                //                         otherUserStreamController,
+                //                     context: context,
+                //                     otherUserId: widget.otherUserId.toString());
+                //               }
+                //             },
+                //             itemBuilder: (context) {
+                //               return data
+                //                   .getUserBlockOptionList(context: context)
+                //                   .map((e) => PopupMenuItem(
+                //                       value: e,
+                //                       child: Text(
+                //                         e,
+                //                         style: TextStyle(
+                //                             fontFamily: kHelveticaRegular,
+                //                             fontSize:
+                //                                 SizeConfig.defaultSize * 1.5,
+                //                             color: Colors.red),
+                //                       )))
+                //                   .toList();
+                //             }),
+                //       ),
+              ]),
+          body: Center(
+            child: Text(
+              "User info not available",
+              style: TextStyle(
+                fontFamily: kHelveticaRegular,
+                fontSize: SizeConfig.defaultSize * 1.5,
+                color: Colors.black,
+              ),
+            ),
+          )
+          // data.mainScreenProvider.blockedUsersIdList
+          //         .contains(widget.otherUserId)
+          //     ?
+          //     : Padding(
+          //         padding: EdgeInsets.symmetric(
+          //             horizontal: SizeConfig.defaultSize * 2),
+          //         child: SingleChildScrollView(
+          //           child: StreamBuilder<User?>(
+          //               stream: otherUserStreamController.stream,
+          //               builder: (context, snapshot) {
+          //                 switch (snapshot.connectionState) {
+          //                   case ConnectionState.waiting:
+          //                     return Padding(
+          //                       padding: EdgeInsets.only(
+          //                           top: SizeConfig.defaultSize * 30),
+          //                       child: Center(
+          //                         child: Text(
+          //                           AppLocalizations.of(context).loading,
+          //                           style: TextStyle(
+          //                             fontFamily: kHelveticaRegular,
+          //                             fontSize: SizeConfig.defaultSize * 1.5,
+          //                             color: Colors.black,
+          //                           ),
+          //                         ),
+          //                       ),
+          //                     );
+          //                   case ConnectionState.done:
+          //                   default:
+          //                     if (!snapshot.hasData) {
+          //                       return Center(
+          //                         child: Text(
+          //                           AppLocalizations.of(context)
+          //                               .usersCouldNotLoad,
+          //                           style: TextStyle(
+          //                             fontFamily: kHelveticaRegular,
+          //                             fontSize: SizeConfig.defaultSize * 1.5,
+          //                             color: Colors.black,
+          //                           ),
+          //                         ),
+          //                       );
+          //                     } else if (snapshot.hasError) {
+          //                       return Center(
+          //                         child: Text(
+          //                           AppLocalizations.of(context).refreshPage,
+          //                           style: TextStyle(
+          //                             fontFamily: kHelveticaRegular,
+          //                             fontSize: SizeConfig.defaultSize * 1.5,
+          //                             color: Colors.black,
+          //                           ),
+          //                         ),
+          //                       );
+          //                     } else {
+          //                       final allCreatedPost =
+          //                           snapshot.data!.createdPost!;
+          //                       return Column(
+          //                         children: [
+          //                           SizedBox(height: SizeConfig.defaultSize * 2),
+          //                           OtherProfileTopContainer(
+          //                               otherUser: snapshot.data!,
+          //                               otherUserStreamController:
+          //                                   otherUserStreamController),
+          //                           SizedBox(
+          //                             height: SizeConfig.defaultSize * 2.5,
+          //                           ),
+          //                           TopicFollowFollower(
+          //                               otherUserStreamController:
+          //                                   otherUserStreamController,
+          //                               user: snapshot.data!,
+          //                               isOtherUser: true),
+          //                           SizedBox(
+          //                             height: SizeConfig.defaultSize * 2.5,
+          //                           ),
+
+          //                           // My Topic
+          //                           OtherUserTopic(
+          //                               otherUserStreamController:
+          //                                   otherUserStreamController,
+          //                               otherUserId: widget.otherUserId,
+          //                               allCreatedPost: allCreatedPost),
+          //                           SizedBox(
+          //                             height: SizeConfig.defaultSize * 10,
+          //                           ),
+          //                         ],
+          //                       );
+          //                     }
+          //                 }
+          //               }),
+          //         ),
+          //       ),
+          );
     });
   }
 

@@ -8,11 +8,9 @@ BookmarkInterestClass bookmarkInterestClassFromJson(String str) =>
 class BookmarkInterestClass {
   BookmarkInterestClass({
     this.data,
-    this.meta,
   });
 
   List<BookmarkInterestClassData?>? data;
-  Meta? meta;
 
   factory BookmarkInterestClass.fromJson(Map<String, dynamic> json) =>
       BookmarkInterestClass(
@@ -20,7 +18,6 @@ class BookmarkInterestClass {
             ? null
             : List<BookmarkInterestClassData>.from(
                 json["data"].map((x) => BookmarkInterestClassData.fromJson(x))),
-        meta: Meta.fromJson(json["meta"]),
       );
 }
 

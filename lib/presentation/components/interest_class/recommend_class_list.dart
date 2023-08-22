@@ -177,9 +177,7 @@ class _RecommendClassListState extends State<RecommendClassList> {
                                               width:
                                                   SizeConfig.defaultSize * 16,
                                               child: Column(children: [
-                                                interestClass!
-                                                            .mainImage!.data ==
-                                                        null
+                                                interestClass!.mainImage == null
                                                     ? Container(
                                                         height: SizeConfig
                                                                 .defaultSize *
@@ -221,10 +219,7 @@ class _RecommendClassListState extends State<RecommendClassList> {
                                                               CachedNetworkImage(
                                                             imageUrl: kIMAGEURL +
                                                                 interestClass
-                                                                    .mainImage!
-                                                                    .data!
-                                                                    .attributes!
-                                                                    .url
+                                                                    .mainImage
                                                                     .toString(),
                                                             height: SizeConfig
                                                                     .defaultSize *

@@ -56,8 +56,7 @@ class NewsPostLikesAttributes {
       this.publishedAt,
       this.content,
       this.title,
-      this.likeCount,
-      this.newsPostLikes});
+      this.likeCount});
 
   DateTime? createdAt;
   DateTime? updatedAt;
@@ -65,7 +64,6 @@ class NewsPostLikesAttributes {
   String? content;
   String? title;
   String? likeCount;
-  AllNewsPostLikes? newsPostLikes;
 
   factory NewsPostLikesAttributes.fromJson(Map<String, dynamic> json) =>
       NewsPostLikesAttributes(
@@ -81,9 +79,6 @@ class NewsPostLikesAttributes {
         content: json["content"],
         title: json["title"],
         likeCount: json["like_count"],
-        newsPostLikes: json["news_post_likes"] == null
-            ? null
-            : AllNewsPostLikes.fromJson(json["news_post_likes"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -93,8 +88,6 @@ class NewsPostLikesAttributes {
         "content": content,
         "title": title,
         "like_count": likeCount,
-        "news_post_likes":
-            newsPostLikes == null ? null : newsPostLikes!.toJson(),
       };
 }
 

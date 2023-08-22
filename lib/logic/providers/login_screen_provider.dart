@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/data/new_models/login_success.dart';
 import 'package:c_talent/data/new_repositories/auth/login_repo.dart';
@@ -117,6 +116,11 @@ class LoginScreenProvider extends ChangeNotifier {
       {required String userId,
       required String refreshToken,
       required String accessToken}) async {
+    mainScreenProvider.saveUserLoginDetails(
+        currentUserId: userId,
+        currentAccessToken: accessToken,
+        isKeepUserLoggedIn: isKeepUserLoggedIn);
+    clearLoginInput();
     if (isKeepUserLoggedIn) {
       await UserSecureStorage.secureAndSaveUserDetails(
           userId: userId,
@@ -127,18 +131,18 @@ class LoginScreenProvider extends ChangeNotifier {
       await UserSecureStorage.removeSecuredUserDetails();
       toggleKeepUserLoggedIn(newValue: false);
     }
-    clearAll();
+
     notifyListeners();
   }
 
-  void clearAll() {
+  void clearLoginInput() {
     userNameController.clear();
     passwordController.clear();
   }
 
   void goToRegisterScreen({required BuildContext context}) {
     hidePassword();
-    clearAll();
+    clearLoginInput();
     Navigator.pushNamed(context, RegistrationScreen.id);
   }
 

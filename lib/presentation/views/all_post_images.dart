@@ -1,3 +1,4 @@
+import 'package:c_talent/data/new_models/all_news_posts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,13 +14,13 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AllPostImages extends StatefulWidget {
   final bool isFromProfile;
-  final List<MultiImageData?>? postImages;
+  final List<NewsPostImage?>? postImages;
   final List<AllImage?>? postImageFromProfile;
   final int index;
   const AllPostImages(
       {Key? key,
       required this.index,
-      this.postImages,
+      required this.postImages,
       this.postImageFromProfile,
       required this.isFromProfile})
       : super(key: key);
@@ -85,8 +86,8 @@ class _AllPostImagesState extends State<AllPostImages> {
                                   child: PinchZoomImage(
                                     image: CachedNetworkImage(
                                       imageUrl: kIMAGEURL +
-                                          widget.postImages![index]!.attributes!
-                                              .url!,
+                                          widget.postImages![index]!.url
+                                              .toString(),
                                       fit: BoxFit.cover,
                                       errorWidget: (context, url, error) =>
                                           const Icon(Icons.error),

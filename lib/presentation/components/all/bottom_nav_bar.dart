@@ -68,12 +68,7 @@ class BottomNavBar extends StatelessWidget {
                   icon: Consumer<NewsAdProvider>(
                     builder: (context, data, child) {
                       return badges.Badge(
-                        showBadge: data.followNotificationBadge == true ||
-                                data.sharedPreferences
-                                        .getBool("follow_push_notification") ==
-                                    true
-                            ? true
-                            : false,
+                        showBadge: false,
                         badgeContent: const Text(''),
                         badgeColor: Colors.red,
                         position: badges.BadgePosition.topEnd(

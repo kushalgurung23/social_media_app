@@ -14,21 +14,17 @@ String conversationToJson(Conversation data) => json.encode(data.toJson());
 class Conversation {
   Conversation({
     this.data,
-    this.meta,
   });
 
   List<ConversationData>? data;
-  Meta? meta;
 
   factory Conversation.fromJson(Map<String, dynamic> json) => Conversation(
         data: List<ConversationData>.from(
             json["data"].map((x) => ConversationData.fromJson(x))),
-        meta: Meta.fromJson(json["meta"]),
       );
 
   Map<String, dynamic> toJson() => {
         "data": List<dynamic>.from(data!.map((x) => x.toJson())),
-        "meta": meta!.toJson(),
       };
 }
 
@@ -41,23 +37,19 @@ String singleConversationToJson(SingleConversation data) =>
 class SingleConversation {
   SingleConversation({
     this.data,
-    this.meta,
   });
 
   ConversationData? data;
-  Meta? meta;
 
   factory SingleConversation.fromJson(Map<String, dynamic> json) =>
       SingleConversation(
         data: json["data"] == null
             ? null
             : ConversationData.fromJson(json["data"]),
-        meta: json["meta"] == null ? null : Meta.fromJson(json["meta"]),
       );
 
   Map<String, dynamic> toJson() => {
         "data": data?.toJson(),
-        "meta": meta?.toJson(),
       };
 }
 
@@ -311,7 +303,7 @@ class UserAttributes {
   String? region;
   String? category;
   String? userType;
-  SingleImage? profileImage;
+  String? profileImage;
   String? deviceToken;
 
   factory UserAttributes.fromJson(Map<String, dynamic> json) => UserAttributes(
@@ -334,9 +326,7 @@ class UserAttributes {
         teachingArea: json["teaching_area"].toString(),
         region: json["region"].toString(),
         category: json["category"].toString(),
-        profileImage: json["profile_image"] != null
-            ? SingleImage.fromJson(json["profile_image"])
-            : null,
+        profileImage: json["profile_image"],
         deviceToken: json["device_token"],
       );
 
@@ -356,7 +346,7 @@ class UserAttributes {
         "teaching_area": teachingArea,
         "region": region,
         "category": category,
-        "profile_image": profileImage?.toJson(),
+        "profile_image": profileImage,
         "device_token": deviceToken
       };
 }

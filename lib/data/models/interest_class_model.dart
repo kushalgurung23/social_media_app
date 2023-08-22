@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:c_talent/data/models/all_news_post_model.dart';
+import 'package:c_talent/data/new_models/all_news_posts.dart';
 
 InterestClass interestClassFromJson(String str) =>
     InterestClass.fromJson(json.decode(str));
@@ -7,18 +8,15 @@ InterestClass interestClassFromJson(String str) =>
 class InterestClass {
   InterestClass({
     this.data,
-    this.meta,
   });
 
   List<InterestClassData?>? data;
-  Meta? meta;
 
   factory InterestClass.fromJson(Map<String, dynamic> json) => InterestClass(
         data: json["data"] == null
             ? null
             : List<InterestClassData>.from(
                 json["data"].map((x) => InterestClassData.fromJson(x))),
-        meta: Meta.fromJson(json["meta"]),
       );
 }
 
@@ -69,8 +67,8 @@ class InterestClassAttributes {
   String? description;
   bool? isRecommend;
   String? brand;
-  MainImage? mainImage;
-  MultiImage? classImages;
+  NewsPostImage? mainImage;
+  NewsPostImage? classImages;
   String? website;
   String? facebookLink;
   String? instagramLink;
@@ -97,10 +95,10 @@ class InterestClassAttributes {
         brand: json["brand"],
         mainImage: json["main_image"] == null
             ? null
-            : MainImage.fromJson(json["main_image"]),
+            : NewsPostImage.fromJson(json["main_image"]),
         classImages: json["class_images"] == null
             ? null
-            : MultiImage.fromJson(json["class_images"]),
+            : NewsPostImage.fromJson(json["class_images"]),
         website: json["website"],
         facebookLink: json["facebook_link"],
         instagramLink: json["instagram_link"],
@@ -189,23 +187,6 @@ class InterestClassSavesAttributes {
         "updatedAt": updatedAt!.toIso8601String(),
         "publishedAt": publishedAt!.toIso8601String(),
         "saved_by": savedBy == null ? null : savedBy!.toJson(),
-      };
-}
-
-class MainImage {
-  MainImage({
-    this.data,
-  });
-
-  MultiImageData? data;
-
-  factory MainImage.fromJson(Map<String, dynamic> json) => MainImage(
-        data:
-            json["data"] == null ? null : MultiImageData.fromJson(json["data"]),
-      );
-
-  Map<String, dynamic> toJson() => {
-        "data": data?.toJson(),
       };
 }
 
@@ -330,17 +311,13 @@ SingleInterestClass singleInterestClassFromJson(String str) =>
 class SingleInterestClass {
   SingleInterestClass({
     this.data,
-    this.meta,
   });
 
   InterestClassData? data;
-  Meta? meta;
-
   factory SingleInterestClass.fromJson(Map<String, dynamic> json) =>
       SingleInterestClass(
         data: json["data"] == null
             ? null
             : InterestClassData.fromJson(json["data"]),
-        meta: json["meta"] == null ? null : Meta.fromJson(json["meta"]),
       );
 }

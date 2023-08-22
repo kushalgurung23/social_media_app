@@ -19,17 +19,17 @@ class _FollowNotificationTabState extends State<FollowNotificationTab> {
   final scrollController = ScrollController();
   @override
   void initState() {
-    Provider.of<NotificationProvider>(context, listen: false)
-        .refreshPushNotification(context: context);
+    // Provider.of<NotificationProvider>(context, listen: false)
+    //     .refreshPushNotification(context: context);
 
-    // this will load more data when we reach the end of paper share
-    scrollController.addListener(() {
-      if (scrollController.position.maxScrollExtent ==
-          scrollController.offset) {
-        loadNextData();
-      }
-    });
-    super.initState();
+    // // this will load more data when we reach the end of paper share
+    // scrollController.addListener(() {
+    //   if (scrollController.position.maxScrollExtent ==
+    //       scrollController.offset) {
+    //     loadNextData();
+    //   }
+    // });
+    // super.initState();
   }
 
   void loadNextData() async {
@@ -264,8 +264,7 @@ class _FollowNotificationTabState extends State<FollowNotificationTab> {
                                                                 .sender!
                                                                 .data!
                                                                 .attributes!
-                                                                .profileImage!
-                                                                .data ==
+                                                                .profileImage ==
                                                             null
                                                         ? Container(
                                                             margin: EdgeInsets.only(
@@ -306,10 +305,7 @@ class _FollowNotificationTabState extends State<FollowNotificationTab> {
                                                                       .sender!
                                                                       .data!
                                                                       .attributes!
-                                                                      .profileImage!
-                                                                      .data!
-                                                                      .attributes!
-                                                                      .url
+                                                                      .profileImage
                                                                       .toString(),
                                                               imageBuilder:
                                                                   (context,

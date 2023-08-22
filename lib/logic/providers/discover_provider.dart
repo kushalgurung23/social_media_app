@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:c_talent/data/models/search_user_model.dart';
@@ -78,9 +79,11 @@ class DiscoverProvider extends ChangeNotifier {
         if (emptySearchField == true) {
           emptySearchField = false;
         }
+        final userId = mainScreenProvider.currentUserId;
+        final accessToken = await UserSecureStorage.getSecuredAccessToken();
         final response = await UserSearchRepo.getSearchUsers(
-            myId: mainScreenProvider.userId.toString(),
-            jwt: mainScreenProvider.jwt.toString(),
+            myId: userId.toString(),
+            jwt: accessToken.toString(),
             username: query.trim().toLowerCase(),
             start: searchUserPageStart.toString(),
             limit: searchUserPageLimit.toString());
@@ -119,9 +122,11 @@ class DiscoverProvider extends ChangeNotifier {
     }
     searchUserPageStart = searchUserPageStart + 15;
     searchUserIsLoading = true;
+    final userId = mainScreenProvider.currentUserId;
+    final accessToken = await UserSecureStorage.getSecuredAccessToken();
     final response = await UserSearchRepo.getSearchUsers(
-        myId: mainScreenProvider.userId.toString(),
-        jwt: mainScreenProvider.jwt!,
+        myId: userId.toString(),
+        jwt: accessToken.toString(),
         username: searchUserTextController.text.trim().toLowerCase(),
         start: searchUserPageStart.toString(),
         limit: searchUserPageLimit.toString());

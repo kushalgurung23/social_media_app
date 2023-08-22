@@ -1,17 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:cached_network_image/cached_network_image.dart';
-// ignore: depend_on_referenced_packages
-import 'package:collection/collection.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path_provider/path_provider.dart';
+
 import 'package:c_talent/data/constant/connection_url.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/data/enum/interest_class_enum.dart';
@@ -19,112 +9,78 @@ import 'package:c_talent/data/models/all_news_post_model.dart';
 import 'package:c_talent/data/models/conversation_model.dart';
 import 'package:c_talent/data/models/socket_message_model.dart';
 import 'package:c_talent/data/models/user_model.dart';
-import 'package:c_talent/data/repositories/device_token_repo.dart';
-import 'package:c_talent/data/repositories/login_repo.dart';
-import 'package:c_talent/data/repositories/push_notification_repo.dart';
+import 'package:c_talent/data/service/user_secure_storage.dart';
+import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
 import 'package:c_talent/logic/providers/chat_message_provider.dart';
-import 'package:c_talent/logic/providers/drawer_provider.dart';
-import 'package:c_talent/logic/providers/profile_provider.dart';
 import 'package:c_talent/main.dart';
 import 'package:c_talent/presentation/components/interest_class/interest_course_detail_screen.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/home_screen.dart';
 import 'package:c_talent/presentation/views/login_screen.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
+// ignore: depend_on_referenced_packages
+import 'package:collection/collection.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as i_o;
 
 class MainScreenProvider extends ChangeNotifier {
   // // Details of current user are added to sink of this controller
   StreamController<User> currentUserController = BehaviorSubject();
 
+  String? currentUserId, currentAccessToken;
+  bool? isKeepUserLoggedIn;
+
+  void saveUserLoginDetails(
+      {required String currentUserId,
+      required String currentAccessToken,
+      required bool isKeepUserLoggedIn}) {
+    currentUserId = currentUserId;
+    currentAccessToken = currentAccessToken;
+    isKeepUserLoggedIn = isKeepUserLoggedIn;
+  }
+
+  void removeUserLoginDetails() {
+    currentUserId = null;
+    currentAccessToken = null;
+    isKeepUserLoggedIn = null;
+  }
+
   // Last topic and bookmark topic of profile tab are stored in the sink of this controller
-  StreamController<NewsPost?> profileNewsTopicStreamController =
-      BehaviorSubject();
+  // StreamController<NewsPost?> profileNewsTopicStreamController =
+  //     BehaviorSubject();
 
   // All news of selected user from profile tab are added to sink of this controller
   StreamController<User?> allProfileTopicController = BehaviorSubject();
 
   DateFormat format = DateFormat('yyyy-MM-dd');
-  late SharedPreferences sharedPreferences;
-  late bool rememberMeCheckBox;
-  late bool isLogin;
-
-  // Id, username and user type of current user
-  String? userId,
-      userName,
-      userType,
-      loginIdentifier,
-      loginPassword,
-      currentPassword,
-      userDeviceToken;
-
-  // JW Token of Strapi for authorization
-  String? _jwt;
-  String? get jwt => _jwt;
-
-  void setJwToken({required String newJwt}) {
-    _jwt = newJwt;
-  }
 
   void initial() async {
     try {
       await Firebase.initializeApp();
-      sharedPreferences = await SharedPreferences.getInstance();
-
-      String? currentDeviceToken = await FirebaseMessaging.instance.getToken();
-      isLogin = sharedPreferences.getBool('isLogin') ?? false;
-      // If user has clicked on remember me while logging in, their login credentials will be stored.
-      rememberMeCheckBox = sharedPreferences.getBool('rememberMe') ?? false;
-      loginIdentifier = sharedPreferences.getString('login_identifier') ?? '';
-      loginPassword = sharedPreferences.getString('login_password') ?? '';
-
       // if user is already logged in
+      bool isLogin =
+          await UserSecureStorage.getSecuredIsLoggedInStatus() ?? false;
       if (isLogin) {
+        currentUserId = await UserSecureStorage.getSecuredUserId() ?? '';
+        currentAccessToken =
+            await UserSecureStorage.getSecuredAccessToken() ?? '';
+        isKeepUserLoggedIn = isLogin;
         // the following two sharedPreferences are set to false, because if it is true notification badge won't be popped
-        sharedPreferences.setBool("notification_tab_active_status", false);
-        sharedPreferences.setBool("chatroom_active_status", false);
-        sharedPreferences.remove('active_chat_username');
-        userId = sharedPreferences.getString('id') ?? 'null';
-        userName = sharedPreferences.getString('user_name') ?? 'null';
-        userType = sharedPreferences.getString('user_type') ?? 'null';
-        userDeviceToken = sharedPreferences.getString('device_token') ?? 'null';
-        _jwt = sharedPreferences.getString('jwt') ?? 'null';
-        currentPassword = sharedPreferences.getString('current_password');
-        bool tokenValidCheck =
-            await updateAndSetUserDetails(context: navigatorKey.currentContext);
-        // IF TOKEN IS EXPIRED
-        if (tokenValidCheck == false) {
-          if (navigatorKey.currentContext != null &&
-              navigatorKey.currentContext!.mounted) {
-            Provider.of<DrawerProvider>(navigatorKey.currentContext!,
-                    listen: false)
-                .removeCredentials(context: navigatorKey.currentContext!);
-          }
-          return;
-        }
-        if (currentDeviceToken == userDeviceToken) {
+        if (navigatorKey.currentContext != null) {
+          Provider.of<BottomNavProvider>(navigatorKey.currentContext!,
+                  listen: false)
+              .setBottomIndex(index: 0, context: navigatorKey.currentContext!);
           navigatorKey.currentState?.pushReplacementNamed(HomeScreen.id);
-        } else {
-          bool isUpdate = await updateUserDeviceToken(
-              userId: userId.toString(),
-              newDeviceToken: currentDeviceToken.toString());
-          if (isUpdate) {
-            navigatorKey.currentState?.pushReplacementNamed(HomeScreen.id);
-          } else {
-            throw Exception('Unable to update new device token');
-          }
         }
       } else {
-        // the following two sharedPreferences are set to false, because if it is true notification badge won't be popped
-        sharedPreferences.setBool("notification_tab_active_status", false);
-        sharedPreferences.setBool("chatroom_active_status", false);
-        sharedPreferences.remove('active_chat_username');
         navigatorKey.currentState?.pushReplacementNamed(LoginScreen.id);
       }
       notifyListeners();
@@ -132,388 +88,17 @@ class MainScreenProvider extends ChangeNotifier {
       EasyLoading.showInfo(
           "Sorry, an error occurred. Please restart the application.",
           dismissOnTap: false,
-          duration: const Duration(seconds: 60));
+          duration: const Duration(seconds: 10));
       return;
     } catch (e) {
       EasyLoading.showInfo(
           "Sorry, an error occurred. Please restart the application.\nError: $e",
           dismissOnTap: false,
-          duration: const Duration(seconds: 60));
-    }
-  }
-
-  Future<bool> updateUserDeviceToken(
-      {required String userId, required String? newDeviceToken}) async {
-    final bodyData = {"device_token": newDeviceToken};
-    Response response = await DeviceTokenRepo.updateDeviceToken(
-        bodyData: bodyData,
-        jwt: jwt ?? sharedPreferences.getString('jwt') ?? 'null',
-        userId: userId);
-    if (response.statusCode == 200) {
-      if (newDeviceToken == null) {
-        sharedPreferences.remove('device_token');
-      } else {
-        sharedPreferences.setString("device_token", newDeviceToken);
-      }
-      return true;
-    } else {
-      return false;
+          duration: const Duration(seconds: 10));
     }
   }
 
   // Current user object
-  User? _currentUser;
-  User? get currentUser => _currentUser;
-
-  // Setting and updating user details
-  Future<bool> updateAndSetUserDetails(
-      {bool setLikeSaveCommentFollow = true,
-      required BuildContext? context}) async {
-    Response userResponse = await LoginRepo.getLoggedInUserDetails(
-        id: userId!, jwt: jwt ?? sharedPreferences.getString('jwt') ?? 'null');
-
-    if (userResponse.statusCode == 200) {
-      _currentUser = userFromJson(userResponse.body);
-      // Add latest user data to sink of currentUserController
-      currentUserController.sink.add(_currentUser!);
-      if (setLikeSaveCommentFollow == true) {
-        setLikedSavedIdList(_currentUser!);
-        setFollowingFollowerList(_currentUser!);
-      }
-      notifyListeners();
-      return true;
-    } else if (userResponse.statusCode == 401 ||
-        userResponse.statusCode == 403) {
-      if (context != null && context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-      }
-      return false;
-    }
-    return false;
-  }
-
-  // List of id that the current user follows
-  List<int> followingIdList = [];
-
-  // List of id that follows the current user
-  List<int> followerIdList = [];
-
-  void setFollowingFollowerList(User user) {
-    int myId = int.parse(sharedPreferences.getString('id')!);
-    if (user.userFollowing != null) {
-      for (int i = 0; i < user.userFollowing!.length; i++) {
-        if (!followingIdList.contains(user.userFollowing![i]!.followedTo!.id) &&
-            user.userFollowing![i]!.followedTo!.id != myId) {
-          followingIdList.add(user.userFollowing![i]!.followedTo!.id!);
-        }
-      }
-    }
-    if (user.userFollower != null) {
-      for (int i = 0; i < user.userFollower!.length; i++) {
-        if (!followerIdList.contains(user.userFollower![i]!.followedBy!.id) &&
-            user.userFollower![i]!.followedBy!.id! != myId) {
-          followerIdList.add(user.userFollower![i]!.followedBy!.id!);
-        }
-      }
-    }
-
-    notifyListeners();
-  }
-
-  // News Post
-  List<int> likedPostIdList = [];
-  List<int> savedNewsPostIdList = [];
-
-  // Interest class
-  List<int> savedInterestClassIdList = [];
-
-  // Reported news posts
-  List<int> reportedNewsPostidList = [];
-
-  // Reported paper shares
-  List<int> reportedPaperShareIdList = [];
-
-  // Blocked users
-  List<int> blockedUsersIdList = [];
-
-  void setLikedSavedIdList(User user) {
-    // news post like
-    if (user.newsPostLikes != null) {
-      for (int i = 0; i < user.newsPostLikes!.length; i++) {
-        if (user.newsPostLikes![i]!.newsPost != null &&
-            !likedPostIdList.contains(user.newsPostLikes![i]!.newsPost!.id)) {
-          likedPostIdList.add(user.newsPostLikes![i]!.newsPost!.id!);
-        }
-      }
-    }
-    // news post save
-    if (user.newsPostSaves != null) {
-      for (int i = 0; i < user.newsPostSaves!.length; i++) {
-        if (user.newsPostSaves![i]!.newsPost != null &&
-            !savedNewsPostIdList
-                .contains(user.newsPostSaves![i]!.newsPost!.id)) {
-          savedNewsPostIdList.add(user.newsPostSaves![i]!.newsPost!.id!);
-        }
-      }
-    }
-    // interest class save
-    if (user.interestClassSaves != null) {
-      for (int i = 0; i < user.interestClassSaves!.length; i++) {
-        if (user.interestClassSaves![i]!.interestClass != null &&
-            !savedInterestClassIdList
-                .contains(user.interestClassSaves![i]!.interestClass!.id!)) {
-          savedInterestClassIdList
-              .add(user.interestClassSaves![i]!.interestClass!.id!);
-        }
-      }
-    }
-
-    // reported news posts
-    if (user.reportedNewsPosts != null) {
-      for (int i = 0; i < user.reportedNewsPosts!.length; i++) {
-        if (user.reportedNewsPosts![i]!.newsPost != null &&
-            !reportedNewsPostidList
-                .contains(user.reportedNewsPosts![i]!.newsPost!.id)) {
-          reportedNewsPostidList.add(user.reportedNewsPosts![i]!.newsPost!.id!);
-        }
-      }
-    }
-
-    // reported paper shares
-    if (user.reportedPaperShares != null) {
-      for (int i = 0; i < user.reportedPaperShares!.length; i++) {
-        if (user.reportedPaperShares![i]!.paperShare != null &&
-            !reportedPaperShareIdList
-                .contains(user.reportedPaperShares![i]!.paperShare!.id)) {
-          reportedPaperShareIdList
-              .add(user.reportedPaperShares![i]!.paperShare!.id!);
-        }
-      }
-    }
-
-    // blocked users
-    if (user.usersBlocked != null) {
-      for (int i = 0; i < user.usersBlocked!.length; i++) {
-        if (user.usersBlocked![i]!.blockedTo != null &&
-            !blockedUsersIdList
-                .contains(user.usersBlocked![i]!.blockedTo!.id)) {
-          blockedUsersIdList.add(user.usersBlocked![i]!.blockedTo!.id!);
-        }
-      }
-    }
-
-    // get blocked form
-    if (user.gotBlockedFrom != null) {
-      for (int i = 0; i < user.gotBlockedFrom!.length; i++) {
-        if (user.gotBlockedFrom![i]!.blockedBy != null &&
-            !blockedUsersIdList
-                .contains(user.gotBlockedFrom![i]!.blockedBy!.id)) {
-          blockedUsersIdList.add(user.gotBlockedFrom![i]!.blockedBy!.id!);
-        }
-      }
-    }
-
-    removeReportedAndBlockedUsersNewsPostFromInitialLoad();
-    notifyListeners();
-  }
-
-  // Reported news posts won't be displayed
-  void removeReportedAndBlockedUsersNewsPostFromInitialLoad() {
-    // Removing reports news post from created post
-    for (int i = 0; i < reportedNewsPostidList.length; i++) {
-      // Removing reported news post from created news post
-      if (_currentUser!.createdPost != null) {
-        _currentUser!.createdPost!.removeWhere((element) =>
-            element != null &&
-            element.id.toString() == reportedNewsPostidList[i].toString());
-      }
-      if (_currentUser!.newsPostSaves != null) {
-        // Removing reported news post from saved news post
-        _currentUser!.newsPostSaves!.removeWhere((element) =>
-            element != null &&
-            element.newsPost != null &&
-            element.newsPost!.id.toString() ==
-                reportedNewsPostidList[i].toString());
-        if (savedNewsPostIdList.contains(reportedNewsPostidList[i])) {
-          savedNewsPostIdList.remove(reportedNewsPostidList[i]);
-        }
-      }
-    }
-
-    for (int i = 0; i < blockedUsersIdList.length; i++) {
-      // Removing blocked user's post from bookmarked news post
-      if (_currentUser!.newsPostSaves != null) {
-        _currentUser!.newsPostSaves!.removeWhere((element) =>
-            element != null &&
-            element.newsPost != null &&
-            element.newsPost!.postedBy != null &&
-            element.newsPost!.postedBy!.id.toString() ==
-                blockedUsersIdList[i].toString());
-        if (savedNewsPostIdList.contains(blockedUsersIdList[i])) {
-          savedNewsPostIdList.remove(blockedUsersIdList[i]);
-        }
-      }
-    }
-    removeBlockedUserFromFollowFollowing();
-    notifyListeners();
-  }
-
-  void removeBlockedUserFromFollowFollowing() {
-    for (int i = 0; i < blockedUsersIdList.length; i++) {
-      if (_currentUser!.userFollowing != null) {
-        _currentUser!.userFollowing!.removeWhere((element) =>
-            element != null &&
-            element.followedTo != null &&
-            element.followedTo!.id.toString() ==
-                blockedUsersIdList[i].toString());
-      }
-
-      if (_currentUser!.userFollower != null) {
-        _currentUser!.userFollower!.removeWhere((element) =>
-            element != null &&
-            element.followedBy != null &&
-            element.followedBy!.id.toString() ==
-                blockedUsersIdList[i].toString());
-      }
-    }
-    currentUserController.sink.add(_currentUser!);
-    notifyListeners();
-  }
-
-  void removeNewReportNews(
-      {required String newsPostId, required BuildContext context}) {
-    final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
-    if (_currentUser != null && !currentUserController.isClosed) {
-      if (_currentUser!.createdPost != null) {
-        _currentUser!.createdPost!.removeWhere((element) =>
-            element != null && element.id.toString() == newsPostId);
-        notifyListeners();
-      }
-
-      if (_currentUser!.newsPostSaves != null) {
-        _currentUser!.newsPostSaves!.removeWhere((element) =>
-            element != null &&
-            element.newsPost != null &&
-            element.newsPost!.id.toString() == newsPostId);
-        if (savedNewsPostIdList.contains(int.parse(newsPostId))) {
-          savedNewsPostIdList.remove(int.parse(newsPostId));
-        }
-
-        notifyListeners();
-      }
-      if (_currentUser!.createdPost!.length <= 6) {
-        profileProvider.selectedProfileTopicIndex = 0;
-        notifyListeners();
-      }
-      if (_currentUser!.newsPostSaves!.length <= 6) {
-        profileProvider.selectedBookmarkedTopicIndex = 0;
-        notifyListeners();
-      }
-
-      currentUserController.sink.add(_currentUser!);
-      notifyListeners();
-    }
-  }
-
-  void removeBlockedUsersNews(
-      {required String otherUserId, required BuildContext context}) {
-    final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
-    if (_currentUser != null && !currentUserController.isClosed) {
-      if (_currentUser!.newsPostSaves != null) {
-        _currentUser!.newsPostSaves!.removeWhere((element) =>
-            element != null &&
-            element.newsPost != null &&
-            element.newsPost!.postedBy != null &&
-            element.newsPost!.postedBy!.id.toString() == otherUserId);
-        if (savedNewsPostIdList.contains(int.parse(otherUserId))) {
-          savedNewsPostIdList.remove(int.parse(otherUserId));
-        }
-
-        notifyListeners();
-      }
-      if (_currentUser!.createdPost!.length <= 6) {
-        profileProvider.selectedProfileTopicIndex = 0;
-        notifyListeners();
-      }
-      if (_currentUser!.newsPostSaves!.length <= 6) {
-        profileProvider.selectedBookmarkedTopicIndex = 0;
-        notifyListeners();
-      }
-
-      currentUserController.sink.add(_currentUser!);
-      notifyListeners();
-    }
-  }
-
-  void setUserInfo({required User user, required BuildContext context}) {
-    userId = user.id.toString();
-    userName = user.username;
-    userType = user.userType;
-    userDeviceToken = user.deviceToken;
-    _currentUser = user;
-    setLikedSavedIdList(user);
-    setFollowingFollowerList(user);
-
-    // For profile tab
-    final profileProvider =
-        Provider.of<ProfileProvider>(context, listen: false);
-    profileProvider.profileImage =
-        user.profileImage == null ? 'null' : user.profileImage!.url!;
-    profileProvider.userNameTextController.text = user.username!;
-    profileProvider.userTypeTextController.text = user.userType!;
-    profileProvider.regDateTextController.text =
-        format.format(DateTime.parse(user.createdAt!.toString()));
-    profileProvider.emailTextController.text = user.email!;
-    notifyListeners();
-  }
-
-  // called when user logs out
-  Future<void> removeUser() async {
-    // Setting the device token to null in the server
-    await updateUserDeviceToken(userId: userId!, newDeviceToken: null);
-    _currentUser = null;
-    userId = null;
-    userName = null;
-    userDeviceToken = null;
-    userType = null;
-    _jwt = null;
-    currentPassword = null;
-    notifyListeners();
-  }
-
-  bool? isDeleteCache;
-
-  // This method will be called when user updates their details
-  Future<void> finalizeUpdate(
-      {required String userName,
-      required String userType,
-      required BuildContext? context}) async {
-    this.userName = userName;
-    this.userType = userType;
-    await sharedPreferences.remove('user_name');
-    await sharedPreferences.setString('user_name', userName);
-    await sharedPreferences.remove('user_type');
-    await sharedPreferences.setString('user_type', userType);
-    if (context != null && context.mounted) {
-      await updateAndSetUserDetails(
-          setLikeSaveCommentFollow: false, context: context);
-    }
-
-    if (isDeleteCache == true) {
-      await _deleteImageFromCache(image: currentUser!.profileImage!.url!);
-      isDeleteCache = false;
-    }
-    notifyListeners();
-  }
-
-  // Cachne Network image optimization
-  Future _deleteImageFromCache({required String image}) async {
-    String url = kIMAGEURL + image;
-    await CachedNetworkImage.evictFromCache(url);
-  }
 
   late i_o.Socket socket;
   // socket connection
@@ -533,7 +118,13 @@ class MainScreenProvider extends ChangeNotifier {
     }
   }
 
-  void connectToSocketServer({required BuildContext context}) {
+  Future<void> connectToSocketServer({required BuildContext context}) async {
+    String? userId = currentUserId;
+    if (userId == null) {
+      EasyLoading.showInfo("Sorry, please try again later.",
+          dismissOnTap: true, duration: const Duration(seconds: 3));
+      return;
+    }
     socket.onConnect((data) {
       // Add socket user in socketio
       socket.emit("addUser", userId.toString());
@@ -630,58 +221,64 @@ class MainScreenProvider extends ChangeNotifier {
   }
 
   // Sending message to user
-  void sendMessage(
+  Future<void> sendMessage(
       {required String receiverUserId,
       required String message,
       required String? otherUserDeviceToken,
       required String? conversationId,
-      required BuildContext context}) {
+      required BuildContext context}) async {
     try {
-      socket.emit('sendMessage', {
-        'senderId': userId.toString(),
-        'receiverUserId': receiverUserId,
-        'message': message,
-        'conversationId': conversationId,
-        'jwt': jwt.toString()
-      });
-      final chatMessageProvider =
-          Provider.of<ChatMessageProvider>(context, listen: false);
-      Conversation? allConversation = chatMessageProvider.allConversation;
-      chatMessageProvider.chatTextController.clear();
-      if (allConversation != null) {
-        final oneConversationData = allConversation.data!.firstWhereOrNull(
-            (element) => element.id.toString() == conversationId.toString());
-        if (oneConversationData != null) {
-          if (otherUserDeviceToken != null || otherUserDeviceToken != '') {
-            sendMessageReplyNotification(
-                receiverUserId: receiverUserId,
-                context: context,
-                initiatorUsername: userName.toString(),
-                receiverUserDeviceToken: otherUserDeviceToken);
-          }
-          Map bodyData;
-          if (oneConversationData.attributes!.firstUser != null &&
-              oneConversationData.attributes!.firstUser!.data!.id.toString() ==
-                  userId.toString()) {
-            bodyData = {
-              "data": {"first_user_last_read": DateTime.now().toString()}
-            };
-          } else {
-            bodyData = {
-              "data": {"second_user_last_read": DateTime.now().toString()}
-            };
-          }
-          Provider.of<ChatMessageProvider>(context, listen: false)
-              .updateLastTimeRead(
-                  context: context,
-                  conversationId: conversationId.toString(),
-                  bodyData: bodyData);
-        } else {
-          throw Exception('oneConversationDAta is null');
-        }
-      } else {
-        throw Exception('allConversation is null');
-      }
+      // String? userId = mainScreenProvider.currentUserId;
+      // if (userId == null) {
+      //   EasyLoading.showInfo("Sorry, please try again later.",
+      //       dismissOnTap: true, duration: const Duration(seconds: 3));
+      //   return;
+      // }
+      // socket.emit('sendMessage', {
+      //   'senderId': userId.toString(),
+      //   'receiverUserId': receiverUserId,
+      //   'message': message,
+      //   'conversationId': conversationId,
+      //   'jwt': jwt.toString()
+      // });
+      // final chatMessageProvider =
+      //     Provider.of<ChatMessageProvider>(context, listen: false);
+      // Conversation? allConversation = chatMessageProvider.allConversation;
+      // chatMessageProvider.chatTextController.clear();
+      // if (allConversation != null) {
+      //   final oneConversationData = allConversation.data!.firstWhereOrNull(
+      //       (element) => element.id.toString() == conversationId.toString());
+      //   if (oneConversationData != null) {
+      //     if (otherUserDeviceToken != null || otherUserDeviceToken != '') {
+      //       sendMessageReplyNotification(
+      //           receiverUserId: receiverUserId,
+      //           context: context,
+      //           initiatorUsername: userName.toString(),
+      //           receiverUserDeviceToken: otherUserDeviceToken);
+      //     }
+      //     Map bodyData;
+      //     if (oneConversationData.attributes!.firstUser != null &&
+      //         oneConversationData.attributes!.firstUser!.data!.id.toString() ==
+      //             userId.toString()) {
+      //       bodyData = {
+      //         "data": {"first_user_last_read": DateTime.now().toString()}
+      //       };
+      //     } else {
+      //       bodyData = {
+      //         "data": {"second_user_last_read": DateTime.now().toString()}
+      //       };
+      //     }
+      //     Provider.of<ChatMessageProvider>(context, listen: false)
+      //         .updateLastTimeRead(
+      //             context: context,
+      //             conversationId: conversationId.toString(),
+      //             bodyData: bodyData);
+      //   } else {
+      //     throw Exception('oneConversationDAta is null');
+      //   }
+      // } else {
+      //   throw Exception('allConversation is null');
+      // }
     } catch (e) {
       throw (Exception(e));
     }
@@ -694,29 +291,29 @@ class MainScreenProvider extends ChangeNotifier {
       required String initiatorUsername,
       required String? receiverUserDeviceToken,
       required String? notificationAction}) async {
-    if (receiverUserDeviceToken != null) {
-      Map bodyData = {
-        "token": receiverUserDeviceToken,
-        "title": "C Talent",
-        "body": notificationAction == 'follow'
-            ? "$initiatorUsername started following you."
-            : "$initiatorUsername unfollowed you."
-      };
-      http.Response response = await PushNotificationRepo.sendPushNotification(
-          bodyData: jsonEncode(bodyData),
-          jwt: jwt ?? sharedPreferences.getString('jwt') ?? 'null');
-      if (response.statusCode == 401 || response.statusCode == 403) {
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      }
-    } else {
-      return;
-    }
+    // if (receiverUserDeviceToken != null) {
+    //   Map bodyData = {
+    //     "token": receiverUserDeviceToken,
+    //     "title": "C Talent",
+    //     "body": notificationAction == 'follow'
+    //         ? "$initiatorUsername started following you."
+    //         : "$initiatorUsername unfollowed you."
+    //   };
+    //   http.Response response = await PushNotificationRepo.sendPushNotification(
+    //       bodyData: jsonEncode(bodyData),
+    //       jwt: jwt ?? sharedPreferences.getString('jwt') ?? 'null');
+    //   if (response.statusCode == 401 || response.statusCode == 403) {
+    //     if (context.mounted) {
+    //       EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //           dismissOnTap: false, duration: const Duration(seconds: 4));
+    //       Provider.of<DrawerProvider>(context, listen: false)
+    //           .removeCredentials(context: context);
+    //       return;
+    //     }
+    //   }
+    // } else {
+    //   return;
+    // }
   }
 
   // Chat message notification
@@ -725,27 +322,27 @@ class MainScreenProvider extends ChangeNotifier {
       required BuildContext context,
       required String initiatorUsername,
       required String? receiverUserDeviceToken}) async {
-    if (receiverUserDeviceToken != null) {
-      Map bodyData = {
-        "token": receiverUserDeviceToken,
-        "title": "C Talent",
-        "body": "$initiatorUsername has sent you a message."
-      };
-      http.Response response = await PushNotificationRepo.sendPushNotification(
-          bodyData: jsonEncode(bodyData),
-          jwt: jwt ?? sharedPreferences.getString('jwt') ?? 'null');
-      if (response.statusCode == 401 || response.statusCode == 403) {
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      }
-    } else {
-      return;
-    }
+    // if (receiverUserDeviceToken != null) {
+    //   Map bodyData = {
+    //     "token": receiverUserDeviceToken,
+    //     "title": "C Talent",
+    //     "body": "$initiatorUsername has sent you a message."
+    //   };
+    //   http.Response response = await PushNotificationRepo.sendPushNotification(
+    //       bodyData: jsonEncode(bodyData),
+    //       jwt: jwt ?? sharedPreferences.getString('jwt') ?? 'null');
+    //   if (response.statusCode == 401 || response.statusCode == 403) {
+    //     if (context.mounted) {
+    //       EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //           dismissOnTap: false, duration: const Duration(seconds: 4));
+    //       Provider.of<DrawerProvider>(context, listen: false)
+    //           .removeCredentials(context: context);
+    //       return;
+    //     }
+    //   }
+    // } else {
+    //   return;
+    // }
   }
 
   Map<String, String> getReportOptionList({required BuildContext context}) {
@@ -867,7 +464,7 @@ class MainScreenProvider extends ChangeNotifier {
     final imageName = image.absolute.path.split('/').last.toString();
     final result = await FlutterImageCompress.compressWithFile(
         image.absolute.path,
-        quality: 80);
+        quality: 60);
     if (result != null) {
       Uint8List imageInUnit8List = result; // store unit8List image here ;
       final tempDir = await getTemporaryDirectory();
@@ -899,7 +496,7 @@ class MainScreenProvider extends ChangeNotifier {
     super.dispose();
     socket.dispose();
     currentUserController.close();
-    profileNewsTopicStreamController.close();
+    // profileNewsTopicStreamController.close();
     allProfileTopicController.close();
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -61,7 +62,7 @@ class InterestClassProvider extends ChangeNotifier {
     final response = await InterestClassRepo.getAllInterestClassCourses(
         page: interestClassPage.toString(),
         pageSize: interestClassPageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!);
+        jwt: mainScreenProvider.currentAccessToken.toString());
     if (response.statusCode == 200) {
       _interestClass = interestClassFromJson(response.body);
       allInterestClassStreamController.sink.add(_interestClass);
@@ -90,7 +91,7 @@ class InterestClassProvider extends ChangeNotifier {
     final response = await InterestClassRepo.getAllInterestClassCourses(
         page: interestClassPage.toString(),
         pageSize: interestClassPageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!);
+        jwt: mainScreenProvider.currentAccessToken.toString());
     if (response.statusCode == 200) {
       final newInterestClass = interestClassFromJson(response.body);
 
@@ -228,7 +229,7 @@ class InterestClassProvider extends ChangeNotifier {
     final response =
         await InterestClassRepo.getOneInterestClassCourseForSharedInterestClass(
             interestClassId: interestClassId,
-            jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!);
+            jwt: mainScreenProvider.currentAccessToken.toString());
     if (response.statusCode == 200) {
       _sharedInterestClass = interestClassFromJson(response.body);
       fromShareInterestClassStreamController.sink.add(_sharedInterestClass);
@@ -266,8 +267,8 @@ class InterestClassProvider extends ChangeNotifier {
     final response = await InterestClassRepo.getBookmarkInterestClassCourses(
         page: 1.toString(),
         pageSize: bookmarkPageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!,
-        currentUserId: mainScreenProvider.userId.toString());
+        jwt: mainScreenProvider.currentAccessToken.toString(),
+        currentUserId: mainScreenProvider.currentUserId ?? '');
     if (response.statusCode == 200) {
       _bookmarkInterestClass = bookmarkInterestClassFromJson(response.body);
       bookmarkInterestClassStreamController.sink.add(_bookmarkInterestClass!);
@@ -297,8 +298,8 @@ class InterestClassProvider extends ChangeNotifier {
     final response = await InterestClassRepo.getBookmarkInterestClassCourses(
         page: bookmarkPage.toString(),
         pageSize: bookmarkPageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!,
-        currentUserId: mainScreenProvider.userId.toString());
+        jwt: mainScreenProvider.currentAccessToken.toString(),
+        currentUserId: mainScreenProvider.currentUserId ?? '');
     if (response.statusCode == 200) {
       final newPaperShare = bookmarkInterestClassFromJson(response.body);
 
@@ -342,9 +343,8 @@ class InterestClassProvider extends ChangeNotifier {
               pageSize: _bookmarkInterestClass!.data!.length < bookmarkPageSize
                   ? bookmarkPageSize.toString()
                   : _bookmarkInterestClass!.data!.length.toString(),
-              jwt:
-                  sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!,
-              currentUserId: mainScreenProvider.userId.toString());
+              jwt: mainScreenProvider.currentAccessToken.toString(),
+              currentUserId: mainScreenProvider.currentUserId ?? '');
       if (response.statusCode == 200) {
         _bookmarkInterestClass = bookmarkInterestClassFromJson(response.body);
         bookmarkInterestClassStreamController.sink.add(_bookmarkInterestClass!);
@@ -396,12 +396,11 @@ class InterestClassProvider extends ChangeNotifier {
   // Load initial recommend class
   // sharedPreferences is initialized here because this method will be called from init state of Interest class
   Future<void> getInitialRecommendClass({required BuildContext context}) async {
-    sharedPreferences = await SharedPreferences.getInstance();
     final response =
         await InterestClassRepo.getAllRecommendedInterestClassCourses(
             page: recommendClassPage.toString(),
             pageSize: recommendClassPageSize.toString(),
-            jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!);
+            jwt: mainScreenProvider.currentAccessToken.toString());
     if (response.statusCode == 200) {
       _recommendClass = interestClassFromJson(response.body);
       allRecommendClassStreamController.sink.add(_recommendClass);
@@ -431,7 +430,7 @@ class InterestClassProvider extends ChangeNotifier {
         await InterestClassRepo.getAllRecommendedInterestClassCourses(
             page: recommendClassPage.toString(),
             pageSize: recommendClassPageSize.toString(),
-            jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!);
+            jwt: mainScreenProvider.currentAccessToken.toString());
     if (response.statusCode == 200) {
       final newRecommendClass = interestClassFromJson(response.body);
 
@@ -486,78 +485,78 @@ class InterestClassProvider extends ChangeNotifier {
       required BuildContext context,
       required String interestClassCourseId,
       required InterestClassSourceType source}) async {
-    if (toggleSaveOnProcess == true) {
-      // Please wait
-      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
-          dismissOnTap: false, duration: const Duration(seconds: 1));
-      return;
-    } else if (toggleSaveOnProcess == false) {
-      toggleSaveOnProcess = true;
-      Response response;
-      if (mainScreenProvider.savedInterestClassIdList
-              .contains(int.parse(interestClassCourseId)) &&
-          savedInterestClassId != null) {
-        mainScreenProvider.savedInterestClassIdList
-            .remove(int.parse(interestClassCourseId));
+    // if (toggleSaveOnProcess == true) {
+    //   // Please wait
+    //   EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
+    //       dismissOnTap: false, duration: const Duration(seconds: 1));
+    //   return;
+    // } else if (toggleSaveOnProcess == false) {
+    //   toggleSaveOnProcess = true;
+    //   Response response;
+    //   if (mainScreenProvider.savedInterestClassIdList
+    //           .contains(int.parse(interestClassCourseId)) &&
+    //       savedInterestClassId != null) {
+    //     mainScreenProvider.savedInterestClassIdList
+    //         .remove(int.parse(interestClassCourseId));
 
-        response = await InterestClassRepo.removeInterestClassSave(
-            interestClassSaveId: savedInterestClassId.toString(),
-            jwt: sharedPreferences.getString('jwt')!);
-      } else {
-        mainScreenProvider.savedInterestClassIdList
-            .add(int.parse(interestClassCourseId));
-        Map bodyData = {
-          "data": {
-            "saved_by": mainScreenProvider.userId,
-            "interest_class": interestClassCourseId
-          }
-        };
+    //     response = await InterestClassRepo.removeInterestClassSave(
+    //         interestClassSaveId: savedInterestClassId.toString(),
+    //         jwt: sharedPreferences.getString('jwt')!);
+    //   } else {
+    //     mainScreenProvider.savedInterestClassIdList
+    //         .add(int.parse(interestClassCourseId));
+    //     Map bodyData = {
+    //       "data": {
+    //         "saved_by": mainScreenProvider.userId,
+    //         "interest_class": interestClassCourseId
+    //       }
+    //     };
 
-        response = await InterestClassRepo.addInterestClassSave(
-            bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
-      }
-      notifyListeners();
+    //     response = await InterestClassRepo.addInterestClassSave(
+    //         bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
+    //   }
+    //   notifyListeners();
 
-      if (response.statusCode == 200) {
-        if (source == InterestClassSourceType.fromShare && context.mounted) {
-          await getOneInterestClassForSharedInterestClass(
-              context: context, interestClassId: interestClassCourseId);
-        }
-        if (context.mounted) {
-          await Future.wait([
-            updateOneSelectedInterestClassForEveryStream(
-                context: context, interestClassId: interestClassCourseId),
-            updateBookmarkInterestClasses(context: context),
-            // updating all interest classes so that other streams will get latest interest class details
-          ]);
-        }
+    //   if (response.statusCode == 200) {
+    //     if (source == InterestClassSourceType.fromShare && context.mounted) {
+    //       await getOneInterestClassForSharedInterestClass(
+    //           context: context, interestClassId: interestClassCourseId);
+    //     }
+    //     if (context.mounted) {
+    //       await Future.wait([
+    //         updateOneSelectedInterestClassForEveryStream(
+    //             context: context, interestClassId: interestClassCourseId),
+    //         updateBookmarkInterestClasses(context: context),
+    //         // updating all interest classes so that other streams will get latest interest class details
+    //       ]);
+    //     }
 
-        toggleSaveOnProcess = false;
-        notifyListeners();
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else {
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          showSnackBar(
-              context: context,
-              content: AppLocalizations.of(context).tryAgainLater,
-              contentColor: Colors.white,
-              backgroundColor: Colors.red);
-        }
-      }
-    }
-    toggleSaveOnProcess = false;
-    notifyListeners();
+    //     toggleSaveOnProcess = false;
+    //     notifyListeners();
+    //   } else if (response.statusCode == 401 || response.statusCode == 403) {
+    //     toggleSaveOnProcess = false;
+    //     notifyListeners();
+    //     if (context.mounted) {
+    //       EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //           dismissOnTap: false, duration: const Duration(seconds: 4));
+    //       Provider.of<DrawerProvider>(context, listen: false)
+    //           .removeCredentials(context: context);
+    //       return;
+    //     }
+    //   } else {
+    //     toggleSaveOnProcess = false;
+    //     notifyListeners();
+    //     if (context.mounted) {
+    //       showSnackBar(
+    //           context: context,
+    //           content: AppLocalizations.of(context).tryAgainLater,
+    //           contentColor: Colors.white,
+    //           backgroundColor: Colors.red);
+    //     }
+    //   }
+    // }
+    // toggleSaveOnProcess = false;
+    // notifyListeners();
   }
 
   // Search interest class
@@ -612,7 +611,7 @@ class InterestClassProvider extends ChangeNotifier {
         Response response = await InterestClassRepo.searchInterestClassCourses(
             page: searchPage.toString(),
             pageSize: searchPageSize.toString(),
-            jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!,
+            jwt: mainScreenProvider.currentAccessToken.toString(),
             interestClassTitle: query.trim().toLowerCase());
         if (response.statusCode == 200) {
           _searchInterestClass = interestClassFromJson(response.body);
@@ -661,7 +660,7 @@ class InterestClassProvider extends ChangeNotifier {
     Response response = await InterestClassRepo.searchInterestClassCourses(
         page: searchPage.toString(),
         pageSize: searchPageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!,
+        jwt: mainScreenProvider.currentAccessToken.toString(),
         interestClassTitle: query.trim().toLowerCase());
     if (response.statusCode == 200) {
       final newSearchResults = interestClassFromJson(response.body);
@@ -767,7 +766,7 @@ class InterestClassProvider extends ChangeNotifier {
       Response response = await InterestClassRepo.filterInterestClassCourses(
           page: filterPageNumber.toString(),
           pageSize: filterPageSize.toString(),
-          jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!,
+          jwt: mainScreenProvider.currentAccessToken.toString(),
           interestClassCategoryType: filterCategoryType,
           interestClassTargetAge: filterTargetAge);
 
@@ -814,7 +813,7 @@ class InterestClassProvider extends ChangeNotifier {
     Response response = await InterestClassRepo.filterInterestClassCourses(
         page: filterPageNumber.toString(),
         pageSize: filterPageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!,
+        jwt: mainScreenProvider.currentAccessToken.toString(),
         interestClassCategoryType: filterCategoryType,
         interestClassTargetAge: filterTargetAge);
     if (response.statusCode == 200) {

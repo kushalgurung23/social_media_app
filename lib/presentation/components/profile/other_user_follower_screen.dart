@@ -88,259 +88,260 @@ class _OtherUserFollowerScreenState extends State<OtherUserFollowerScreen> {
                           itemCount: followerList.length,
                           itemBuilder: (context, index) {
                             final userFollow = followerList[index]!;
-                            final followerUser = userFollow.followedBy!;
-                            final checkUserFollow = data
-                                    .mainScreenProvider.followingIdList
-                                    .contains(followerUser.id)
-                                ? data.mainScreenProvider.currentUser!
-                                            .userFollowing !=
-                                        null
-                                    ? data.mainScreenProvider.currentUser!
-                                        .userFollowing!
-                                        .firstWhereOrNull((element) =>
-                                            element!.followedTo != null &&
-                                            element.followedTo!.id.toString() ==
-                                                followerUser.id.toString())
-                                    : null
-                                : null;
-                            return data.mainScreenProvider.blockedUsersIdList
-                                    .contains(followerUser.id)
-                                ? const SizedBox()
-                                : GestureDetector(
-                                    onTap: () {
-                                      // If different user is tapped
-                                      if (followerUser.id.toString() !=
-                                          data.mainScreenProvider.userId) {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    OtherUserProfileScreen(
-                                                      otherUserId:
-                                                          followerUser.id!,
-                                                    )));
-                                      } else {
-                                        Navigator.pushNamed(
-                                            context, MyProfileScreen.id);
-                                      }
-                                    },
-                                    child: Container(
-                                      color: Colors.transparent,
-                                      margin: index == 0
-                                          ? EdgeInsets.only(
-                                              top: SizeConfig.defaultSize * 2,
-                                              bottom:
-                                                  SizeConfig.defaultSize * 2)
-                                          : EdgeInsets.only(
-                                              bottom:
-                                                  SizeConfig.defaultSize * 1.5),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          SizedBox(
-                                            child: Row(
-                                              children: [
-                                                followerUser.profileImage ==
-                                                        null
-                                                    ? Container(
-                                                        height: SizeConfig
-                                                                .defaultSize *
-                                                            4.7,
-                                                        width: SizeConfig
-                                                                .defaultSize *
-                                                            4.7,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          borderRadius: BorderRadius
-                                                              .circular(SizeConfig
-                                                                      .defaultSize *
-                                                                  1.5),
-                                                          color: Colors.white,
-                                                          image: const DecorationImage(
-                                                              image: AssetImage(
-                                                                  "assets/images/default_profile.jpg"),
-                                                              fit:
-                                                                  BoxFit.cover),
-                                                        ))
-                                                    : CachedNetworkImage(
-                                                        imageUrl: kIMAGEURL +
-                                                            followerUser
-                                                                .profileImage!
-                                                                .url!,
-                                                        imageBuilder: (context,
-                                                                imageProvider) =>
-                                                            Container(
-                                                          height: SizeConfig
-                                                                  .defaultSize *
-                                                              4.7,
-                                                          width: SizeConfig
-                                                                  .defaultSize *
-                                                              4.7,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                    SizeConfig
-                                                                            .defaultSize *
-                                                                        1.5),
-                                                            color: Colors.white,
-                                                            image: DecorationImage(
-                                                                image:
-                                                                    imageProvider,
-                                                                fit: BoxFit
-                                                                    .cover),
-                                                          ),
-                                                        ),
-                                                        placeholder:
-                                                            (context, url) =>
-                                                                Container(
-                                                          height: SizeConfig
-                                                                  .defaultSize *
-                                                              4.7,
-                                                          width: SizeConfig
-                                                                  .defaultSize *
-                                                              4.7,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                    SizeConfig
-                                                                            .defaultSize *
-                                                                        1.5),
-                                                            color: const Color(
-                                                                0xFFD0E0F0),
-                                                          ),
-                                                        ),
-                                                        errorWidget: (context,
-                                                                url, error) =>
-                                                            const Icon(
-                                                                Icons.error),
-                                                      ),
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: SizeConfig
-                                                          .defaultSize),
-                                                  child: Text(
-                                                      followerUser.username
-                                                          .toString(),
-                                                      style: TextStyle(
-                                                          fontFamily:
-                                                              kHelveticaMedium,
-                                                          fontSize: SizeConfig
-                                                                  .defaultSize *
-                                                              1.4)),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          //  button
-                                          followerUser.id ==
-                                                  int.parse(data
-                                                      .mainScreenProvider
-                                                      .userId!)
-                                              ? const SizedBox()
-                                              : RectangularButton(
-                                                  textPadding:
-                                                      EdgeInsets.symmetric(
-                                                          horizontal: SizeConfig
-                                                                  .defaultSize *
-                                                              0.5),
-                                                  height:
-                                                      SizeConfig.defaultSize *
-                                                          3.5,
-                                                  width:
-                                                      SizeConfig.defaultSize *
-                                                          10,
-                                                  onPress: () async {
-                                                    await data.toggleUserFollow(
-                                                      userFollowSource:
-                                                          UserFollowSource
-                                                              .currentUserScreen,
-                                                      otherUserStreamController:
-                                                          null,
-                                                      userFollowId: data
-                                                                  .mainScreenProvider
-                                                                  .followingIdList
-                                                                  .contains(
-                                                                      followerUser
-                                                                          .id) &&
-                                                              checkUserFollow !=
-                                                                  null
-                                                          ? checkUserFollow.id
-                                                              .toString()
-                                                          : null,
-                                                      otherUserDeviceToken:
-                                                          followerUser
-                                                              .deviceToken,
-                                                      otherUserId:
-                                                          followerUser.id!,
-                                                      context: context,
-                                                      setLikeSaveCommentFollow:
-                                                          false,
-                                                    );
-                                                    // ignore: use_build_context_synchronously
-                                                    data.getOtherUserProfile(
-                                                        otherUserStreamController:
-                                                            widget
-                                                                .otherUserStreamController!,
-                                                        otherUserId: widget
-                                                            .otherUserId
-                                                            .toString(),
-                                                        context: context);
-                                                  },
-                                                  text: data.mainScreenProvider
-                                                          .followingIdList
-                                                          .contains(
-                                                              followerUser.id)
-                                                      ? AppLocalizations.of(
-                                                              context)
-                                                          .followed
-                                                      : AppLocalizations.of(
-                                                              context)
-                                                          .follow,
-                                                  textColor: data
-                                                              .mainScreenProvider
-                                                              .followingIdList
-                                                              .contains(
-                                                                  followerUser
-                                                                      .id) ==
-                                                          true
-                                                      ? Colors.white
-                                                      : const Color(0xFFA08875),
-                                                  buttonColor: data
-                                                              .mainScreenProvider
-                                                              .followingIdList
-                                                              .contains(
-                                                                  followerUser
-                                                                      .id) ==
-                                                          true
-                                                      ? const Color(0xFFA08875)
-                                                      : Colors.white,
-                                                  borderColor: data
-                                                              .mainScreenProvider
-                                                              .followingIdList
-                                                              .contains(
-                                                                  followerUser
-                                                                      .id) ==
-                                                          true
-                                                      ? const Color(0xFFA08875)
-                                                      : const Color(0xFF5349C7),
-                                                  fontFamily: kHelveticaMedium,
-                                                  keepBoxShadow: false,
-                                                  borderRadius:
-                                                      SizeConfig.defaultSize *
-                                                          1.8,
-                                                  fontSize:
-                                                      SizeConfig.defaultSize *
-                                                          1.1,
-                                                )
-                                        ],
-                                      ),
-                                    ),
-                                  );
+                            // final followerUser = userFollow.followedBy!;
+                            // final checkUserFollow = data
+                            //         .mainScreenProvider.followingIdList
+                            //         .contains(followerUser.id)
+                            //     ? data.mainScreenProvider.currentUser!
+                            //                 .userFollowing !=
+                            //             null
+                            //         ? data.mainScreenProvider.currentUser!
+                            //             .userFollowing!
+                            //             .firstWhereOrNull((element) =>
+                            //                 element!.followedTo != null &&
+                            //                 element.followedTo!.id.toString() ==
+                            //                     followerUser.id.toString())
+                            //         : null
+                            //     : null;
+                            return const SizedBox();
+                            // data.mainScreenProvider.blockedUsersIdList
+                            //         .contains(followerUser.id)
+                            //     ?
+                            //     : GestureDetector(
+                            //         onTap: () {
+                            //           // If different user is tapped
+                            //           if (followerUser.id.toString() !=
+                            //               data.mainScreenProvider.userId) {
+                            //             Navigator.push(
+                            //                 context,
+                            //                 MaterialPageRoute(
+                            //                     builder: (context) =>
+                            //                         OtherUserProfileScreen(
+                            //                           otherUserId:
+                            //                               followerUser.id!,
+                            //                         )));
+                            //           } else {
+                            //             Navigator.pushNamed(
+                            //                 context, MyProfileScreen.id);
+                            //           }
+                            //         },
+                            //         child: Container(
+                            //           color: Colors.transparent,
+                            //           margin: index == 0
+                            //               ? EdgeInsets.only(
+                            //                   top: SizeConfig.defaultSize * 2,
+                            //                   bottom:
+                            //                       SizeConfig.defaultSize * 2)
+                            //               : EdgeInsets.only(
+                            //                   bottom:
+                            //                       SizeConfig.defaultSize * 1.5),
+                            //           child: Row(
+                            //             mainAxisAlignment:
+                            //                 MainAxisAlignment.spaceBetween,
+                            //             crossAxisAlignment:
+                            //                 CrossAxisAlignment.center,
+                            //             children: [
+                            //               SizedBox(
+                            //                 child: Row(
+                            //                   children: [
+                            //                     followerUser.profileImage ==
+                            //                             null
+                            //                         ? Container(
+                            //                             height: SizeConfig
+                            //                                     .defaultSize *
+                            //                                 4.7,
+                            //                             width: SizeConfig
+                            //                                     .defaultSize *
+                            //                                 4.7,
+                            //                             decoration:
+                            //                                 BoxDecoration(
+                            //                               borderRadius: BorderRadius
+                            //                                   .circular(SizeConfig
+                            //                                           .defaultSize *
+                            //                                       1.5),
+                            //                               color: Colors.white,
+                            //                               image: const DecorationImage(
+                            //                                   image: AssetImage(
+                            //                                       "assets/images/default_profile.jpg"),
+                            //                                   fit:
+                            //                                       BoxFit.cover),
+                            //                             ))
+                            //                         : CachedNetworkImage(
+                            //                             imageUrl: kIMAGEURL +
+                            //                                 followerUser
+                            //                                     .profileImage!
+                            //                                     .url!,
+                            //                             imageBuilder: (context,
+                            //                                     imageProvider) =>
+                            //                                 Container(
+                            //                               height: SizeConfig
+                            //                                       .defaultSize *
+                            //                                   4.7,
+                            //                               width: SizeConfig
+                            //                                       .defaultSize *
+                            //                                   4.7,
+                            //                               decoration:
+                            //                                   BoxDecoration(
+                            //                                 borderRadius:
+                            //                                     BorderRadius.circular(
+                            //                                         SizeConfig
+                            //                                                 .defaultSize *
+                            //                                             1.5),
+                            //                                 color: Colors.white,
+                            //                                 image: DecorationImage(
+                            //                                     image:
+                            //                                         imageProvider,
+                            //                                     fit: BoxFit
+                            //                                         .cover),
+                            //                               ),
+                            //                             ),
+                            //                             placeholder:
+                            //                                 (context, url) =>
+                            //                                     Container(
+                            //                               height: SizeConfig
+                            //                                       .defaultSize *
+                            //                                   4.7,
+                            //                               width: SizeConfig
+                            //                                       .defaultSize *
+                            //                                   4.7,
+                            //                               decoration:
+                            //                                   BoxDecoration(
+                            //                                 borderRadius:
+                            //                                     BorderRadius.circular(
+                            //                                         SizeConfig
+                            //                                                 .defaultSize *
+                            //                                             1.5),
+                            //                                 color: const Color(
+                            //                                     0xFFD0E0F0),
+                            //                               ),
+                            //                             ),
+                            //                             errorWidget: (context,
+                            //                                     url, error) =>
+                            //                                 const Icon(
+                            //                                     Icons.error),
+                            //                           ),
+                            //                     Padding(
+                            //                       padding: EdgeInsets.only(
+                            //                           left: SizeConfig
+                            //                               .defaultSize),
+                            //                       child: Text(
+                            //                           followerUser.username
+                            //                               .toString(),
+                            //                           style: TextStyle(
+                            //                               fontFamily:
+                            //                                   kHelveticaMedium,
+                            //                               fontSize: SizeConfig
+                            //                                       .defaultSize *
+                            //                                   1.4)),
+                            //                     )
+                            //                   ],
+                            //                 ),
+                            //               ),
+                            //               //  button
+                            //               followerUser.id ==
+                            //                       int.parse(data
+                            //                           .mainScreenProvider
+                            //                           .userId!)
+                            //                   ? const SizedBox()
+                            //                   : RectangularButton(
+                            //                       textPadding:
+                            //                           EdgeInsets.symmetric(
+                            //                               horizontal: SizeConfig
+                            //                                       .defaultSize *
+                            //                                   0.5),
+                            //                       height:
+                            //                           SizeConfig.defaultSize *
+                            //                               3.5,
+                            //                       width:
+                            //                           SizeConfig.defaultSize *
+                            //                               10,
+                            //                       onPress: () async {
+                            //                         await data.toggleUserFollow(
+                            //                           userFollowSource:
+                            //                               UserFollowSource
+                            //                                   .currentUserScreen,
+                            //                           otherUserStreamController:
+                            //                               null,
+                            //                           userFollowId: data
+                            //                                       .mainScreenProvider
+                            //                                       .followingIdList
+                            //                                       .contains(
+                            //                                           followerUser
+                            //                                               .id) &&
+                            //                                   checkUserFollow !=
+                            //                                       null
+                            //                               ? checkUserFollow.id
+                            //                                   .toString()
+                            //                               : null,
+                            //                           otherUserDeviceToken:
+                            //                               followerUser
+                            //                                   .deviceToken,
+                            //                           otherUserId:
+                            //                               followerUser.id!,
+                            //                           context: context,
+                            //                           setLikeSaveCommentFollow:
+                            //                               false,
+                            //                         );
+                            //                         // ignore: use_build_context_synchronously
+                            //                         data.getOtherUserProfile(
+                            //                             otherUserStreamController:
+                            //                                 widget
+                            //                                     .otherUserStreamController!,
+                            //                             otherUserId: widget
+                            //                                 .otherUserId
+                            //                                 .toString(),
+                            //                             context: context);
+                            //                       },
+                            //                       text: data.mainScreenProvider
+                            //                               .followingIdList
+                            //                               .contains(
+                            //                                   followerUser.id)
+                            //                           ? AppLocalizations.of(
+                            //                                   context)
+                            //                               .followed
+                            //                           : AppLocalizations.of(
+                            //                                   context)
+                            //                               .follow,
+                            //                       textColor: data
+                            //                                   .mainScreenProvider
+                            //                                   .followingIdList
+                            //                                   .contains(
+                            //                                       followerUser
+                            //                                           .id) ==
+                            //                               true
+                            //                           ? Colors.white
+                            //                           : const Color(0xFFA08875),
+                            //                       buttonColor: data
+                            //                                   .mainScreenProvider
+                            //                                   .followingIdList
+                            //                                   .contains(
+                            //                                       followerUser
+                            //                                           .id) ==
+                            //                               true
+                            //                           ? const Color(0xFFA08875)
+                            //                           : Colors.white,
+                            //                       borderColor: data
+                            //                                   .mainScreenProvider
+                            //                                   .followingIdList
+                            //                                   .contains(
+                            //                                       followerUser
+                            //                                           .id) ==
+                            //                               true
+                            //                           ? const Color(0xFFA08875)
+                            //                           : const Color(0xFF5349C7),
+                            //                       fontFamily: kHelveticaMedium,
+                            //                       keepBoxShadow: false,
+                            //                       borderRadius:
+                            //                           SizeConfig.defaultSize *
+                            //                               1.8,
+                            //                       fontSize:
+                            //                           SizeConfig.defaultSize *
+                            //                               1.1,
+                            //                     )
+                            //             ],
+                            //           ),
+                            //         ),
+                            //       );
                           }),
                 );
               }

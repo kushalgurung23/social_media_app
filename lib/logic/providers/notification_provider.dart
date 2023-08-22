@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -57,8 +58,6 @@ class NotificationProvider extends ChangeNotifier {
     }
   }
 
-  late SharedPreferences sharedPreferences;
-
   String getMessageTabHeading(
       {required int index, required BuildContext context}) {
     if (index == 0) {
@@ -82,12 +81,11 @@ class NotificationProvider extends ChangeNotifier {
 
   // This method will be called to gets push notification
   Future loadInitialPushNotification({required BuildContext context}) async {
-    sharedPreferences = await SharedPreferences.getInstance();
     http.Response response = await PushNotificationRepo.loadFollowNotification(
         pageNumber: 1.toString(),
         pageSize: notificationPageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? 'null',
-        currentUserId: mainScreenProvider.userId.toString());
+        jwt: mainScreenProvider.currentAccessToken.toString(),
+        currentUserId: mainScreenProvider.currentUserId ?? '');
     if (response.statusCode == 200) {
       _pushNotification = notificationFromJson(response.body);
       pushNotificationStreamController.sink.add(_pushNotification!);
@@ -117,8 +115,8 @@ class NotificationProvider extends ChangeNotifier {
     http.Response response = await PushNotificationRepo.loadFollowNotification(
         pageNumber: notificationPageNumber.toString(),
         pageSize: notificationPageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? 'null',
-        currentUserId: mainScreenProvider.userId.toString());
+        jwt: mainScreenProvider.currentAccessToken.toString(),
+        currentUserId: mainScreenProvider.currentAccessToken.toString());
     if (response.statusCode == 200) {
       final newNotifications = notificationFromJson(response.body);
 
@@ -158,9 +156,9 @@ class NotificationProvider extends ChangeNotifier {
     }
     http.Response response =
         await PushNotificationRepo.getOneUpdatedFollowNotification(
-            jwt: sharedPreferences.getString('jwt') ?? 'null',
+            jwt: mainScreenProvider.currentAccessToken.toString(),
             notificationId: notificationId,
-            currentUserId: mainScreenProvider.userId.toString());
+            currentUserId: mainScreenProvider.currentUserId ?? '');
     if (response.statusCode == 200) {
       final oneNotification = singleNotificationFromJson(response.body).data;
       if (oneNotification != null) {
@@ -196,8 +194,8 @@ class NotificationProvider extends ChangeNotifier {
     }
     http.Response response =
         await PushNotificationRepo.getCurrentUserLastFollowNotification(
-            jwt: sharedPreferences.getString('jwt') ?? 'null',
-            currentUserId: mainScreenProvider.userId.toString());
+            jwt: mainScreenProvider.currentAccessToken.toString(),
+            currentUserId: mainScreenProvider.currentUserId ?? '');
     if (response.statusCode == 200 &&
         notificationFromJson(response.body).data != null &&
         notificationFromJson(response.body).data!.isNotEmpty) {
@@ -234,15 +232,18 @@ class NotificationProvider extends ChangeNotifier {
         "data": {"is_read": true}
       };
       PushNotificationRepo.readNotification(
-          jwt: sharedPreferences.getString('jwt') ?? 'null',
+          jwt: mainScreenProvider.currentAccessToken.toString(),
           notificationId: notificationId,
           bodyData: bodyData);
     }
-    await Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => OtherUserProfileScreen(
-                otherUserId: int.parse(notificationSenderId))));
+
+    if (context.mounted) {
+      await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => OtherUserProfileScreen(
+                  otherUserId: int.parse(notificationSenderId))));
+    }
     if (context.mounted) {
       refreshPushNotification(context: context);
     }
@@ -278,11 +279,10 @@ class NotificationProvider extends ChangeNotifier {
   // Loading initial promotions
   // It will be called from init state so sharedpreferences is initialized in this method
   Future<void> getInitialPromotions({required BuildContext context}) async {
-    sharedPreferences = await SharedPreferences.getInstance();
     final response = await PromotionRepo.getAllPromotions(
         page: 1.toString(),
         pageSize: promotionPageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!);
+        jwt: mainScreenProvider.currentAccessToken.toString());
     if (response.statusCode == 200) {
       _promotion = promotionFromJson(response.body);
       promotionStreamController.sink.add(_promotion!);
@@ -311,7 +311,7 @@ class NotificationProvider extends ChangeNotifier {
     final response = await PromotionRepo.getAllPromotions(
         page: promotionPageNumber.toString(),
         pageSize: promotionPageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? mainScreenProvider.jwt!);
+        jwt: mainScreenProvider.currentAccessToken.toString());
     if (response.statusCode == 200) {
       final newPromotions = promotionFromJson(response.body);
 

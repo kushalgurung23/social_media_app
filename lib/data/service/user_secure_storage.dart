@@ -22,6 +22,12 @@ class UserSecureStorage {
     ]);
   }
 
+  static Future<void> setIsUserLoggedIn(
+      {required bool isKeepUserLoggedIn}) async {
+    await _storage.write(
+        key: _isKeepUserLoggedIn, value: jsonEncode(isKeepUserLoggedIn));
+  }
+
   static Future<String?> getSecuredUserId() async {
     return await _storage.read(key: _securedUserId);
   }
@@ -36,8 +42,7 @@ class UserSecureStorage {
 
   static Future<bool?> getSecuredIsLoggedInStatus() async {
     final isLoggedInStatus = await _storage.read(key: _isKeepUserLoggedIn);
-    return bool.fromEnvironment(
-        json.decode(isLoggedInStatus.toString()).toString());
+    return jsonDecode(isLoggedInStatus.toString());
   }
 
   static Future<void> removeSecuredUserDetails() async {

@@ -60,153 +60,154 @@ class _BookmarkInterestClassesScreenState
       body: Consumer<InterestClassProvider>(
         builder: (context, data, child) {
           return Padding(
-            padding: EdgeInsets.fromLTRB(SizeConfig.defaultSize,
-                SizeConfig.defaultSize * 1, SizeConfig.defaultSize, 0),
-            child: data.mainScreenProvider.savedInterestClassIdList.isEmpty
-                ? Center(
-                    child: Text(
-                        AppLocalizations.of(context).noInterestClassBookmarked,
-                        style: TextStyle(
-                            fontFamily: kHelveticaRegular,
-                            fontSize: SizeConfig.defaultSize * 1.6)),
-                  )
-                : StreamBuilder<BookmarkInterestClass?>(
-                    stream: data.bookmarkInterestClassStreamController.stream,
-                    builder: (context, snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return Center(
-                            child: Text(AppLocalizations.of(context).loading,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: kHelveticaRegular,
-                                    fontSize: SizeConfig.defaultSize * 1.5)),
-                          );
-                        case ConnectionState.done:
-                        default:
-                          if (snapshot.hasError) {
-                            return Center(
-                              child: Text(
-                                  AppLocalizations.of(context).refreshPage,
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: kHelveticaRegular,
-                                      fontSize: SizeConfig.defaultSize * 1.5)),
-                            );
-                          } else if (!snapshot.hasData) {
-                            return Center(
-                              child: Text(
-                                  AppLocalizations.of(context).dataCouldNotLoad,
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: kHelveticaRegular,
-                                      fontSize: SizeConfig.defaultSize * 1.5)),
-                            );
-                          } else {
-                            if (snapshot.data!.data!.isEmpty &&
-                                data.isBookmarkRefresh == false) {
-                              data.bookmarkRefresh(context: context);
-                            }
-                            return snapshot.data!.data!.isEmpty &&
-                                    data.isBookmarkRefresh == false
-                                ? Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.only(
-                                          top: SizeConfig.defaultSize * 3),
-                                      child: Text(
-                                        AppLocalizations.of(context)
-                                            .noInterestClassBookmarked,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontFamily: kHelveticaRegular,
-                                            fontSize:
-                                                SizeConfig.defaultSize * 1.7),
-                                      ),
-                                    ),
-                                  )
-                                : snapshot.data!.data!.isEmpty &&
-                                        data.isBookmarkRefresh == true
-                                    ? Center(
-                                        child: Text(
-                                            AppLocalizations.of(context)
-                                                .loading,
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontFamily: kHelveticaRegular,
-                                                fontSize:
-                                                    SizeConfig.defaultSize *
-                                                        1.5)))
-                                    : RefreshIndicator(
-                                        onRefresh: () => data.bookmarkRefresh(
-                                            context: context),
-                                        child: ListView.builder(
-                                          controller: scrollController,
-                                          physics:
-                                              const AlwaysScrollableScrollPhysics(
-                                                  parent:
-                                                      BouncingScrollPhysics()),
-                                          itemCount: snapshot
-                                                      .data!.data!.length >=
-                                                  15
-                                              ? snapshot.data!.data!.length + 1
-                                              : snapshot.data!.data!.length,
-                                          itemBuilder: (BuildContext context,
-                                              int index) {
-                                            if (index <
-                                                snapshot.data!.data!.length) {
-                                              final bookmarkInterestClassData =
-                                                  snapshot.data!.data![index];
+              padding: EdgeInsets.fromLTRB(SizeConfig.defaultSize,
+                  SizeConfig.defaultSize * 1, SizeConfig.defaultSize, 0),
+              child: Center(
+                child: Text(
+                    AppLocalizations.of(context).noInterestClassBookmarked,
+                    style: TextStyle(
+                        fontFamily: kHelveticaRegular,
+                        fontSize: SizeConfig.defaultSize * 1.6)),
+              )
+              // data.mainScreenProvider.savedInterestClassIdList.isEmpty
+              //     ?
+              //     : StreamBuilder<BookmarkInterestClass?>(
+              //         stream: data.bookmarkInterestClassStreamController.stream,
+              //         builder: (context, snapshot) {
+              //           switch (snapshot.connectionState) {
+              //             case ConnectionState.waiting:
+              //               return Center(
+              //                 child: Text(AppLocalizations.of(context).loading,
+              //                     style: TextStyle(
+              //                         color: Colors.black,
+              //                         fontFamily: kHelveticaRegular,
+              //                         fontSize: SizeConfig.defaultSize * 1.5)),
+              //               );
+              //             case ConnectionState.done:
+              //             default:
+              //               if (snapshot.hasError) {
+              //                 return Center(
+              //                   child: Text(
+              //                       AppLocalizations.of(context).refreshPage,
+              //                       style: TextStyle(
+              //                           color: Colors.black,
+              //                           fontFamily: kHelveticaRegular,
+              //                           fontSize: SizeConfig.defaultSize * 1.5)),
+              //                 );
+              //               } else if (!snapshot.hasData) {
+              //                 return Center(
+              //                   child: Text(
+              //                       AppLocalizations.of(context).dataCouldNotLoad,
+              //                       style: TextStyle(
+              //                           color: Colors.black,
+              //                           fontFamily: kHelveticaRegular,
+              //                           fontSize: SizeConfig.defaultSize * 1.5)),
+              //                 );
+              //               } else {
+              //                 if (snapshot.data!.data!.isEmpty &&
+              //                     data.isBookmarkRefresh == false) {
+              //                   data.bookmarkRefresh(context: context);
+              //                 }
+              //                 return snapshot.data!.data!.isEmpty &&
+              //                         data.isBookmarkRefresh == false
+              //                     ? Center(
+              //                         child: Padding(
+              //                           padding: EdgeInsets.only(
+              //                               top: SizeConfig.defaultSize * 3),
+              //                           child: Text(
+              //                             AppLocalizations.of(context)
+              //                                 .noInterestClassBookmarked,
+              //                             textAlign: TextAlign.center,
+              //                             style: TextStyle(
+              //                                 fontFamily: kHelveticaRegular,
+              //                                 fontSize:
+              //                                     SizeConfig.defaultSize * 1.7),
+              //                           ),
+              //                         ),
+              //                       )
+              //                     : snapshot.data!.data!.isEmpty &&
+              //                             data.isBookmarkRefresh == true
+              //                         ? Center(
+              //                             child: Text(
+              //                                 AppLocalizations.of(context)
+              //                                     .loading,
+              //                                 style: TextStyle(
+              //                                     color: Colors.black,
+              //                                     fontFamily: kHelveticaRegular,
+              //                                     fontSize:
+              //                                         SizeConfig.defaultSize *
+              //                                             1.5)))
+              //                         : RefreshIndicator(
+              //                             onRefresh: () => data.bookmarkRefresh(
+              //                                 context: context),
+              //                             child: ListView.builder(
+              //                               controller: scrollController,
+              //                               physics:
+              //                                   const AlwaysScrollableScrollPhysics(
+              //                                       parent:
+              //                                           BouncingScrollPhysics()),
+              //                               itemCount: snapshot
+              //                                           .data!.data!.length >=
+              //                                       15
+              //                                   ? snapshot.data!.data!.length + 1
+              //                                   : snapshot.data!.data!.length,
+              //                               itemBuilder: (BuildContext context,
+              //                                   int index) {
+              //                                 if (index <
+              //                                     snapshot.data!.data!.length) {
+              //                                   final bookmarkInterestClassData =
+              //                                       snapshot.data!.data![index];
 
-                                              return Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal:
-                                                        SizeConfig.defaultSize),
-                                                child: InterestCourseContainer(
-                                                  interestClassBookmarkId:
-                                                      bookmarkInterestClassData!
-                                                          .id
-                                                          .toString(),
-                                                  source:
-                                                      InterestClassSourceType
-                                                          .bookmark,
-                                                  interestClassData:
-                                                      bookmarkInterestClassData
-                                                          .attributes!
-                                                          .interestClass!
-                                                          .data!,
-                                                ),
-                                              );
-                                            } else {
-                                              return Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical:
-                                                        SizeConfig.defaultSize *
-                                                            3),
-                                                child: Center(
-                                                    child: data.bookmarkHasMore
-                                                        ? const CircularProgressIndicator(
-                                                            color: Color(
-                                                                0xFFA08875))
-                                                        : Text(
-                                                            AppLocalizations.of(
-                                                                    context)
-                                                                .caughtUp,
-                                                            style: TextStyle(
-                                                                fontFamily:
-                                                                    kHelveticaRegular,
-                                                                fontSize: SizeConfig
-                                                                        .defaultSize *
-                                                                    1.5),
-                                                          )),
-                                              );
-                                            }
-                                          },
-                                        ),
-                                      );
-                          }
-                      }
-                    }),
-          );
+              //                                   return Padding(
+              //                                     padding: EdgeInsets.symmetric(
+              //                                         horizontal:
+              //                                             SizeConfig.defaultSize),
+              //                                     child: InterestCourseContainer(
+              //                                       interestClassBookmarkId:
+              //                                           bookmarkInterestClassData!
+              //                                               .id
+              //                                               .toString(),
+              //                                       source:
+              //                                           InterestClassSourceType
+              //                                               .bookmark,
+              //                                       interestClassData:
+              //                                           bookmarkInterestClassData
+              //                                               .attributes!
+              //                                               .interestClass!
+              //                                               .data!,
+              //                                     ),
+              //                                   );
+              //                                 } else {
+              //                                   return Padding(
+              //                                     padding: EdgeInsets.symmetric(
+              //                                         vertical:
+              //                                             SizeConfig.defaultSize *
+              //                                                 3),
+              //                                     child: Center(
+              //                                         child: data.bookmarkHasMore
+              //                                             ? const CircularProgressIndicator(
+              //                                                 color: Color(
+              //                                                     0xFFA08875))
+              //                                             : Text(
+              //                                                 AppLocalizations.of(
+              //                                                         context)
+              //                                                     .caughtUp,
+              //                                                 style: TextStyle(
+              //                                                     fontFamily:
+              //                                                         kHelveticaRegular,
+              //                                                     fontSize: SizeConfig
+              //                                                             .defaultSize *
+              //                                                         1.5),
+              //                                               )),
+              //                                   );
+              //                                 }
+              //                               },
+              //                             ),
+              //                           );
+              //               }
+              //           }
+              //         }),
+              );
         },
       ),
     );

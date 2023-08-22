@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
@@ -14,24 +15,16 @@ import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/subjects.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChatMessageProvider extends ChangeNotifier {
-  late SharedPreferences sharedPreferences =
-      mainScreenProvider.sharedPreferences;
   late final MainScreenProvider mainScreenProvider;
   late TextEditingController chatTextController;
   StreamController<Conversation?> allConversationStreamController =
       BehaviorSubject();
 
   ChatMessageProvider({required this.mainScreenProvider}) {
-    initial();
     chatTextController = TextEditingController();
-  }
-
-  Future initial() async {
-    sharedPreferences = mainScreenProvider.sharedPreferences;
   }
 
 // Selected other user chat conversation
@@ -40,11 +33,12 @@ class ChatMessageProvider extends ChangeNotifier {
 
   Future<void> loadOneUserConversation(
       {required String otherUserId, required BuildContext context}) async {
-    await initial();
+    final userId = mainScreenProvider.currentUserId;
+    final accessToken = await UserSecureStorage.getSecuredAccessToken();
     Response loadConversationResponse =
         await ChatMessagesRepo.getOneSelectedUserConversation(
-            jwt: sharedPreferences.getString('jwt') ?? 'null',
-            currentUserId: mainScreenProvider.userId!,
+            jwt: accessToken.toString(),
+            currentUserId: userId.toString(),
             otherUserId: otherUserId);
     if (loadConversationResponse.statusCode == 200) {
       _oneConversation = conversationFromJson(loadConversationResponse.body);
@@ -56,22 +50,22 @@ class ChatMessageProvider extends ChangeNotifier {
       // If there is no previous conversation, we will create a new conversation first, and then navigate to chat screen
       else {
         Map conversationBodyData = {
-          "first_user": mainScreenProvider.userId.toString(),
+          "first_user": userId,
           "second_user": otherUserId
         };
 
         Response createConversationResponse =
             await ChatMessagesRepo.startANewConversation(
           bodyData: conversationBodyData,
-          jwt: sharedPreferences.getString('jwt') ?? 'null',
+          jwt: accessToken.toString(),
         );
         // if new conversation is created
         if (createConversationResponse.statusCode == 200) {
           // then we will load the conversation info
           Response loadAfterCreatingConversationResponse =
               await ChatMessagesRepo.getOneSelectedUserConversation(
-                  jwt: sharedPreferences.getString('jwt') ?? 'null',
-                  currentUserId: mainScreenProvider.userId!,
+                  jwt: accessToken.toString(),
+                  currentUserId: userId.toString(),
                   otherUserId: otherUserId);
           // if we are able to load conversation info,
           if (loadAfterCreatingConversationResponse.statusCode == 200) {
@@ -166,10 +160,11 @@ class ChatMessageProvider extends ChangeNotifier {
       {required String conversationId,
       required Map bodyData,
       required BuildContext context}) async {
+    final accessToken = await UserSecureStorage.getSecuredAccessToken();
     Response response = await ChatMessagesRepo.updateLastReadMessage(
       conversationId: conversationId,
       bodyData: bodyData,
-      jwt: sharedPreferences.getString('jwt') ?? 'null',
+      jwt: accessToken.toString(),
     );
 
     if (response.statusCode == 200) {
@@ -205,45 +200,44 @@ class ChatMessageProvider extends ChangeNotifier {
 
       Map bodyData;
 
-      await sharedPreferences.reload();
-      if (sharedPreferences.getString('active_chat_username') ==
-          otherUsername) {
-        // if we are first user
-        if (firstUserId == receiverUserId &&
-            receiverUserId == mainScreenProvider.userId) {
-          bodyData = {
-            "data": {
-              "first_user_last_read":
-                  lastReadDateTime.add(const Duration(seconds: 1)).toString()
-            }
-          };
-          if (context.mounted) {
-            // update the last time read for first user
-            await updateLastTimeRead(
-                conversationId: conversationId,
-                bodyData: bodyData,
-                context: context);
-            notifyListeners();
+      // await sharedPreferences.reload();
+      // if (sharedPreferences.getString('active_chat_username') ==
+      //     otherUsername) {
+      final userId = mainScreenProvider.currentUserId;
+      // if we are first user
+      if (firstUserId == receiverUserId && receiverUserId == userId) {
+        bodyData = {
+          "data": {
+            "first_user_last_read":
+                lastReadDateTime.add(const Duration(seconds: 1)).toString()
           }
+        };
+        if (context.mounted) {
+          // update the last time read for first user
+          await updateLastTimeRead(
+              conversationId: conversationId,
+              bodyData: bodyData,
+              context: context);
+          notifyListeners();
         }
-        // if we are second user
-        else if (secondUser == receiverUserId &&
-            receiverUserId == mainScreenProvider.userId) {
-          bodyData = {
-            "data": {
-              "second_user_last_read":
-                  lastReadDateTime.add(const Duration(seconds: 1)).toString()
-            }
-          };
-          if (context.mounted) {
-            //  update the last time read for second user
-            await updateLastTimeRead(
-                conversationId: conversationId,
-                bodyData: bodyData,
-                context: context);
-            notifyListeners();
+      }
+      // if we are second user
+      else if (secondUser == receiverUserId && receiverUserId == userId) {
+        bodyData = {
+          "data": {
+            "second_user_last_read":
+                lastReadDateTime.add(const Duration(seconds: 1)).toString()
           }
+        };
+        if (context.mounted) {
+          //  update the last time read for second user
+          await updateLastTimeRead(
+              conversationId: conversationId,
+              bodyData: bodyData,
+              context: context);
+          notifyListeners();
         }
+        // }
       } else {
         return;
       }
@@ -258,11 +252,11 @@ class ChatMessageProvider extends ChangeNotifier {
 
   Future<void> updateOneConversationData(
       {required String conversationId, required BuildContext context}) async {
-    sharedPreferences = await SharedPreferences.getInstance();
+    // sharedPreferences = await SharedPreferences.getInstance();
     Response response =
         await ChatMessagesRepo.getOneUpdatedCurrentUserConversation(
             conversationId: conversationId,
-            jwt: sharedPreferences.getString('jwt') ?? 'null');
+            jwt: mainScreenProvider.currentAccessToken.toString());
     if (response.statusCode == 200) {
       final oneConversation = singleConversationFromJson(response.body).data;
       if (oneConversation != null && _allConversation != null) {
@@ -313,7 +307,7 @@ class ChatMessageProvider extends ChangeNotifier {
       required String? otherUserDeviceToken,
       required BuildContext context}) async {
     // stores the username of other user that the current user is currently chatting with
-    sharedPreferences.setString('active_chat_username', otherUsername);
+    // sharedPreferences.setString('active_chat_username', otherUsername);
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -352,58 +346,51 @@ class ChatMessageProvider extends ChangeNotifier {
 
   void navigateToChatScreenFromOtherUserProfile(
       {required BuildContext context}) async {
-    String currentUserId =
-        Provider.of<MainScreenProvider>(context, listen: false)
-            .userId
-            .toString();
+    String currentUserId = mainScreenProvider.currentUserId ?? '';
     final conversationData = _oneConversation!.data![0];
     final firstUser = conversationData.attributes!.firstUser!.data!;
     final secondUser = conversationData.attributes!.secondUser!.data!;
     String otherUsername = firstUser.id.toString() != currentUserId
         ? firstUser.attributes!.username.toString()
         : secondUser.attributes!.username.toString();
-    sharedPreferences.setString('active_chat_username', otherUsername);
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ChatScreen(
-                  otherUserDeviceToken: firstUser.id.toString() == currentUserId
-                      ? secondUser.attributes!.deviceToken
-                      : firstUser.attributes!.deviceToken,
-                  myImageUrl: firstUser.id.toString() == currentUserId &&
-                          firstUser.attributes!.profileImage!.data != null
-                      ? firstUser
-                          .attributes!.profileImage!.data!.attributes!.url
-                          .toString()
-                      : secondUser.id.toString() == currentUserId &&
-                              secondUser.attributes!.profileImage!.data != null
-                          ? secondUser
-                              .attributes!.profileImage!.data!.attributes!.url
-                              .toString()
-                          : 'null',
-                  otherUserImageUrl: firstUser.id.toString() != currentUserId &&
-                          firstUser.attributes!.profileImage!.data != null
-                      ? firstUser
-                          .attributes!.profileImage!.data!.attributes!.url
-                          .toString()
-                      : secondUser.id.toString() != currentUserId &&
-                              secondUser.attributes!.profileImage!.data != null
-                          ? secondUser
-                              .attributes!.profileImage!.data!.attributes!.url
-                              .toString()
-                          : 'null',
-                  messageConversationList: conversationData
-                      .attributes!.chatMessages!.data!.reversed
-                      .toList(),
-                  otherUserId: firstUser.id.toString() != currentUserId
-                      ? firstUser.id.toString()
-                      : secondUser.id.toString(),
-                  otherUsername: otherUsername,
-                  chatTextEditingController:
-                      Provider.of<ChatMessageProvider>(context, listen: false)
-                          .chatTextController,
-                  conversationId: conversationData.id.toString(),
-                )));
+
+    if (context.mounted) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                    otherUserDeviceToken:
+                        firstUser.id.toString() == currentUserId
+                            ? secondUser.attributes!.deviceToken
+                            : firstUser.attributes!.deviceToken,
+                    myImageUrl: firstUser.id.toString() == currentUserId &&
+                            firstUser.attributes!.profileImage != null
+                        ? firstUser.attributes!.profileImage.toString()
+                        : secondUser.id.toString() == currentUserId &&
+                                secondUser.attributes!.profileImage != null
+                            ? secondUser.attributes!.profileImage.toString()
+                            : 'null',
+                    otherUserImageUrl:
+                        firstUser.id.toString() != currentUserId &&
+                                firstUser.attributes!.profileImage != null
+                            ? firstUser.attributes!.profileImage.toString()
+                            : secondUser.id.toString() != currentUserId &&
+                                    secondUser.attributes!.profileImage != null
+                                ? secondUser.attributes!.profileImage.toString()
+                                : 'null',
+                    messageConversationList: conversationData
+                        .attributes!.chatMessages!.data!.reversed
+                        .toList(),
+                    otherUserId: firstUser.id.toString() != currentUserId
+                        ? firstUser.id.toString()
+                        : secondUser.id.toString(),
+                    otherUsername: otherUsername,
+                    chatTextEditingController:
+                        Provider.of<ChatMessageProvider>(context, listen: false)
+                            .chatTextController,
+                    conversationId: conversationData.id.toString(),
+                  )));
+    }
     Map bodyData;
     if (firstUser.id.toString() == currentUserId) {
       bodyData = {
@@ -414,10 +401,12 @@ class ChatMessageProvider extends ChangeNotifier {
         "data": {"second_user_last_read": DateTime.now().toString()}
       };
     }
-    await updateLastTimeRead(
-        context: context,
-        conversationId: conversationData.id.toString(),
-        bodyData: bodyData);
+    if (context.mounted) {
+      await updateLastTimeRead(
+          context: context,
+          conversationId: conversationData.id.toString(),
+          bodyData: bodyData);
+    }
     if (context.mounted) {
       await updateOneConversationData(
           context: context, conversationId: conversationData.id.toString());
@@ -429,13 +418,13 @@ class ChatMessageProvider extends ChangeNotifier {
     if (chatTextController.text != '') {
       chatTextController.clear();
     }
-    sharedPreferences.remove('active_chat_username');
+    // sharedPreferences.remove('active_chat_username');
     Navigator.pop(context);
   }
 
   void navigateToOtherUserProfile(
       {required BuildContext context, required int otherUserId}) {
-    sharedPreferences.remove('active_chat_username');
+    // sharedPreferences.remove('active_chat_username');
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -455,15 +444,15 @@ class ChatMessageProvider extends ChangeNotifier {
   bool isLoading = false;
 
   Future loadInitialAllConversations({required BuildContext context}) async {
-    await initial();
+    // await initial();
 
     Response response = await ChatMessagesRepo.getCurrentUserAllConversation(
         page: 1.toString(),
         pageSize: _allConversation != null && _allConversation!.data!.isNotEmpty
             ? _allConversation!.data!.length.toString()
             : pageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? 'null',
-        currentUserId: mainScreenProvider.userId!);
+        jwt: mainScreenProvider.currentAccessToken.toString(),
+        currentUserId: mainScreenProvider.currentUserId ?? '');
     if (response.statusCode == 200) {
       _allConversation = conversationFromJson(response.body);
       allConversationStreamController.sink.add(_allConversation!);
@@ -493,8 +482,8 @@ class ChatMessageProvider extends ChangeNotifier {
     Response response = await ChatMessagesRepo.getCurrentUserAllConversation(
         page: page.toString(),
         pageSize: pageSize.toString(),
-        jwt: sharedPreferences.getString('jwt') ?? 'null',
-        currentUserId: mainScreenProvider.userId!);
+        jwt: mainScreenProvider.currentAccessToken.toString(),
+        currentUserId: mainScreenProvider.currentUserId ?? '');
     if (response.statusCode == 200) {
       final newConversations = conversationFromJson(response.body);
 
@@ -595,14 +584,14 @@ class ChatMessageProvider extends ChangeNotifier {
   void createConversationIdAgain(
       {required String otherUserId, required BuildContext context}) async {
     Map conversationBodyData = {
-      "first_user": mainScreenProvider.userId.toString(),
+      "first_user": mainScreenProvider.currentUserId ?? '',
       "second_user": otherUserId,
     };
 
     Response createConversationResponse =
         await ChatMessagesRepo.startANewConversation(
       bodyData: conversationBodyData,
-      jwt: sharedPreferences.getString('jwt') ?? 'null',
+      jwt: mainScreenProvider.currentAccessToken.toString(),
     );
     if (createConversationResponse.statusCode == 200) {
       return;
@@ -641,24 +630,24 @@ class ChatMessageProvider extends ChangeNotifier {
 
   void setChatMessageNotification() {
     messageNotificationBadge = true;
-    sharedPreferences.setBool("chat_message_push_notification", true);
+    // sharedPreferences.setBool("chat_message_push_notification", true);
     notifyListeners();
   }
 
   void removeChatMessageNotificationBadge() {
     messageNotificationBadge = false;
-    sharedPreferences.setBool("chat_message_push_notification", false);
+    // sharedPreferences.setBool("chat_message_push_notification", false);
     notifyListeners();
   }
 
   // When we are in the chatroom screen, we don't want to show notification badge in the notification bell
   void setCurrentlyOnChatroomScreen() {
-    sharedPreferences.setBool("chatroom_active_status", true);
+    // sharedPreferences.setBool("chatroom_active_status", true);
     notifyListeners();
   }
 
   void removeCurrentlyOnChatroomScreen() {
-    sharedPreferences.setBool("chatroom_active_status", false);
+    // sharedPreferences.setBool("chatroom_active_status", false);
     notifyListeners();
   }
 

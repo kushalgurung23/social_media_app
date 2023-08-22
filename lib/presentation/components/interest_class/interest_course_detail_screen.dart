@@ -143,7 +143,7 @@ class _InterestCourseDetailScreenState
                                   element!.attributes!.savedBy!.data != null &&
                                   element.attributes!.savedBy!.data!.id
                                           .toString() ==
-                                      data.mainScreenProvider.userId)
+                                      data.mainScreenProvider.currentUserId)
                           : null;
                       return Padding(
                         padding: EdgeInsets.symmetric(
@@ -155,8 +155,7 @@ class _InterestCourseDetailScreenState
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    courseData!.attributes!.mainImage!.data ==
-                                            null
+                                    courseData!.attributes!.mainImage == null
                                         ? Container(
                                             margin: EdgeInsets.only(
                                                 right: SizeConfig.defaultSize),
@@ -172,11 +171,7 @@ class _InterestCourseDetailScreenState
                                             image: CachedNetworkImage(
                                               imageUrl: kIMAGEURL +
                                                   courseData
-                                                      .attributes!
-                                                      .mainImage!
-                                                      .data!
-                                                      .attributes!
-                                                      .url
+                                                      .attributes!.mainImage
                                                       .toString(),
                                               fit: BoxFit.cover,
                                               errorWidget:
@@ -208,27 +203,27 @@ class _InterestCourseDetailScreenState
                                               children: [
                                                 GestureDetector(
                                                   onTap: () {
-                                                    data.toggleInterestClassSave(
-                                                        savedInterestClassId: data
-                                                                    .mainScreenProvider
-                                                                    .savedInterestClassIdList
-                                                                    .contains(
-                                                                        courseData!
-                                                                            .id) &&
-                                                                courseData
-                                                                        .attributes!
-                                                                        .interestClassSaves!
-                                                                        .data !=
-                                                                    null
-                                                            ? interestClassCoursSaveData
-                                                                ?.id
-                                                                .toString()
-                                                            : null,
-                                                        source: widget.source,
-                                                        context: context,
-                                                        interestClassCourseId:
-                                                            courseData.id
-                                                                .toString());
+                                                    // data.toggleInterestClassSave(
+                                                    //     savedInterestClassId: data
+                                                    //                 .mainScreenProvider
+                                                    //                 .savedInterestClassIdList
+                                                    //                 .contains(
+                                                    //                     courseData!
+                                                    //                         .id) &&
+                                                    //             courseData
+                                                    //                     .attributes!
+                                                    //                     .interestClassSaves!
+                                                    //                     .data !=
+                                                    //                 null
+                                                    //         ? interestClassCoursSaveData
+                                                    //             ?.id
+                                                    //             .toString()
+                                                    //         : null,
+                                                    //     source: widget.source,
+                                                    //     context: context,
+                                                    //     interestClassCourseId:
+                                                    //         courseData.id
+                                                    //             .toString());
                                                   },
                                                   child: Container(
                                                       decoration: BoxDecoration(
@@ -249,16 +244,8 @@ class _InterestCourseDetailScreenState
                                                           4.5,
                                                       child: Icon(
                                                         Icons.bookmark,
-                                                        color: data
-                                                                .mainScreenProvider
-                                                                .savedInterestClassIdList
-                                                                .contains(
-                                                                    courseData
-                                                                        .id)
-                                                            ? const Color(
-                                                                0xFFA08875)
-                                                            : const Color(
-                                                                0xFFD1D3D5),
+                                                        color: const Color(
+                                                            0xFFD1D3D5),
                                                         size: SizeConfig
                                                                 .defaultSize *
                                                             3,
@@ -362,62 +349,62 @@ class _InterestCourseDetailScreenState
                                             ),
                                           ),
                                     // interest class images
-                                    courseData.attributes!.classImages!.data ==
-                                            null
-                                        ? const SizedBox()
-                                        : Padding(
-                                            padding: EdgeInsets.only(
-                                                bottom:
-                                                    SizeConfig.defaultSize * 2),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                CarouselSlider.builder(
-                                                  itemCount: courseData
-                                                      .attributes!
-                                                      .classImages!
-                                                      .data!
-                                                      .length,
-                                                  itemBuilder: (context, index,
-                                                      realIndex) {
-                                                    final imageUrl = courseData!
-                                                        .attributes!
-                                                        .classImages!
-                                                        .data![index];
-                                                    return buildImage(
-                                                        imageUrl: imageUrl!
-                                                            .attributes!.url
-                                                            .toString(),
-                                                        index: index);
-                                                  },
-                                                  options: CarouselOptions(
-                                                      viewportFraction: 1,
-                                                      enableInfiniteScroll:
-                                                          false,
-                                                      enlargeCenterPage: true,
-                                                      onPageChanged:
-                                                          (index, reason) {
-                                                        data.changeDotIndex(
-                                                            newIndex: index);
-                                                      }),
-                                                ),
-                                                SizedBox(
-                                                  height:
-                                                      SizeConfig.defaultSize *
-                                                          2,
-                                                ),
-                                                buildDotIndicator(
-                                                    activeIndex:
-                                                        data.activeImageIndex,
-                                                    count: courseData
-                                                        .attributes!
-                                                        .classImages!
-                                                        .data!
-                                                        .length)
-                                              ],
-                                            ),
-                                          ),
+                                    // courseData.attributes!.classImages ==
+                                    //         null
+                                    //     ? const SizedBox()
+                                    //     : Padding(
+                                    //         padding: EdgeInsets.only(
+                                    //             bottom:
+                                    //                 SizeConfig.defaultSize * 2),
+                                    //         child: Column(
+                                    //           mainAxisAlignment:
+                                    //               MainAxisAlignment.center,
+                                    //           children: [
+                                    //             CarouselSlider.builder(
+                                    //               itemCount: courseData
+                                    //                   .attributes!
+                                    //                   .classImages!
+                                    //                   .data!
+                                    //                   .length,
+                                    //               itemBuilder: (context, index,
+                                    //                   realIndex) {
+                                    //                 final imageUrl = courseData!
+                                    //                     .attributes!
+                                    //                     .classImages!
+                                    //                     .data![index];
+                                    //                 return buildImage(
+                                    //                     imageUrl: imageUrl!
+                                    //                         .attributes!.url
+                                    //                         .toString(),
+                                    //                     index: index);
+                                    //               },
+                                    //               options: CarouselOptions(
+                                    //                   viewportFraction: 1,
+                                    //                   enableInfiniteScroll:
+                                    //                       false,
+                                    //                   enlargeCenterPage: true,
+                                    //                   onPageChanged:
+                                    //                       (index, reason) {
+                                    //                     data.changeDotIndex(
+                                    //                         newIndex: index);
+                                    //                   }),
+                                    //             ),
+                                    //             SizedBox(
+                                    //               height:
+                                    //                   SizeConfig.defaultSize *
+                                    //                       2,
+                                    //             ),
+                                    //             buildDotIndicator(
+                                    //                 activeIndex:
+                                    //                     data.activeImageIndex,
+                                    //                 count: courseData
+                                    //                     .attributes!
+                                    //                     .classImages!
+                                    //                     .data!
+                                    //                     .length)
+                                    //           ],
+                                    //         ),
+                                    //       ),
                                     // Contact number
                                     courseData.attributes!.phoneNumber == null
                                         ? const SizedBox()

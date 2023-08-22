@@ -1,11 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
 import 'package:c_talent/data/constant/connection_url.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/data/models/conversation_model.dart';
 import 'package:c_talent/data/repositories/chat_messages_repo.dart';
+import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:c_talent/logic/providers/chat_message_provider.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -95,8 +96,7 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                         conversionData
                             .attributes!.chatMessages!.data!.isEmpty) {
                       ChatMessagesRepo.deleteConversation(
-                          conversationId: conversionData.id.toString(),
-                          jwt: data.mainScreenProvider.jwt!);
+                          conversationId: conversionData.id.toString());
                       convoCountAfterDelete++;
                     }
                   }
@@ -194,8 +194,7 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                     .data!.id
                                                                     .toString() ==
                                                                 data.mainScreenProvider
-                                                                    .userId
-                                                                    .toString()
+                                                                    .currentUserId
                                                             ? secondUser
                                                                 .data!
                                                                 .attributes!
@@ -208,78 +207,70 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                 .data!.id
                                                                 .toString() ==
                                                             data.mainScreenProvider
-                                                                .userId
-                                                                .toString(),
+                                                                .currentUserId,
                                                         context: context,
-                                                        myImageUrl: firstUser.data!.id
+                                                        myImageUrl: firstUser
+                                                                        .data!
+                                                                        .id
                                                                         .toString() ==
                                                                     data.mainScreenProvider
-                                                                        .userId
-                                                                        .toString() &&
+                                                                        .currentUserId &&
                                                                 firstUser
                                                                         .data!
                                                                         .attributes!
-                                                                        .profileImage!
-                                                                        .data !=
+                                                                        .profileImage !=
                                                                     null
                                                             ? firstUser
                                                                 .data!
                                                                 .attributes!
-                                                                .profileImage!
-                                                                .data!
-                                                                .attributes!
-                                                                .url
+                                                                .profileImage
                                                                 .toString()
-                                                            : secondUser.data!.id.toString() == data.mainScreenProvider.userId.toString() &&
+                                                            : secondUser.data!
+                                                                            .id
+                                                                            .toString() ==
+                                                                        data.mainScreenProvider
+                                                                            .currentUserId &&
                                                                     secondUser
                                                                             .data!
                                                                             .attributes!
-                                                                            .profileImage!
-                                                                            .data !=
+                                                                            .profileImage !=
                                                                         null
                                                                 ? secondUser
                                                                     .data!
                                                                     .attributes!
                                                                     .profileImage!
-                                                                    .data!
-                                                                    .attributes!
-                                                                    .url
                                                                     .toString()
                                                                 : 'null',
                                                         otherUserImageUrl: firstUser
-                                                                        .data!.id
+                                                                        .data!
+                                                                        .id
                                                                         .toString() !=
                                                                     data.mainScreenProvider
-                                                                        .userId
-                                                                        .toString() &&
+                                                                        .currentUserId &&
                                                                 firstUser
                                                                         .data!
                                                                         .attributes!
-                                                                        .profileImage!
-                                                                        .data !=
+                                                                        .profileImage !=
                                                                     null
                                                             ? firstUser
                                                                 .data!
                                                                 .attributes!
-                                                                .profileImage!
-                                                                .data!
-                                                                .attributes!
-                                                                .url
+                                                                .profileImage
                                                                 .toString()
-                                                            : secondUser.data!.id.toString() != data.mainScreenProvider.userId.toString() &&
+                                                            : secondUser.data!
+                                                                            .id
+                                                                            .toString() !=
+                                                                        data.mainScreenProvider
+                                                                            .currentUserId &&
                                                                     secondUser
                                                                             .data!
                                                                             .attributes!
-                                                                            .profileImage!
-                                                                            .data !=
+                                                                            .profileImage !=
                                                                         null
                                                                 ? secondUser
                                                                     .data!
                                                                     .attributes!
-                                                                    .profileImage!
-                                                                    .data!
-                                                                    .attributes!
-                                                                    .url
+                                                                    .profileImage
                                                                     .toString()
                                                                 : 'null',
                                                         messageConversationList:
@@ -293,8 +284,7 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                     .data!.id
                                                                     .toString() !=
                                                                 data.mainScreenProvider
-                                                                    .userId
-                                                                    .toString()
+                                                                    .currentUserId
                                                             ? firstUser.data!.id
                                                                 .toString()
                                                             : secondUser
@@ -304,8 +294,7 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                     .data!.id
                                                                     .toString() !=
                                                                 data.mainScreenProvider
-                                                                    .userId
-                                                                    .toString()
+                                                                    .currentUserId
                                                             ? firstUser
                                                                 .data!
                                                                 .attributes!
@@ -347,20 +336,20 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                     .id
                                                                     .toString() ==
                                                                 data.mainScreenProvider
-                                                                    .userId
+                                                                    .currentUserId
                                                             ? Colors.white
                                                             // else
                                                             // if first user is the current user
                                                             : firstUser.data!.id
                                                                         .toString() ==
                                                                     data.mainScreenProvider
-                                                                        .userId
-                                                                        .toString()
+                                                                        .currentUserId
                                                                 ? ((conversationData.attributes!.firstUserLastRead != null && conversationData.attributes!.firstUserLastRead!.toLocal().isAtSameMomentAs(lastMessage.createdAt!.toLocal())) || (conversationData.attributes!.firstUserLastRead != null && conversationData.attributes!.firstUserLastRead!.toLocal().isAfter(lastMessage.createdAt!.toLocal()))
                                                                     ? Colors
                                                                         .white
-                                                                    : const Color(0xFFA08875).withOpacity(
-                                                                        0.3))
+                                                                    : const Color(0xFFA08875)
+                                                                        .withOpacity(
+                                                                            0.3))
                                                                 // else if second user is the current user
                                                                 : ((conversationData.attributes!.secondUserLastRead != null && conversationData.attributes!.secondUserLastRead!.toLocal().isAtSameMomentAs(lastMessage.createdAt!.toLocal())) ||
                                                                         (conversationData.attributes!.secondUserLastRead != null && conversationData.attributes!.secondUserLastRead!.isAfter(lastMessage.createdAt!.toLocal()))
@@ -387,15 +376,13 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                             .id
                                                                             .toString() !=
                                                                         data.mainScreenProvider
-                                                                            .userId
-                                                                            .toString() &&
+                                                                            .currentUserId &&
                                                                     conversationData
                                                                             .attributes!
                                                                             .firstUser!
                                                                             .data!
                                                                             .attributes!
-                                                                            .profileImage!
-                                                                            .data !=
+                                                                            .profileImage !=
                                                                         null
                                                                 ? CachedNetworkImage(
                                                                     imageUrl: kIMAGEURL +
@@ -404,10 +391,7 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                             .firstUser!
                                                                             .data!
                                                                             .attributes!
-                                                                            .profileImage!
-                                                                            .data!
-                                                                            .attributes!
-                                                                            .url
+                                                                            .profileImage
                                                                             .toString(),
                                                                     imageBuilder:
                                                                         (context,
@@ -465,14 +449,14 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                             Icons.error),
                                                                   )
                                                                 : (conversationData.attributes!.secondUser!.data!.id.toString() !=
-                                                                            data.mainScreenProvider.userId
-                                                                                .toString() &&
-                                                                        conversationData.attributes!.secondUser!.data!.attributes!.profileImage!.data !=
+                                                                            data
+                                                                                .mainScreenProvider.currentUserId &&
+                                                                        conversationData.attributes!.secondUser!.data!.attributes!.profileImage !=
                                                                             null)
                                                                     ? CachedNetworkImage(
                                                                         imageUrl:
                                                                             kIMAGEURL +
-                                                                                conversationData.attributes!.secondUser!.data!.attributes!.profileImage!.data!.attributes!.url.toString(),
+                                                                                conversationData.attributes!.secondUser!.data!.attributes!.profileImage.toString(),
                                                                         imageBuilder:
                                                                             (context, imageProvider) =>
                                                                                 Container(
@@ -549,7 +533,7 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                     children: [
                                                                       Flexible(
                                                                         child: Text(
-                                                                            conversationData.attributes!.firstUser!.data!.id.toString() != data.mainScreenProvider.userId.toString()
+                                                                            conversationData.attributes!.firstUser!.data!.id.toString() != data.mainScreenProvider.currentUserId.toString()
                                                                                 ? conversationData.attributes!.firstUser!.data!.attributes!.username.toString()
                                                                                 : conversationData.attributes!.secondUser!.data!.attributes!.username.toString(),
                                                                             overflow: TextOverflow.ellipsis,
@@ -565,11 +549,11 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                                   fontFamily:
 
                                                                                       // if last message was sent by the current user,
-                                                                                      lastMessage.sender!.data!.id.toString() == data.mainScreenProvider.userId
+                                                                                      lastMessage.sender!.data!.id.toString() == data.mainScreenProvider.currentUserId
                                                                                           ? kHelveticaRegular
                                                                                           // else
                                                                                           // if first user is the current user
-                                                                                          : firstUser.data!.id.toString() == data.mainScreenProvider.userId.toString()
+                                                                                          : firstUser.data!.id.toString() == data.mainScreenProvider.currentUserId.toString()
                                                                                               ? ((conversationData.attributes!.firstUserLastRead != null && conversationData.attributes!.firstUserLastRead!.toLocal().isAtSameMomentAs(lastMessage.createdAt!.toLocal())) || (conversationData.attributes!.firstUserLastRead != null && conversationData.attributes!.firstUserLastRead!.isAfter(lastMessage.createdAt!.toLocal())) ? kHelveticaRegular : kHelveticaMedium)
                                                                                               // else if second user is the current user
                                                                                               : ((conversationData.attributes!.secondUserLastRead != null && conversationData.attributes!.secondUserLastRead!.toLocal().isAtSameMomentAs(lastMessage.createdAt!.toLocal())) || (conversationData.attributes!.secondUserLastRead != null && conversationData.attributes!.secondUserLastRead!.isAfter(lastMessage.createdAt!.toLocal())) ? kHelveticaRegular : kHelveticaMedium),
@@ -595,21 +579,21 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                                                               TextStyle(
                                                                             fontFamily:
                                                                                 // if last message was sent by the current user,
-                                                                                lastMessage.sender!.data!.id.toString() == data.mainScreenProvider.userId
+                                                                                lastMessage.sender!.data!.id.toString() == data.mainScreenProvider.currentUserId
                                                                                     ? kHelveticaRegular
                                                                                     // else
                                                                                     // if first user is the current user
-                                                                                    : firstUser.data!.id.toString() == data.mainScreenProvider.userId.toString()
+                                                                                    : firstUser.data!.id.toString() == data.mainScreenProvider.currentUserId.toString()
                                                                                         ? ((conversationData.attributes!.firstUserLastRead != null && conversationData.attributes!.firstUserLastRead!.toLocal().isAtSameMomentAs(lastMessage.createdAt!.toLocal())) || (conversationData.attributes!.firstUserLastRead != null && conversationData.attributes!.firstUserLastRead!.isAfter(lastMessage.createdAt!.toLocal())) ? kHelveticaRegular : kHelveticaMedium)
                                                                                         // else if second user is the current user
                                                                                         : ((conversationData.attributes!.secondUserLastRead != null && conversationData.attributes!.secondUserLastRead!.toLocal().isAtSameMomentAs(lastMessage.createdAt!.toLocal())) || (conversationData.attributes!.secondUserLastRead != null && conversationData.attributes!.secondUserLastRead!.isAfter(lastMessage.createdAt!.toLocal())) ? kHelveticaRegular : kHelveticaMedium),
                                                                             fontSize:
                                                                                 // if last message was sent by the current user,
-                                                                                lastMessage.sender!.data!.id.toString() == data.mainScreenProvider.userId
+                                                                                lastMessage.sender!.data!.id.toString() == data.mainScreenProvider.currentUserId
                                                                                     ? SizeConfig.defaultSize * 1.25
                                                                                     // else
                                                                                     // if first user is the current user
-                                                                                    : firstUser.data!.id.toString() == data.mainScreenProvider.userId.toString()
+                                                                                    : firstUser.data!.id.toString() == data.mainScreenProvider.currentUserId.toString()
                                                                                         ? ((conversationData.attributes!.firstUserLastRead != null && conversationData.attributes!.firstUserLastRead!.toLocal().isAtSameMomentAs(lastMessage.createdAt!)) || (conversationData.attributes!.firstUserLastRead != null && conversationData.attributes!.firstUserLastRead!.isAfter(lastMessage.createdAt!)) ? SizeConfig.defaultSize * 1.25 : SizeConfig.defaultSize * 1.4)
                                                                                         // else if second user is the current user
                                                                                         : ((conversationData.attributes!.secondUserLastRead != null && conversationData.attributes!.secondUserLastRead!.toLocal().isAtSameMomentAs(lastMessage.createdAt!)) || (conversationData.attributes!.secondUserLastRead != null && conversationData.attributes!.secondUserLastRead!.isAfter(lastMessage.createdAt!)) ? SizeConfig.defaultSize * 1.25 : SizeConfig.defaultSize * 1.4),

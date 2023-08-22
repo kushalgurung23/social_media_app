@@ -1,3 +1,4 @@
+import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/cupertino.dart';
@@ -57,36 +58,33 @@ class DrawerProvider extends ChangeNotifier {
   Future<void> removeCredentials({required BuildContext context}) async {
     Provider.of<BottomNavProvider>(context, listen: false)
         .setBottomIndex(index: 0, context: context);
+    Provider.of<MainScreenProvider>(context, listen: false)
+        .removeUserLoginDetails();
 
     final fln = FlutterLocalNotificationsPlugin();
     fln.cancelAll();
+    await UserSecureStorage.removeSecuredUserDetails();
+    // sharedPreferences.remove('id');
+    // sharedPreferences.remove('user_name');
+    // sharedPreferences.remove('user_type');
+    // sharedPreferences.remove('jwt');
+    // sharedPreferences.remove('current_password');
+    // sharedPreferences.remove('device_token');
+    // sharedPreferences.setBool('follow_push_notification', false);
+    // sharedPreferences.setBool("notification_tab_active_status", false);
+    // sharedPreferences.setBool("chatroom_active_status", false);
+    // if (mainScreenProvider.rememberMeCheckBox == false) {
+    //   sharedPreferences.remove('login_identifier');
+    //   sharedPreferences.remove('login_password');
+    // }
 
-    final mainScreenProvider =
-        Provider.of<MainScreenProvider>(context, listen: false);
-    sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.setBool('isLogin', false);
-    mainScreenProvider.isLogin = sharedPreferences.getBool('isLogin') ?? false;
-    sharedPreferences.remove('id');
-    sharedPreferences.remove('user_name');
-    sharedPreferences.remove('user_type');
-    sharedPreferences.remove('jwt');
-    sharedPreferences.remove('current_password');
-    sharedPreferences.remove('device_token');
-    sharedPreferences.setBool('follow_push_notification', false);
-    sharedPreferences.setBool("notification_tab_active_status", false);
-    sharedPreferences.setBool("chatroom_active_status", false);
-    if (mainScreenProvider.rememberMeCheckBox == false) {
-      sharedPreferences.remove('login_identifier');
-      sharedPreferences.remove('login_password');
-    }
+    // await mainScreenProvider.removeUser();
 
-    await mainScreenProvider.removeUser();
-
-    mainScreenProvider.followerIdList.clear();
-    mainScreenProvider.followingIdList.clear();
-    mainScreenProvider.likedPostIdList.clear();
-    mainScreenProvider.savedNewsPostIdList.clear();
-    mainScreenProvider.savedInterestClassIdList.clear();
+    // mainScreenProvider.followerIdList.clear();
+    // mainScreenProvider.followingIdList.clear();
+    // mainScreenProvider.likedPostIdList.clear();
+    // mainScreenProvider.savedNewsPostIdList.clear();
+    // mainScreenProvider.savedInterestClassIdList.clear();
     if (context.mounted) {
       final newsAdProvider =
           Provider.of<NewsAdProvider>(context, listen: false);

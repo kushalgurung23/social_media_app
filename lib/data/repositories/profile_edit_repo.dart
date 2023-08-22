@@ -69,8 +69,6 @@ class ProfileEditRepo {
       var response = await request.send();
 
       if (response.statusCode == 200 && context.mounted) {
-        Provider.of<MainScreenProvider>(context, listen: false).isDeleteCache =
-            true;
         // Text details upload
         return await editUserWithoutImage(
             bodyData: bodyData, jwt: jwt, profileId: profileId);

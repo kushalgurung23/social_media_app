@@ -69,12 +69,7 @@ AppBar newsAppBar(BuildContext context) {
               child: Consumer<ChatMessageProvider>(
                 builder: ((context, data, child) {
                   return badges.Badge(
-                    showBadge: data.messageNotificationBadge == true ||
-                            data.sharedPreferences.getBool(
-                                    "chat_message_push_notification") ==
-                                true
-                        ? true
-                        : false,
+                    showBadge: false,
                     badgeContent: const Text(''),
                     badgeColor: Colors.red,
                     position: badges.BadgePosition.topEnd(
@@ -87,15 +82,9 @@ AppBar newsAppBar(BuildContext context) {
                           width: SizeConfig.defaultSize * 2.6),
                       onPressed: () {
                         // removing active chat username if any to allow to receive message notification from them
-                        data.sharedPreferences.remove('active_chat_username');
+
                         Navigator.pushNamed(context, ChatroomScreen.id);
                         data.setCurrentlyOnChatroomScreen();
-                        if (data.sharedPreferences.getBool(
-                                    "chat_message_push_notification") ==
-                                true ||
-                            data.messageNotificationBadge == true) {
-                          data.removeChatMessageNotificationBadge();
-                        }
                       },
                     ),
                   );

@@ -21,17 +21,17 @@ class _PromotionTabState extends State<PromotionTab> {
   final scrollController = ScrollController();
   @override
   void initState() {
-    Provider.of<NotificationProvider>(context, listen: false)
-        .refreshPromotion(context: context);
+    // Provider.of<NotificationProvider>(context, listen: false)
+    //     .refreshPromotion(context: context);
 
-    // this will load more data when we reach the end of paper share
-    scrollController.addListener(() {
-      if (scrollController.position.maxScrollExtent ==
-          scrollController.offset) {
-        loadNextData();
-      }
-    });
-    super.initState();
+    // // this will load more data when we reach the end of paper share
+    // scrollController.addListener(() {
+    //   if (scrollController.position.maxScrollExtent ==
+    //       scrollController.offset) {
+    //     loadNextData();
+    //   }
+    // });
+    // super.initState();
   }
 
   void loadNextData() async {

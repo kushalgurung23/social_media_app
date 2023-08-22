@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 // ignore: depend_on_referenced_packages
+import 'package:c_talent/data/new_models/all_news_posts.dart';
+import 'package:c_talent/data/new_models/single_news_post.dart';
+import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -39,24 +42,16 @@ class NewsAdProvider extends ChangeNotifier {
   late TextEditingController postTitleController;
   late TextEditingController postContentController;
 
-  late SharedPreferences sharedPreferences =
-      mainScreenProvider.sharedPreferences;
-
   List<TextEditingController> newsCommentControllerList =
       <TextEditingController>[];
   List<TextEditingController> profileNewsCommentControllerList =
       <TextEditingController>[];
-
-  void initial() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-  }
 
   late final MainScreenProvider mainScreenProvider;
   late final BottomNavProvider bottomNavProvider;
 
   NewsAdProvider(
       {required this.mainScreenProvider, required this.bottomNavProvider}) {
-    initial();
     postContentController = TextEditingController();
     postTitleController = TextEditingController();
   }
@@ -83,10 +78,10 @@ class NewsAdProvider extends ChangeNotifier {
   }
 
   String getUserType(
-      {required String usertType, required BuildContext context}) {
-    if (usertType == 'Member') {
+      {required String userType, required BuildContext context}) {
+    if (userType == 'Member') {
       return AppLocalizations.of(context).member;
-    } else if (usertType == 'Therapist') {
+    } else if (userType == 'Therapist') {
       return AppLocalizations.of(context).therapist;
     } else {
       return 'User';
@@ -96,10 +91,10 @@ class NewsAdProvider extends ChangeNotifier {
   // Load news post
 
   // All news are added to sink of this controller
-  StreamController<AllNewsPost> allNewsPostController = BehaviorSubject();
+  StreamController<AllNewsPosts> allNewsPostController = BehaviorSubject();
 
-  AllNewsPost? _allNewsPost;
-  AllNewsPost? get allNewsPost => _allNewsPost;
+  AllNewsPosts? _allNewsPosts;
+  AllNewsPosts? get allNewsPosts => _allNewsPosts;
 
   // page and pageSize is used for pagination
   int page = 1;
@@ -110,18 +105,18 @@ class NewsAdProvider extends ChangeNotifier {
   bool isLoading = false;
 
   // This method will be called to gets news posts, when user is logged in
-  Future loadInitialNewsPosts({required BuildContext context}) async {
-    sharedPreferences = await SharedPreferences.getInstance();
+  Future<void> loadInitialNewsPosts({required BuildContext context}) async {
     Response response = await NewsPostRepo.getAllNewsPosts(
-        myId: sharedPreferences.getString('id') ?? 'null',
-        jwt: sharedPreferences.getString('jwt') ?? 'null',
+        accessToken: mainScreenProvider.currentAccessToken.toString(),
         page: page.toString(),
         pageSize: pageSize.toString());
+
     if (response.statusCode == 200) {
-      _allNewsPost = allNewsPostFromJson(response.body);
-      allNewsPostController.sink.add(_allNewsPost!);
-      notifyListeners();
-      return true;
+      _allNewsPosts = allNewsPostsFromJson(response.body);
+      if (_allNewsPosts != null) {
+        allNewsPostController.sink.add(_allNewsPosts!);
+        notifyListeners();
+      }
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context.mounted) {
         EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
@@ -131,24 +126,23 @@ class NewsAdProvider extends ChangeNotifier {
         return;
       }
     } else {
-      return false;
+      return;
     }
   }
 
   Future<void> setUnreadNotificationBadge(
       {required BuildContext context}) async {
-    sharedPreferences = await SharedPreferences.getInstance();
     Response response = await PushNotificationRepo.getUnreadFollowNotification(
-        jwt: sharedPreferences.getString('jwt') ?? 'null',
-        currentUserId: mainScreenProvider.userId.toString());
+        jwt: mainScreenProvider.currentAccessToken.toString(),
+        currentUserId: mainScreenProvider.currentUserId ?? '');
     if (response.statusCode == 200) {
       final unreadNotification = notificationFromJson(response.body).data;
       followNotificationBadge =
           (unreadNotification != null && unreadNotification.isNotEmpty);
-      sharedPreferences.setBool("follow_push_notification",
-          (unreadNotification != null && unreadNotification.isNotEmpty));
-      sharedPreferences.setBool("notification_tab_active_status",
-          (unreadNotification != null && unreadNotification.isNotEmpty));
+      // sharedPreferences.setBool("follow_push_notification",
+      //     (unreadNotification != null && unreadNotification.isNotEmpty));
+      // sharedPreferences.setBool("notification_tab_active_status",
+      //     (unreadNotification != null && unreadNotification.isNotEmpty));
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context.mounted) {
         EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
@@ -170,25 +164,25 @@ class NewsAdProvider extends ChangeNotifier {
     }
     isLoading = true;
     Response response = await NewsPostRepo.getAllNewsPosts(
-        myId: sharedPreferences.getString('id') ?? 'null',
-        jwt: sharedPreferences.getString('jwt') ?? 'null',
+        accessToken: mainScreenProvider.currentAccessToken.toString(),
         page: page.toString(),
         pageSize: pageSize.toString());
     if (response.statusCode == 200) {
-      final newNewsPosts = allNewsPostFromJson(response.body);
+      final newNewsPosts = allNewsPostsFromJson(response.body);
 
       // isLoading = false indicates that the loading is complete
       isLoading = false;
 
+      if (newNewsPosts.posts == null) return;
       // If the newly added data is less than our default pageSize, it means we won't have further more data. Hence hasMore = false
-      if (newNewsPosts.data!.length < pageSize) {
+      if (newNewsPosts.posts!.length < pageSize) {
         hasMore = false;
       }
 
-      for (int i = 0; i < newNewsPosts.data!.length; i++) {
-        _allNewsPost!.data!.add(newNewsPosts.data![i]);
+      for (int i = 0; i < newNewsPosts.posts!.length; i++) {
+        _allNewsPosts!.posts!.add(newNewsPosts.posts![i]);
       }
-      allNewsPostController.sink.add(_allNewsPost!);
+      allNewsPostController.sink.add(_allNewsPosts!);
       notifyListeners();
       return true;
     } else if (response.statusCode == 401 || response.statusCode == 403) {
@@ -209,72 +203,71 @@ class NewsAdProvider extends ChangeNotifier {
       {required BuildContext context,
       required String newsPostId,
       required NewsPostSource newsPostSource}) async {
-    if (_allNewsPost == null || allNewsPostController.isClosed) {
-      return;
-    }
-    Response response = await NewsPostRepo.getOneUpdateNewsPost(
-        jwt: sharedPreferences.getString('jwt') ?? 'null',
-        newsPostId: newsPostId);
-    if (response.statusCode == 200) {
-      final oneNewsPost = singleNewsPostFromJson(response.body).data;
+    // if (_allNewsPosts == null || allNewsPostController.isClosed) {
+    //   return;
+    // }
+    // Response response = await NewsPostRepo.getOneUpdateNewsPost(
+    //     jwt: mainScreenProvider.currentAccessToken.toString(),
+    //     newsPostId: newsPostId);
+    // if (response.statusCode == 200) {
+    //   final oneNewsPost = singleNewsPostFromJson(response.body).data;
 
-      final newsPostIndex = _allNewsPost!.data!.indexWhere(
-          (element) => element.id.toString() == oneNewsPost!.id.toString());
+    //   final newsPostIndex = _allNewsPosts!.data!.indexWhere(
+    //       (element) => element.id.toString() == oneNewsPost!.id.toString());
 
-      if (oneNewsPost != null && newsPostIndex != -1) {
-        _allNewsPost!.data![newsPostIndex] = oneNewsPost;
-        allNewsPostController.sink.add(_allNewsPost!);
-        notifyListeners();
-      }
-    } else if (response.statusCode == 401 || response.statusCode == 403) {
-      if (context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-        Provider.of<DrawerProvider>(context, listen: false)
-            .removeCredentials(context: context);
-        return;
-      }
-    } else {
-      return false;
-    }
+    //   if (oneNewsPost != null && newsPostIndex != -1) {
+    //     _allNewsPosts!.data![newsPostIndex] = oneNewsPost;
+    //     allNewsPostController.sink.add(_allNewsPosts!);
+    //     notifyListeners();
+    //   }
+    // } else if (response.statusCode == 401 || response.statusCode == 403) {
+    //   if (context.mounted) {
+    //     EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //         dismissOnTap: false, duration: const Duration(seconds: 4));
+    //     Provider.of<DrawerProvider>(context, listen: false)
+    //         .removeCredentials(context: context);
+    //     return;
+    //   }
+    // } else {
+    //   return false;
+    // }
   }
 
   Future updateAllNewsPosts({required BuildContext? context}) async {
-    if (_allNewsPost == null || allNewsPostController.isClosed) {
-      return;
-    }
-    // We pass 1 as page, and all the loaded news posts' length as pageSize because we want update all the news posts when this method is called.
-    Response response = await NewsPostRepo.getAllNewsPosts(
-        myId: sharedPreferences.getString('id') ?? 'null',
-        jwt: sharedPreferences.getString('jwt') ?? 'null',
-        page: 1.toString(),
-        pageSize: _allNewsPost!.data!.length < pageSize
-            ? pageSize.toString()
-            : _allNewsPost!.data!.length.toString());
-    if (response.statusCode == 200) {
-      _allNewsPost = allNewsPostFromJson(response.body);
-      allNewsPostController.sink.add(_allNewsPost!);
-      notifyListeners();
-    } else if (response.statusCode == 401 || response.statusCode == 403) {
-      if (context != null && context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-        Provider.of<DrawerProvider>(context, listen: false)
-            .removeCredentials(context: context);
-        return;
-      }
-    } else {
-      return false;
-    }
+    // if (_allNewsPosts == null || allNewsPostController.isClosed) {
+    //   return;
+    // }
+    // // We pass 1 as page, and all the loaded news posts' length as pageSize because we want update all the news posts when this method is called.
+    // Response response = await NewsPostRepo.getAllNewsPosts(
+    //     myId: mainScreenProvider.currentUserId ?? '',
+    //     jwt: mainScreenProvider.currentAccessToken.toString(),
+    //     page: 1.toString(),
+    //     pageSize: _allNewsPosts!.data!.length < pageSize
+    //         ? pageSize.toString()
+    //         : _allNewsPosts!.data!.length.toString());
+    // if (response.statusCode == 200) {
+    //   _allNewsPosts = allNewsPostFromJson(response.body);
+    //   allNewsPostController.sink.add(_allNewsPosts!);
+    //   notifyListeners();
+    // } else if (response.statusCode == 401 || response.statusCode == 403) {
+    //   if (context != null && context.mounted) {
+    //     EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //         dismissOnTap: false, duration: const Duration(seconds: 4));
+    //     Provider.of<DrawerProvider>(context, listen: false)
+    //         .removeCredentials(context: context);
+    //     return;
+    //   }
+    // } else {
+    //   return false;
+    // }
   }
 
   StreamController<NewsPostLikes> newsPostLikesStreamController =
       BehaviorSubject();
   Future getNewsPostLikes(
       {required String newsPostId, required BuildContext context}) async {
-    sharedPreferences = await SharedPreferences.getInstance();
     Response response = await NewsPostRepo.getAllNewsPostsLikes(
-        jwt: sharedPreferences.getString('jwt') ?? 'null',
+        jwt: mainScreenProvider.currentAccessToken.toString(),
         newsPostId: newsPostId);
     if (response.statusCode == 200) {
       final newsPostLikes = newsPostLikesFromJson(response.body);
@@ -298,9 +291,9 @@ class NewsAdProvider extends ChangeNotifier {
     isLoading = false;
     hasMore = true;
     page = 1;
-    if (_allNewsPost != null) {
-      _allNewsPost!.data!.clear();
-      allNewsPostController.sink.add(_allNewsPost!);
+    if (_allNewsPosts != null) {
+      _allNewsPosts!.posts!.clear();
+      allNewsPostController.sink.add(_allNewsPosts!);
     }
     await loadInitialNewsPosts(context: context);
     // await setUnreadNotificationBadge();
@@ -315,12 +308,13 @@ class NewsAdProvider extends ChangeNotifier {
   Future<void> getOneProfileTopic(
       {required String topicId, required BuildContext context}) async {
     final response = await ProfileTopicRepo.getOneProfileTopic(
-        jwt: sharedPreferences.getString('jwt')!, topicId: topicId);
+        jwt: mainScreenProvider.currentAccessToken.toString(),
+        topicId: topicId);
     if (response.statusCode == 200) {
       _singleNewsPostFromMyTopicAndBookmark =
           NewsPost.fromJson((jsonDecode(response.body))['data']);
-      mainScreenProvider.profileNewsTopicStreamController.sink
-          .add(_singleNewsPostFromMyTopicAndBookmark);
+      // mainScreenProvider.profileNewsTopicStreamController.sink
+      //     .add(_singleNewsPostFromMyTopicAndBookmark);
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context.mounted) {
         EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
@@ -346,19 +340,19 @@ class NewsAdProvider extends ChangeNotifier {
   Future<void> getSelectedUserProfileTopics(
       {required String userId, required BuildContext context}) async {
     final response = await ProfileTopicRepo.getSelectedUserAllProfileTopic(
-        jwt: sharedPreferences.getString('jwt')!, userId: userId);
+        jwt: mainScreenProvider.currentAccessToken.toString(), userId: userId);
     if (response.statusCode == 200) {
-      _myProfileTopics = userFromJson(response.body);
-      for (int i = 0;
-          i < mainScreenProvider.reportedNewsPostidList.length;
-          i++) {
-        if (_myProfileTopics != null && _myProfileTopics!.createdPost != null) {
-          _myProfileTopics!.createdPost!.removeWhere((element) =>
-              element != null &&
-              element.id == mainScreenProvider.reportedNewsPostidList[i]);
-        }
-      }
-      mainScreenProvider.allProfileTopicController.sink.add(_myProfileTopics);
+      // _myProfileTopics = userFromJson(response.body);
+      // for (int i = 0;
+      //     i < mainScreenProvider.reportedNewsPostidList.length;
+      //     i++) {
+      //   if (_myProfileTopics != null && _myProfileTopics!.createdPost != null) {
+      //     _myProfileTopics!.createdPost!.removeWhere((element) =>
+      //         element != null &&
+      //         element.id == mainScreenProvider.reportedNewsPostidList[i]);
+      //   }
+      // }
+      // mainScreenProvider.allProfileTopicController.sink.add(_myProfileTopics);
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context.mounted) {
         EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
@@ -383,19 +377,21 @@ class NewsAdProvider extends ChangeNotifier {
   }
 
   bool checkNewsPostSaveStatus({required int postId}) {
-    if (mainScreenProvider.savedNewsPostIdList.contains(postId)) {
-      return true;
-    } else {
-      return false;
-    }
+    return true;
+    // if (mainScreenProvider.savedNewsPostIdList.contains(postId)) {
+    //   return true;
+    // } else {
+    //   return false;
+    // }
   }
 
   bool checkNewsPostLikeStatus({required int postId}) {
-    if (mainScreenProvider.likedPostIdList.contains(postId)) {
-      return true;
-    } else {
-      return false;
-    }
+    // if (mainScreenProvider.likedPostIdList.contains(postId)) {
+    //   return true;
+    // } else {
+    //   return false;
+    // }
+    return true;
   }
 
   bool toggleSaveOnProcess = false;
@@ -412,63 +408,63 @@ class NewsAdProvider extends ChangeNotifier {
           dismissOnTap: false, duration: const Duration(seconds: 1));
       return;
     } else if (toggleSaveOnProcess == false) {
-      toggleSaveOnProcess = true;
-      Response response;
-      if (mainScreenProvider.savedNewsPostIdList.contains(int.parse(postId)) &&
-          newsPostSaveId != null) {
-        mainScreenProvider.savedNewsPostIdList.remove(int.parse(postId));
-        response = await NewsPostRepo.removeNewsPostSave(
-            newsPostSavedId: newsPostSaveId,
-            jwt: sharedPreferences.getString('jwt')!);
-      } else {
-        mainScreenProvider.savedNewsPostIdList.add(int.parse(postId));
-        Map bodyData = {
-          "data": {"saved_by": mainScreenProvider.userId, "news_post": postId}
-        };
-        response = await NewsPostRepo.addNewsPostSave(
-            bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
-      }
-      notifyListeners();
-      if (response.statusCode == 200 && context.mounted) {
-        await Future.wait([
-          updateSelectedNewsPosts(
-              context: context,
-              newsPostId: postId,
-              newsPostSource: newsPostSource),
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context,
-              setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-        ]);
-        toggleSaveOnProcess = false;
-        notifyListeners();
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
-          'Not Found') {
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      } else {
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
+      // toggleSaveOnProcess = true;
+      // Response response;
+      // if (mainScreenProvider.savedNewsPostIdList.contains(int.parse(postId)) &&
+      //     newsPostSaveId != null) {
+      //   mainScreenProvider.savedNewsPostIdList.remove(int.parse(postId));
+      //   response = await NewsPostRepo.removeNewsPostSave(
+      //       newsPostSavedId: newsPostSaveId,
+      //       jwt: sharedPreferences.getString('jwt')!);
+      // } else {
+      //   mainScreenProvider.savedNewsPostIdList.add(int.parse(postId));
+      //   Map bodyData = {
+      //     "data": {"saved_by": mainScreenProvider.userId, "news_post": postId}
+      //   };
+      //   response = await NewsPostRepo.addNewsPostSave(
+      //       bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
+      // }
+      // notifyListeners();
+      // if (response.statusCode == 200 && context.mounted) {
+      //   await Future.wait([
+      //     updateSelectedNewsPosts(
+      //         context: context,
+      //         newsPostId: postId,
+      //         newsPostSource: newsPostSource),
+      //     mainScreenProvider.updateAndSetUserDetails(
+      //         context: context,
+      //         setLikeSaveCommentFollow: setLikeSaveCommentFollow)
+      //   ]);
+      //   toggleSaveOnProcess = false;
+      //   notifyListeners();
+      // } else if (response.statusCode == 401 || response.statusCode == 403) {
+      //   toggleSaveOnProcess = false;
+      //   notifyListeners();
+      //   if (context.mounted) {
+      //     EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+      //         dismissOnTap: false, duration: const Duration(seconds: 4));
+      //     Provider.of<DrawerProvider>(context, listen: false)
+      //         .removeCredentials(context: context);
+      //     return;
+      //   }
+      // } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
+      //     'Not Found') {
+      //   toggleSaveOnProcess = false;
+      //   notifyListeners();
+      //   showSnackBar(
+      //       context: context,
+      //       content: AppLocalizations.of(context).tryAgainLater,
+      //       contentColor: Colors.white,
+      //       backgroundColor: Colors.red);
+      // } else {
+      //   toggleSaveOnProcess = false;
+      //   notifyListeners();
+      //   showSnackBar(
+      //       context: context,
+      //       content: AppLocalizations.of(context).tryAgainLater,
+      //       contentColor: Colors.white,
+      //       backgroundColor: Colors.red);
+      // }
     }
     toggleSaveOnProcess = false;
     notifyListeners();
@@ -483,149 +479,150 @@ class NewsAdProvider extends ChangeNotifier {
       required String postId,
       required bool setLikeSaveCommentFollow,
       required int postLikeCount}) async {
-    if (toggleLikeOnProcess == true) {
-      // Please wait
-      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
-          dismissOnTap: false, duration: const Duration(seconds: 1));
-      return;
-    } else if (toggleLikeOnProcess == false) {
-      toggleLikeOnProcess = true;
-      Response response;
+    // if (toggleLikeOnProcess == true) {
+    //   // Please wait
+    //   EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
+    //       dismissOnTap: false, duration: const Duration(seconds: 1));
+    //   return;
+    // } else if (toggleLikeOnProcess == false) {
+    //   toggleLikeOnProcess = true;
+    //   Response response;
 
-      if (mainScreenProvider.likedPostIdList.contains(int.parse(postId)) &&
-          newsPostLikeId != null) {
-        mainScreenProvider.likedPostIdList.remove(int.parse(postId));
-        postLikeCount--;
-        Map bodyDataTwo = {
-          "data": {"like_count": postLikeCount.toString()}
-        };
-        response = await NewsPostRepo.removeNewsPostLike(
-            newsPostLikeId: newsPostLikeId,
-            jwt: sharedPreferences.getString('jwt')!,
-            bodyDataTwo: bodyDataTwo,
-            postId: postId);
-      } else {
-        mainScreenProvider.likedPostIdList.add(int.parse(postId));
-        postLikeCount++;
-        Map bodyDataOne = {
-          "data": {"liked_by": mainScreenProvider.userId, "news_post": postId}
-        };
-        Map bodyDataTwo = {
-          "data": {"like_count": postLikeCount.toString()}
-        };
-        response = await NewsPostRepo.addNewsPostLike(
-            bodyDataOne: bodyDataOne,
-            jwt: sharedPreferences.getString('jwt')!,
-            bodyDataTwo: bodyDataTwo,
-            postId: postId);
-      }
-      notifyListeners();
-      if (response.statusCode == 200 && context.mounted) {
-        await Future.wait([
-          updateSelectedNewsPosts(
-              context: context,
-              newsPostId: postId,
-              newsPostSource: newsPostSource),
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context,
-              setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-        ]);
-        toggleLikeOnProcess = false;
-        notifyListeners();
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
-          'Not Found') {
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      } else {
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    }
-    toggleLikeOnProcess = false;
-    notifyListeners();
+    //   if (mainScreenProvider.likedPostIdList.contains(int.parse(postId)) &&
+    //       newsPostLikeId != null) {
+    //     mainScreenProvider.likedPostIdList.remove(int.parse(postId));
+    //     postLikeCount--;
+    //     Map bodyDataTwo = {
+    //       "data": {"like_count": postLikeCount.toString()}
+    //     };
+    //     response = await NewsPostRepo.removeNewsPostLike(
+    //         newsPostLikeId: newsPostLikeId,
+    //         jwt: sharedPreferences.getString('jwt')!,
+    //         bodyDataTwo: bodyDataTwo,
+    //         postId: postId);
+    //   } else {
+    //     mainScreenProvider.likedPostIdList.add(int.parse(postId));
+    //     postLikeCount++;
+    //     Map bodyDataOne = {
+    //       "data": {"liked_by": mainScreenProvider.userId, "news_post": postId}
+    //     };
+    //     Map bodyDataTwo = {
+    //       "data": {"like_count": postLikeCount.toString()}
+    //     };
+    //     response = await NewsPostRepo.addNewsPostLike(
+    //         bodyDataOne: bodyDataOne,
+    //         jwt: sharedPreferences.getString('jwt')!,
+    //         bodyDataTwo: bodyDataTwo,
+    //         postId: postId);
+    //   }
+    //   notifyListeners();
+    //   if (response.statusCode == 200 && context.mounted) {
+    //     await Future.wait([
+    //       updateSelectedNewsPosts(
+    //           context: context,
+    //           newsPostId: postId,
+    //           newsPostSource: newsPostSource),
+    //       mainScreenProvider.updateAndSetUserDetails(
+    //           context: context,
+    //           setLikeSaveCommentFollow: setLikeSaveCommentFollow)
+    //     ]);
+    //     toggleLikeOnProcess = false;
+    //     notifyListeners();
+    //   } else if (response.statusCode == 401 || response.statusCode == 403) {
+    //     toggleLikeOnProcess = false;
+    //     notifyListeners();
+    //     if (context.mounted) {
+    //       EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //           dismissOnTap: false, duration: const Duration(seconds: 4));
+    //       Provider.of<DrawerProvider>(context, listen: false)
+    //           .removeCredentials(context: context);
+    //       return;
+    //     }
+    //   } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
+    //       'Not Found') {
+    //     toggleLikeOnProcess = false;
+    //     notifyListeners();
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).tryAgainLater,
+    //         contentColor: Colors.white,
+    //         backgroundColor: Colors.red);
+    //   } else {
+    //     toggleLikeOnProcess = false;
+    //     notifyListeners();
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).tryAgainLater,
+    //         contentColor: Colors.white,
+    //         backgroundColor: Colors.red);
+    //   }
+    // }
+    // toggleLikeOnProcess = false;
+    // notifyListeners();
   }
 
   // if the comment is posted in further studies news post, then we will require currentCommentCount and comment count from discussCommentCounts in order to provide color to fire icon accordingly.
-  Future<void> postNewsComment(
-      {required NewsPostSource newsPostSource,
-      String? currentCommentCount,
-      DiscussCommentCounts? discussCommentCounts,
-      required BuildContext context,
-      required String newsPostId,
-      required TextEditingController newsCommentController,
-      required bool setLikeSaveCommentFollow}) async {
-    try {
-      String body = jsonEncode({
-        "data": {
-          "comment_by": sharedPreferences.getString('id')!,
-          "content": newsCommentController.text,
-          "news_post": newsPostId,
-        }
-      });
+  // Future<void> postNewsComment(
+  //     {required NewsPostSource newsPostSource,
+  //     String? currentCommentCount,
+  //     DiscussCommentCounts? discussCommentCounts,
+  //     required BuildContext context,
+  //     required String newsPostId,
+  //     required TextEditingController newsCommentController,
+  //     required bool setLikeSaveCommentFollow}) async {
+  //   try {
+  //     String body = jsonEncode({
+  //       "data": {
+  //         "comment_by": mainScreenProvider.currentUserId ?? '',
+  //         "content": newsCommentController.text,
+  //         "news_post": newsPostId,
+  //       }
+  //     });
 
-      Response commentResponse = await NewsCommentRepo.saveNewsComment(
-          bodyData: body, jwt: sharedPreferences.getString('jwt')!);
-      if (commentResponse.statusCode == 200 && context.mounted) {
-        newsCommentController.clear();
-        FocusScope.of(context).unfocus();
-        await Future.wait([
-          updateSelectedNewsPosts(
-              context: context,
-              newsPostId: newsPostId,
-              newsPostSource: newsPostSource),
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context,
-              setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-        ]);
+  //     Response commentResponse = await NewsCommentRepo.saveNewsComment(
+  //         bodyData: body,
+  //         jwt: mainScreenProvider.currentAccessToken.toString());
+  //     if (commentResponse.statusCode == 200 && context.mounted) {
+  //       newsCommentController.clear();
+  //       FocusScope.of(context).unfocus();
+  //       // await Future.wait([
+  //       //   updateSelectedNewsPosts(
+  //       //       context: context,
+  //       //       newsPostId: newsPostId,
+  //       //       newsPostSource: newsPostSource),
+  //       //   mainScreenProvider.updateAndSetUserDetails(
+  //       //       context: context,
+  //       //       setLikeSaveCommentFollow: setLikeSaveCommentFollow)
+  //       // ]);
 
-        if (context.mounted) {
-          showSnackBar(
-              context: context,
-              content: AppLocalizations.of(context).commentPosted,
-              backgroundColor: const Color(0xFFA08875),
-              contentColor: Colors.white);
-        }
-        // if the comment is posted in further study discuss, then
-      } else if (commentResponse.statusCode == 401 ||
-          commentResponse.statusCode == 403) {
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    } on Exception {
-      throw (Exception);
-    }
-  }
+  //       if (context.mounted) {
+  //         showSnackBar(
+  //             context: context,
+  //             content: AppLocalizations.of(context).commentPosted,
+  //             backgroundColor: const Color(0xFFA08875),
+  //             contentColor: Colors.white);
+  //       }
+  //       // if the comment is posted in further study discuss, then
+  //     } else if (commentResponse.statusCode == 401 ||
+  //         commentResponse.statusCode == 403) {
+  //       if (context.mounted) {
+  //         EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+  //             dismissOnTap: false, duration: const Duration(seconds: 4));
+  //         Provider.of<DrawerProvider>(context, listen: false)
+  //             .removeCredentials(context: context);
+  //         return;
+  //       }
+  //     } else {
+  //       showSnackBar(
+  //           context: context,
+  //           content: AppLocalizations.of(context).tryAgainLater,
+  //           contentColor: Colors.white,
+  //           backgroundColor: Colors.red);
+  //     }
+  //   } on Exception {
+  //     throw (Exception);
+  //   }
+  // }
 
   // toggle save from profile
   Future<void> toggleNewsPostSaveFromProfile(
@@ -638,86 +635,86 @@ class NewsAdProvider extends ChangeNotifier {
       required BuildContext context,
       required String postId,
       required bool setLikeSaveCommentFollow}) async {
-    if (toggleSaveOnProcess == true) {
-      // Please wait
-      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
-          dismissOnTap: false, duration: const Duration(seconds: 1));
-      return;
-    } else if (toggleSaveOnProcess == false) {
-      toggleSaveOnProcess = true;
-      Response response;
-      if (mainScreenProvider.savedNewsPostIdList.contains(int.parse(postId)) &&
-          newsPostSaveId != null) {
-        mainScreenProvider.savedNewsPostIdList.remove(int.parse(postId));
-        response = await NewsPostRepo.removeNewsPostSave(
-            newsPostSavedId: newsPostSaveId,
-            jwt: sharedPreferences.getString('jwt')!);
-      } else {
-        mainScreenProvider.savedNewsPostIdList.add(int.parse(postId));
-        Map bodyData = {
-          "data": {"saved_by": mainScreenProvider.userId, "news_post": postId}
-        };
-        response = await NewsPostRepo.addNewsPostSave(
-            bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
-      }
-      notifyListeners();
-      if (response.statusCode == 200) {
-        if (!isMe && otherUserStreamController != null && context.mounted) {
-          Provider.of<ProfileProvider>(context, listen: false)
-              .getOtherUserProfile(
-                  otherUserStreamController: otherUserStreamController,
-                  otherUserId: postedById,
-                  context: context);
-        }
-        if (context.mounted) {
-          await Future.wait([
-            updateOnlyOneTopic == true
-                ? getOneProfileTopic(topicId: postId, context: context)
-                : getSelectedUserProfileTopics(
-                    userId: postedById, context: context),
-            updateSelectedNewsPosts(
-                context: context,
-                newsPostId: postId,
-                newsPostSource: newsPostSource),
-            mainScreenProvider.updateAndSetUserDetails(
-                context: context,
-                setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-          ]);
-        }
-        toggleSaveOnProcess = false;
-        notifyListeners();
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
-              'Not Found' &&
-          context.mounted) {
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      } else {
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    }
-    toggleSaveOnProcess = false;
-    notifyListeners();
+    // if (toggleSaveOnProcess == true) {
+    //   // Please wait
+    //   EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
+    //       dismissOnTap: false, duration: const Duration(seconds: 1));
+    //   return;
+    // } else if (toggleSaveOnProcess == false) {
+    //   toggleSaveOnProcess = true;
+    //   Response response;
+    //   if (mainScreenProvider.savedNewsPostIdList.contains(int.parse(postId)) &&
+    //       newsPostSaveId != null) {
+    //     mainScreenProvider.savedNewsPostIdList.remove(int.parse(postId));
+    //     response = await NewsPostRepo.removeNewsPostSave(
+    //         newsPostSavedId: newsPostSaveId,
+    //         jwt: sharedPreferences.getString('jwt')!);
+    //   } else {
+    //     mainScreenProvider.savedNewsPostIdList.add(int.parse(postId));
+    //     Map bodyData = {
+    //       "data": {"saved_by": mainScreenProvider.userId, "news_post": postId}
+    //     };
+    //     response = await NewsPostRepo.addNewsPostSave(
+    //         bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
+    //   }
+    //   notifyListeners();
+    //   if (response.statusCode == 200) {
+    //     if (!isMe && otherUserStreamController != null && context.mounted) {
+    //       Provider.of<ProfileProvider>(context, listen: false)
+    //           .getOtherUserProfile(
+    //               otherUserStreamController: otherUserStreamController,
+    //               otherUserId: postedById,
+    //               context: context);
+    //     }
+    //     if (context.mounted) {
+    //       await Future.wait([
+    //         updateOnlyOneTopic == true
+    //             ? getOneProfileTopic(topicId: postId, context: context)
+    //             : getSelectedUserProfileTopics(
+    //                 userId: postedById, context: context),
+    //         updateSelectedNewsPosts(
+    //             context: context,
+    //             newsPostId: postId,
+    //             newsPostSource: newsPostSource),
+    //         mainScreenProvider.updateAndSetUserDetails(
+    //             context: context,
+    //             setLikeSaveCommentFollow: setLikeSaveCommentFollow)
+    //       ]);
+    //     }
+    //     toggleSaveOnProcess = false;
+    //     notifyListeners();
+    //   } else if (response.statusCode == 401 || response.statusCode == 403) {
+    //     toggleSaveOnProcess = false;
+    //     notifyListeners();
+    //     if (context.mounted) {
+    //       EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //           dismissOnTap: false, duration: const Duration(seconds: 4));
+    //       Provider.of<DrawerProvider>(context, listen: false)
+    //           .removeCredentials(context: context);
+    //       return;
+    //     }
+    //   } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
+    //           'Not Found' &&
+    //       context.mounted) {
+    //     toggleSaveOnProcess = false;
+    //     notifyListeners();
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).tryAgainLater,
+    //         contentColor: Colors.white,
+    //         backgroundColor: Colors.red);
+    //   } else {
+    //     toggleSaveOnProcess = false;
+    //     notifyListeners();
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).tryAgainLater,
+    //         contentColor: Colors.white,
+    //         backgroundColor: Colors.red);
+    //   }
+    // }
+    // toggleSaveOnProcess = false;
+    // notifyListeners();
   }
 
   // toggle like from profile
@@ -732,100 +729,100 @@ class NewsAdProvider extends ChangeNotifier {
       required String postId,
       required bool setLikeSaveCommentFollow,
       required int postLikeCount}) async {
-    if (toggleLikeOnProcess == true) {
-      // Please wait
-      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
-          dismissOnTap: false, duration: const Duration(seconds: 1));
-      return;
-    } else if (toggleLikeOnProcess == false) {
-      toggleLikeOnProcess = true;
-      Response response;
+    // if (toggleLikeOnProcess == true) {
+    //   // Please wait
+    //   EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
+    //       dismissOnTap: false, duration: const Duration(seconds: 1));
+    //   return;
+    // } else if (toggleLikeOnProcess == false) {
+    //   toggleLikeOnProcess = true;
+    //   Response response;
 
-      if (mainScreenProvider.likedPostIdList.contains(int.parse(postId)) &&
-          newsPostLikeId != null) {
-        mainScreenProvider.likedPostIdList.remove(int.parse(postId));
-        postLikeCount--;
-        Map bodyDataTwo = {
-          "data": {"like_count": postLikeCount.toString()}
-        };
-        response = await NewsPostRepo.removeNewsPostLike(
-            newsPostLikeId: newsPostLikeId,
-            jwt: sharedPreferences.getString('jwt')!,
-            bodyDataTwo: bodyDataTwo,
-            postId: postId);
-      } else {
-        mainScreenProvider.likedPostIdList.add(int.parse(postId));
-        postLikeCount++;
-        Map bodyDataOne = {
-          "data": {"liked_by": mainScreenProvider.userId, "news_post": postId}
-        };
-        Map bodyDataTwo = {
-          "data": {"like_count": postLikeCount.toString()}
-        };
-        response = await NewsPostRepo.addNewsPostLike(
-            bodyDataOne: bodyDataOne,
-            jwt: sharedPreferences.getString('jwt')!,
-            bodyDataTwo: bodyDataTwo,
-            postId: postId);
-      }
-      notifyListeners();
-      if (response.statusCode == 200) {
-        if (!isMe && otherUserStreamController != null && context.mounted) {
-          Provider.of<ProfileProvider>(context, listen: false)
-              .getOtherUserProfile(
-                  otherUserStreamController: otherUserStreamController,
-                  otherUserId: postedById,
-                  context: context);
-        }
-        if (context.mounted) {
-          await Future.wait([
-            updateOnlyOneTopic == true
-                ? getOneProfileTopic(topicId: postId, context: context)
-                : getSelectedUserProfileTopics(
-                    userId: postedById, context: context),
-            updateSelectedNewsPosts(
-                context: context,
-                newsPostId: postId,
-                newsPostSource: newsPostSource),
-            mainScreenProvider.updateAndSetUserDetails(
-                context: context,
-                setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-          ]);
-        }
-        toggleLikeOnProcess = false;
-        notifyListeners();
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
-              'Not Found' &&
-          context.mounted) {
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      } else {
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    }
-    toggleLikeOnProcess = false;
-    notifyListeners();
+    //   if (mainScreenProvider.likedPostIdList.contains(int.parse(postId)) &&
+    //       newsPostLikeId != null) {
+    //     mainScreenProvider.likedPostIdList.remove(int.parse(postId));
+    //     postLikeCount--;
+    //     Map bodyDataTwo = {
+    //       "data": {"like_count": postLikeCount.toString()}
+    //     };
+    //     response = await NewsPostRepo.removeNewsPostLike(
+    //         newsPostLikeId: newsPostLikeId,
+    //         jwt: sharedPreferences.getString('jwt')!,
+    //         bodyDataTwo: bodyDataTwo,
+    //         postId: postId);
+    //   } else {
+    //     mainScreenProvider.likedPostIdList.add(int.parse(postId));
+    //     postLikeCount++;
+    //     Map bodyDataOne = {
+    //       "data": {"liked_by": mainScreenProvider.userId, "news_post": postId}
+    //     };
+    //     Map bodyDataTwo = {
+    //       "data": {"like_count": postLikeCount.toString()}
+    //     };
+    //     response = await NewsPostRepo.addNewsPostLike(
+    //         bodyDataOne: bodyDataOne,
+    //         jwt: sharedPreferences.getString('jwt')!,
+    //         bodyDataTwo: bodyDataTwo,
+    //         postId: postId);
+    //   }
+    //   notifyListeners();
+    //   if (response.statusCode == 200) {
+    //     if (!isMe && otherUserStreamController != null && context.mounted) {
+    //       Provider.of<ProfileProvider>(context, listen: false)
+    //           .getOtherUserProfile(
+    //               otherUserStreamController: otherUserStreamController,
+    //               otherUserId: postedById,
+    //               context: context);
+    //     }
+    //     if (context.mounted) {
+    //       await Future.wait([
+    //         updateOnlyOneTopic == true
+    //             ? getOneProfileTopic(topicId: postId, context: context)
+    //             : getSelectedUserProfileTopics(
+    //                 userId: postedById, context: context),
+    //         updateSelectedNewsPosts(
+    //             context: context,
+    //             newsPostId: postId,
+    //             newsPostSource: newsPostSource),
+    //         mainScreenProvider.updateAndSetUserDetails(
+    //             context: context,
+    //             setLikeSaveCommentFollow: setLikeSaveCommentFollow)
+    //       ]);
+    //     }
+    //     toggleLikeOnProcess = false;
+    //     notifyListeners();
+    //   } else if (response.statusCode == 401 || response.statusCode == 403) {
+    //     toggleLikeOnProcess = false;
+    //     notifyListeners();
+    //     if (context.mounted) {
+    //       EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //           dismissOnTap: false, duration: const Duration(seconds: 4));
+    //       Provider.of<DrawerProvider>(context, listen: false)
+    //           .removeCredentials(context: context);
+    //       return;
+    //     }
+    //   } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
+    //           'Not Found' &&
+    //       context.mounted) {
+    //     toggleLikeOnProcess = false;
+    //     notifyListeners();
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).tryAgainLater,
+    //         contentColor: Colors.white,
+    //         backgroundColor: Colors.red);
+    //   } else {
+    //     toggleLikeOnProcess = false;
+    //     notifyListeners();
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).tryAgainLater,
+    //         contentColor: Colors.white,
+    //         backgroundColor: Colors.red);
+    //   }
+    // }
+    // toggleLikeOnProcess = false;
+    // notifyListeners();
   }
 
   // post comment from profile
@@ -839,981 +836,528 @@ class NewsAdProvider extends ChangeNotifier {
       required String newsPostId,
       required TextEditingController newsCommentController,
       required bool setLikeSaveCommentFollow}) async {
-    try {
-      String body = jsonEncode({
-        "data": {
-          "comment_by": sharedPreferences.getString('id')!,
-          "content": newsCommentController.text,
-          "news_post": newsPostId,
-        }
-      });
+    // try {
+    //   String body = jsonEncode({
+    //     "data": {
+    //       "comment_by": sharedPreferences.getString('id')!,
+    //       "content": newsCommentController.text,
+    //       "news_post": newsPostId,
+    //     }
+    //   });
 
-      Response commentResponse = await NewsCommentRepo.saveNewsComment(
-          bodyData: body, jwt: sharedPreferences.getString('jwt')!);
-      if (commentResponse.statusCode == 200 && context.mounted) {
-        newsCommentController.clear();
-        FocusScope.of(context).unfocus();
-        if (!isMe && otherUserStreamController != null) {
-          Provider.of<ProfileProvider>(context, listen: false)
-              .getOtherUserProfile(
-                  otherUserStreamController: otherUserStreamController,
-                  otherUserId: postedById,
-                  context: context);
-        }
-        await Future.wait([
-          updateOnlyOneTopic == true
-              ? getOneProfileTopic(topicId: newsPostId, context: context)
-              : getSelectedUserProfileTopics(
-                  userId: postedById, context: context),
-          updateSelectedNewsPosts(
-              context: context,
-              newsPostId: newsPostId,
-              newsPostSource: newsPostSource),
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context,
-              setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-        ]);
+    //   Response commentResponse = await NewsCommentRepo.saveNewsComment(
+    //       bodyData: body, jwt: sharedPreferences.getString('jwt')!);
+    //   if (commentResponse.statusCode == 200 && context.mounted) {
+    //     newsCommentController.clear();
+    //     FocusScope.of(context).unfocus();
+    //     if (!isMe && otherUserStreamController != null) {
+    //       Provider.of<ProfileProvider>(context, listen: false)
+    //           .getOtherUserProfile(
+    //               otherUserStreamController: otherUserStreamController,
+    //               otherUserId: postedById,
+    //               context: context);
+    //     }
+    //     await Future.wait([
+    //       updateOnlyOneTopic == true
+    //           ? getOneProfileTopic(topicId: newsPostId, context: context)
+    //           : getSelectedUserProfileTopics(
+    //               userId: postedById, context: context),
+    //       updateSelectedNewsPosts(
+    //           context: context,
+    //           newsPostId: newsPostId,
+    //           newsPostSource: newsPostSource),
+    //       mainScreenProvider.updateAndSetUserDetails(
+    //           context: context,
+    //           setLikeSaveCommentFollow: setLikeSaveCommentFollow)
+    //     ]);
 
-        if (context.mounted) {
-          showSnackBar(
-              context: context,
-              content: AppLocalizations.of(context).commentPosted,
-              backgroundColor: const Color(0xFFA08875),
-              contentColor: Colors.white);
-        }
-        // if the comment is posted in further study discuss, then
-      } else if (commentResponse.statusCode == 401 ||
-          commentResponse.statusCode == 403) {
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    } on Exception {
-      throw (Exception);
-    }
+    //     if (context.mounted) {
+    //       showSnackBar(
+    //           context: context,
+    //           content: AppLocalizations.of(context).commentPosted,
+    //           backgroundColor: const Color(0xFFA08875),
+    //           contentColor: Colors.white);
+    //     }
+    //     // if the comment is posted in further study discuss, then
+    //   } else if (commentResponse.statusCode == 401 ||
+    //       commentResponse.statusCode == 403) {
+    //     if (context.mounted) {
+    //       EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //           dismissOnTap: false, duration: const Duration(seconds: 4));
+    //       Provider.of<DrawerProvider>(context, listen: false)
+    //           .removeCredentials(context: context);
+    //       return;
+    //     }
+    //   } else {
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).tryAgainLater,
+    //         contentColor: Colors.white,
+    //         backgroundColor: Colors.red);
+    //   }
+    // } on Exception {
+    //   throw (Exception);
+    // }
   }
 
   Widget profileTopiclikedAvatars(
       {required List<TopicLike?>? likeCount, required bool isLike}) {
-    if (likeCount == null || likeCount.isEmpty) {
-      return const SizedBox();
-      // If it's liked only by the current user
-    } else if (likeCount.length == 1 && isLike == true) {
-      return mainScreenProvider.currentUser!.profileImage == null
-          ? CircleAvatar(
-              backgroundImage:
-                  const AssetImage("assets/images/default_profile.jpg"),
-              radius: SizeConfig.defaultSize * 1.5)
-          : CircleAvatar(
-              backgroundImage: NetworkImage(kIMAGEURL +
-                  mainScreenProvider.currentUser!.profileImage!.url!),
-              radius: SizeConfig.defaultSize * 1.5);
-    } else if (likeCount.length == 1 && isLike == false) {
-      return likeCount[likeCount.length - 1]!.likedBy == null ||
-              (likeCount[likeCount.length - 1]!.likedBy != null &&
-                  likeCount[likeCount.length - 1]!.likedBy!.profileImage ==
-                      null)
-          ? CircleAvatar(
-              backgroundImage:
-                  const AssetImage("assets/images/default_profile.jpg"),
-              radius: SizeConfig.defaultSize * 1.5)
-          : CircleAvatar(
-              backgroundImage: NetworkImage(kIMAGEURL +
-                  likeCount[likeCount.length - 1]!.likedBy!.profileImage!.url!),
-              radius: SizeConfig.defaultSize * 1.5);
-    } else if (likeCount.length == 2) {
-      return likeCount[likeCount.length - 1]!.likedBy!.id !=
-              int.parse(mainScreenProvider.userId!)
-          ? Stack(
-              children: [
-                // First avatar
-                likeCount[likeCount.length - 1]!.likedBy == null ||
-                        (likeCount[likeCount.length - 1]!.likedBy != null &&
-                            likeCount[likeCount.length - 1]!
-                                    .likedBy!
-                                    .profileImage ==
-                                null)
-                    ? CircleAvatar(
-                        backgroundImage: const AssetImage(
-                            "assets/images/default_profile.jpg"),
-                        radius: SizeConfig.defaultSize * 1.5)
-                    : CircleAvatar(
-                        backgroundImage: NetworkImage(kIMAGEURL +
-                            likeCount[likeCount.length - 1]!
-                                .likedBy!
-                                .profileImage!
-                                .url!),
-                        radius: SizeConfig.defaultSize * 1.5),
+    return const SizedBox();
+    // if (likeCount == null || likeCount.isEmpty) {
+    //   return const SizedBox();
+    //   // If it's liked only by the current user
+    // } else if (likeCount.length == 1 && isLike == true) {
+    //   return mainScreenProvider.currentUser!.profileImage == null
+    //       ? CircleAvatar(
+    //           backgroundImage:
+    //               const AssetImage("assets/images/default_profile.jpg"),
+    //           radius: SizeConfig.defaultSize * 1.5)
+    //       : CircleAvatar(
+    //           backgroundImage: NetworkImage(kIMAGEURL +
+    //               mainScreenProvider.currentUser!.profileImage!.url!),
+    //           radius: SizeConfig.defaultSize * 1.5);
+    // } else if (likeCount.length == 1 && isLike == false) {
+    //   return likeCount[likeCount.length - 1]!.likedBy == null ||
+    //           (likeCount[likeCount.length - 1]!.likedBy != null &&
+    //               likeCount[likeCount.length - 1]!.likedBy!.profileImage ==
+    //                   null)
+    //       ? CircleAvatar(
+    //           backgroundImage:
+    //               const AssetImage("assets/images/default_profile.jpg"),
+    //           radius: SizeConfig.defaultSize * 1.5)
+    //       : CircleAvatar(
+    //           backgroundImage: NetworkImage(kIMAGEURL +
+    //               likeCount[likeCount.length - 1]!.likedBy!.profileImage!.url!),
+    //           radius: SizeConfig.defaultSize * 1.5);
+    // } else if (likeCount.length == 2) {
+    //   return likeCount[likeCount.length - 1]!.likedBy!.id !=
+    //           int.parse(mainScreenProvider.userId!)
+    //       ? Stack(
+    //           children: [
+    //             // First avatar
+    //             likeCount[likeCount.length - 1]!.likedBy == null ||
+    //                     (likeCount[likeCount.length - 1]!.likedBy != null &&
+    //                         likeCount[likeCount.length - 1]!
+    //                                 .likedBy!
+    //                                 .profileImage ==
+    //                             null)
+    //                 ? CircleAvatar(
+    //                     backgroundImage: const AssetImage(
+    //                         "assets/images/default_profile.jpg"),
+    //                     radius: SizeConfig.defaultSize * 1.5)
+    //                 : CircleAvatar(
+    //                     backgroundImage: NetworkImage(kIMAGEURL +
+    //                         likeCount[likeCount.length - 1]!
+    //                             .likedBy!
+    //                             .profileImage!
+    //                             .url!),
+    //                     radius: SizeConfig.defaultSize * 1.5),
 
-                // Second avatar
-                Padding(
-                    padding:
-                        EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
-                    child: likeCount[likeCount.length - 2]!.likedBy == null ||
-                            (likeCount[likeCount.length - 2]!.likedBy != null &&
-                                likeCount[likeCount.length - 2]!
-                                        .likedBy!
-                                        .profileImage ==
-                                    null)
-                        ? CircleAvatar(
-                            backgroundImage: const AssetImage(
-                                "assets/images/default_profile.jpg"),
-                            radius: SizeConfig.defaultSize * 1.5)
-                        : CircleAvatar(
-                            backgroundImage: NetworkImage(isLike == true &&
-                                    mainScreenProvider
-                                            .currentUser!.profileImage !=
-                                        null
-                                ? kIMAGEURL +
-                                    mainScreenProvider
-                                        .currentUser!.profileImage!.url!
-                                : kIMAGEURL +
-                                    likeCount[likeCount.length - 2]!
-                                        .likedBy!
-                                        .profileImage!
-                                        .url!),
-                            radius: SizeConfig.defaultSize * 1.5)),
-              ],
-            )
-          : Stack(
-              children: [
-                // First avatar
-                likeCount[likeCount.length - 2]!.likedBy == null ||
-                        (likeCount[likeCount.length - 2]!.likedBy != null &&
-                            likeCount[likeCount.length - 2]!
-                                    .likedBy!
-                                    .profileImage ==
-                                null)
-                    ? CircleAvatar(
-                        backgroundImage: const AssetImage(
-                            "assets/images/default_profile.jpg"),
-                        radius: SizeConfig.defaultSize * 1.5)
-                    : CircleAvatar(
-                        backgroundImage: NetworkImage(kIMAGEURL +
-                            likeCount[likeCount.length - 2]!
-                                .likedBy!
-                                .profileImage!
-                                .url!),
-                        radius: SizeConfig.defaultSize * 1.5),
+    //             // Second avatar
+    //             Padding(
+    //                 padding:
+    //                     EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
+    //                 child: likeCount[likeCount.length - 2]!.likedBy == null ||
+    //                         (likeCount[likeCount.length - 2]!.likedBy != null &&
+    //                             likeCount[likeCount.length - 2]!
+    //                                     .likedBy!
+    //                                     .profileImage ==
+    //                                 null)
+    //                     ? CircleAvatar(
+    //                         backgroundImage: const AssetImage(
+    //                             "assets/images/default_profile.jpg"),
+    //                         radius: SizeConfig.defaultSize * 1.5)
+    //                     : CircleAvatar(
+    //                         backgroundImage: NetworkImage(isLike == true &&
+    //                                 mainScreenProvider
+    //                                         .currentUser!.profileImage !=
+    //                                     null
+    //                             ? kIMAGEURL +
+    //                                 mainScreenProvider
+    //                                     .currentUser!.profileImage!.url!
+    //                             : kIMAGEURL +
+    //                                 likeCount[likeCount.length - 2]!
+    //                                     .likedBy!
+    //                                     .profileImage!
+    //                                     .url!),
+    //                         radius: SizeConfig.defaultSize * 1.5)),
+    //           ],
+    //         )
+    //       : Stack(
+    //           children: [
+    //             // First avatar
+    //             likeCount[likeCount.length - 2]!.likedBy == null ||
+    //                     (likeCount[likeCount.length - 2]!.likedBy != null &&
+    //                         likeCount[likeCount.length - 2]!
+    //                                 .likedBy!
+    //                                 .profileImage ==
+    //                             null)
+    //                 ? CircleAvatar(
+    //                     backgroundImage: const AssetImage(
+    //                         "assets/images/default_profile.jpg"),
+    //                     radius: SizeConfig.defaultSize * 1.5)
+    //                 : CircleAvatar(
+    //                     backgroundImage: NetworkImage(kIMAGEURL +
+    //                         likeCount[likeCount.length - 2]!
+    //                             .likedBy!
+    //                             .profileImage!
+    //                             .url!),
+    //                     radius: SizeConfig.defaultSize * 1.5),
 
-                // Second avatar
-                Padding(
-                    padding:
-                        EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
-                    child: likeCount[likeCount.length - 1]!.likedBy == null ||
-                            (likeCount[likeCount.length - 1]!.likedBy != null &&
-                                likeCount[likeCount.length - 1]!
-                                        .likedBy!
-                                        .profileImage ==
-                                    null)
-                        ? CircleAvatar(
-                            backgroundImage: const AssetImage(
-                                "assets/images/default_profile.jpg"),
-                            radius: SizeConfig.defaultSize * 1.5)
-                        : CircleAvatar(
-                            backgroundImage: NetworkImage(isLike == true &&
-                                    mainScreenProvider
-                                            .currentUser!.profileImage !=
-                                        null
-                                ? kIMAGEURL +
-                                    mainScreenProvider
-                                        .currentUser!.profileImage!.url!
-                                : kIMAGEURL +
-                                    likeCount[likeCount.length - 1]!
-                                        .likedBy!
-                                        .profileImage!
-                                        .url!),
-                            radius: SizeConfig.defaultSize * 1.5)),
-              ],
-            );
-    }
-    // If like count is >= 3
-    else {
-      return likeCount[likeCount.length - 3]!.likedBy!.id ==
-              int.parse(mainScreenProvider.userId!)
-          ? Stack(
-              children: [
-                // First avatar
-                likeCount[likeCount.length - 1]!.likedBy == null ||
-                        (likeCount[likeCount.length - 1]!.likedBy != null &&
-                            likeCount[likeCount.length - 1]!
-                                    .likedBy!
-                                    .profileImage ==
-                                null)
-                    ? CircleAvatar(
-                        backgroundImage: const AssetImage(
-                            "assets/images/default_profile.jpg"),
-                        radius: SizeConfig.defaultSize * 1.5)
-                    : CircleAvatar(
-                        backgroundImage: NetworkImage(kIMAGEURL +
-                            likeCount[likeCount.length - 1]!
-                                .likedBy!
-                                .profileImage!
-                                .url!),
-                        radius: SizeConfig.defaultSize * 1.5),
+    //             // Second avatar
+    //             Padding(
+    //                 padding:
+    //                     EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
+    //                 child: likeCount[likeCount.length - 1]!.likedBy == null ||
+    //                         (likeCount[likeCount.length - 1]!.likedBy != null &&
+    //                             likeCount[likeCount.length - 1]!
+    //                                     .likedBy!
+    //                                     .profileImage ==
+    //                                 null)
+    //                     ? CircleAvatar(
+    //                         backgroundImage: const AssetImage(
+    //                             "assets/images/default_profile.jpg"),
+    //                         radius: SizeConfig.defaultSize * 1.5)
+    //                     : CircleAvatar(
+    //                         backgroundImage: NetworkImage(isLike == true &&
+    //                                 mainScreenProvider
+    //                                         .currentUser!.profileImage !=
+    //                                     null
+    //                             ? kIMAGEURL +
+    //                                 mainScreenProvider
+    //                                     .currentUser!.profileImage!.url!
+    //                             : kIMAGEURL +
+    //                                 likeCount[likeCount.length - 1]!
+    //                                     .likedBy!
+    //                                     .profileImage!
+    //                                     .url!),
+    //                         radius: SizeConfig.defaultSize * 1.5)),
+    //           ],
+    //         );
+    // }
+    // // If like count is >= 3
+    // else {
+    //   return likeCount[likeCount.length - 3]!.likedBy!.id ==
+    //           int.parse(mainScreenProvider.userId!)
+    //       ? Stack(
+    //           children: [
+    //             // First avatar
+    //             likeCount[likeCount.length - 1]!.likedBy == null ||
+    //                     (likeCount[likeCount.length - 1]!.likedBy != null &&
+    //                         likeCount[likeCount.length - 1]!
+    //                                 .likedBy!
+    //                                 .profileImage ==
+    //                             null)
+    //                 ? CircleAvatar(
+    //                     backgroundImage: const AssetImage(
+    //                         "assets/images/default_profile.jpg"),
+    //                     radius: SizeConfig.defaultSize * 1.5)
+    //                 : CircleAvatar(
+    //                     backgroundImage: NetworkImage(kIMAGEURL +
+    //                         likeCount[likeCount.length - 1]!
+    //                             .likedBy!
+    //                             .profileImage!
+    //                             .url!),
+    //                     radius: SizeConfig.defaultSize * 1.5),
 
-                // Second avatar
-                Padding(
-                  padding: EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
-                  child: likeCount[likeCount.length - 2]!.likedBy == null ||
-                          (likeCount[likeCount.length - 2]!.likedBy != null &&
-                              likeCount[likeCount.length - 2]!
-                                      .likedBy!
-                                      .profileImage ==
-                                  null)
-                      ? CircleAvatar(
-                          backgroundImage: const AssetImage(
-                              "assets/images/default_profile.jpg"),
-                          radius: SizeConfig.defaultSize * 1.5)
-                      : CircleAvatar(
-                          backgroundImage: NetworkImage(kIMAGEURL +
-                              likeCount[likeCount.length - 2]!
-                                  .likedBy!
-                                  .profileImage!
-                                  .url!),
-                          radius: SizeConfig.defaultSize * 1.5),
-                ),
-                // Third avatar
-                Padding(
-                  padding: EdgeInsets.only(left: SizeConfig.defaultSize * 2.6),
-                  child: likeCount[likeCount.length - 3]!.likedBy == null ||
-                          (likeCount[likeCount.length - 3]!.likedBy != null &&
-                              likeCount[likeCount.length - 3]!
-                                      .likedBy!
-                                      .profileImage ==
-                                  null)
-                      ? CircleAvatar(
-                          backgroundImage: const AssetImage(
-                              "assets/images/default_profile.jpg"),
-                          radius: SizeConfig.defaultSize * 1.5)
-                      : CircleAvatar(
-                          backgroundImage: NetworkImage(isLike == true &&
-                                  mainScreenProvider
-                                          .currentUser!.profileImage !=
-                                      null
-                              ? kIMAGEURL +
-                                  mainScreenProvider
-                                      .currentUser!.profileImage!.url!
-                              : kIMAGEURL +
-                                  likeCount[likeCount.length - 3]!
-                                      .likedBy!
-                                      .profileImage!
-                                      .url!),
-                          radius: SizeConfig.defaultSize * 1.5),
-                ),
-              ],
-            )
-          : likeCount[likeCount.length - 2]!.likedBy!.id ==
-                  int.parse(mainScreenProvider.userId!)
-              ? Stack(
-                  children: [
-                    // First avatar
-                    likeCount[likeCount.length - 1]!.likedBy == null ||
-                            (likeCount[likeCount.length - 1]!.likedBy != null &&
-                                likeCount[likeCount.length - 1]!
-                                        .likedBy!
-                                        .profileImage ==
-                                    null)
-                        ? CircleAvatar(
-                            backgroundImage: const AssetImage(
-                                "assets/images/default_profile.jpg"),
-                            radius: SizeConfig.defaultSize * 1.5)
-                        : CircleAvatar(
-                            backgroundImage: NetworkImage(kIMAGEURL +
-                                likeCount[likeCount.length - 1]!
-                                    .likedBy!
-                                    .profileImage!
-                                    .url!),
-                            radius: SizeConfig.defaultSize * 1.5),
+    //             // Second avatar
+    //             Padding(
+    //               padding: EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
+    //               child: likeCount[likeCount.length - 2]!.likedBy == null ||
+    //                       (likeCount[likeCount.length - 2]!.likedBy != null &&
+    //                           likeCount[likeCount.length - 2]!
+    //                                   .likedBy!
+    //                                   .profileImage ==
+    //                               null)
+    //                   ? CircleAvatar(
+    //                       backgroundImage: const AssetImage(
+    //                           "assets/images/default_profile.jpg"),
+    //                       radius: SizeConfig.defaultSize * 1.5)
+    //                   : CircleAvatar(
+    //                       backgroundImage: NetworkImage(kIMAGEURL +
+    //                           likeCount[likeCount.length - 2]!
+    //                               .likedBy!
+    //                               .profileImage!
+    //                               .url!),
+    //                       radius: SizeConfig.defaultSize * 1.5),
+    //             ),
+    //             // Third avatar
+    //             Padding(
+    //               padding: EdgeInsets.only(left: SizeConfig.defaultSize * 2.6),
+    //               child: likeCount[likeCount.length - 3]!.likedBy == null ||
+    //                       (likeCount[likeCount.length - 3]!.likedBy != null &&
+    //                           likeCount[likeCount.length - 3]!
+    //                                   .likedBy!
+    //                                   .profileImage ==
+    //                               null)
+    //                   ? CircleAvatar(
+    //                       backgroundImage: const AssetImage(
+    //                           "assets/images/default_profile.jpg"),
+    //                       radius: SizeConfig.defaultSize * 1.5)
+    //                   : CircleAvatar(
+    //                       backgroundImage: NetworkImage(isLike == true &&
+    //                               mainScreenProvider
+    //                                       .currentUser!.profileImage !=
+    //                                   null
+    //                           ? kIMAGEURL +
+    //                               mainScreenProvider
+    //                                   .currentUser!.profileImage!.url!
+    //                           : kIMAGEURL +
+    //                               likeCount[likeCount.length - 3]!
+    //                                   .likedBy!
+    //                                   .profileImage!
+    //                                   .url!),
+    //                       radius: SizeConfig.defaultSize * 1.5),
+    //             ),
+    //           ],
+    //         )
+    //       : likeCount[likeCount.length - 2]!.likedBy!.id ==
+    //               int.parse(mainScreenProvider.userId!)
+    //           ? Stack(
+    //               children: [
+    //                 // First avatar
+    //                 likeCount[likeCount.length - 1]!.likedBy == null ||
+    //                         (likeCount[likeCount.length - 1]!.likedBy != null &&
+    //                             likeCount[likeCount.length - 1]!
+    //                                     .likedBy!
+    //                                     .profileImage ==
+    //                                 null)
+    //                     ? CircleAvatar(
+    //                         backgroundImage: const AssetImage(
+    //                             "assets/images/default_profile.jpg"),
+    //                         radius: SizeConfig.defaultSize * 1.5)
+    //                     : CircleAvatar(
+    //                         backgroundImage: NetworkImage(kIMAGEURL +
+    //                             likeCount[likeCount.length - 1]!
+    //                                 .likedBy!
+    //                                 .profileImage!
+    //                                 .url!),
+    //                         radius: SizeConfig.defaultSize * 1.5),
 
-                    // Second avatar
-                    Padding(
-                      padding:
-                          EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
-                      child: likeCount[likeCount.length - 3]!.likedBy == null ||
-                              (likeCount[likeCount.length - 3]!.likedBy !=
-                                      null &&
-                                  likeCount[likeCount.length - 3]!
-                                          .likedBy!
-                                          .profileImage ==
-                                      null)
-                          ? CircleAvatar(
-                              backgroundImage: const AssetImage(
-                                  "assets/images/default_profile.jpg"),
-                              radius: SizeConfig.defaultSize * 1.5)
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(kIMAGEURL +
-                                  likeCount[likeCount.length - 3]!
-                                      .likedBy!
-                                      .profileImage!
-                                      .url!),
-                              radius: SizeConfig.defaultSize * 1.5),
-                    ),
-                    // Third avatar
-                    Padding(
-                      padding:
-                          EdgeInsets.only(left: SizeConfig.defaultSize * 2.6),
-                      child: likeCount[likeCount.length - 2]!.likedBy == null ||
-                              (likeCount[likeCount.length - 2]!.likedBy != null &&
-                                  likeCount[likeCount.length - 2]!
-                                          .likedBy!
-                                          .profileImage ==
-                                      null)
-                          ? CircleAvatar(
-                              backgroundImage: const AssetImage(
-                                  "assets/images/default_profile.jpg"),
-                              radius: SizeConfig.defaultSize * 1.5)
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(isLike == true &&
-                                      mainScreenProvider
-                                              .currentUser!.profileImage !=
-                                          null
-                                  ? kIMAGEURL +
-                                      mainScreenProvider
-                                          .currentUser!.profileImage!.url!
-                                  : kIMAGEURL +
-                                      likeCount[likeCount.length - 2]!
-                                          .likedBy!
-                                          .profileImage!
-                                          .url!),
-                              radius: SizeConfig.defaultSize * 1.5),
-                    ),
-                  ],
-                )
-              : Stack(
-                  children: [
-                    // First avatar
-                    likeCount[likeCount.length - 2]!.likedBy == null ||
-                            (likeCount[likeCount.length - 2]!.likedBy != null &&
-                                likeCount[likeCount.length - 2]!
-                                        .likedBy!
-                                        .profileImage ==
-                                    null)
-                        ? CircleAvatar(
-                            backgroundImage: const AssetImage(
-                                "assets/images/default_profile.jpg"),
-                            radius: SizeConfig.defaultSize * 1.5)
-                        : CircleAvatar(
-                            backgroundImage: NetworkImage(kIMAGEURL +
-                                likeCount[likeCount.length - 2]!
-                                    .likedBy!
-                                    .profileImage!
-                                    .url!),
-                            radius: SizeConfig.defaultSize * 1.5),
+    //                 // Second avatar
+    //                 Padding(
+    //                   padding:
+    //                       EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
+    //                   child: likeCount[likeCount.length - 3]!.likedBy == null ||
+    //                           (likeCount[likeCount.length - 3]!.likedBy !=
+    //                                   null &&
+    //                               likeCount[likeCount.length - 3]!
+    //                                       .likedBy!
+    //                                       .profileImage ==
+    //                                   null)
+    //                       ? CircleAvatar(
+    //                           backgroundImage: const AssetImage(
+    //                               "assets/images/default_profile.jpg"),
+    //                           radius: SizeConfig.defaultSize * 1.5)
+    //                       : CircleAvatar(
+    //                           backgroundImage: NetworkImage(kIMAGEURL +
+    //                               likeCount[likeCount.length - 3]!
+    //                                   .likedBy!
+    //                                   .profileImage!
+    //                                   .url!),
+    //                           radius: SizeConfig.defaultSize * 1.5),
+    //                 ),
+    //                 // Third avatar
+    //                 Padding(
+    //                   padding:
+    //                       EdgeInsets.only(left: SizeConfig.defaultSize * 2.6),
+    //                   child: likeCount[likeCount.length - 2]!.likedBy == null ||
+    //                           (likeCount[likeCount.length - 2]!.likedBy != null &&
+    //                               likeCount[likeCount.length - 2]!
+    //                                       .likedBy!
+    //                                       .profileImage ==
+    //                                   null)
+    //                       ? CircleAvatar(
+    //                           backgroundImage: const AssetImage(
+    //                               "assets/images/default_profile.jpg"),
+    //                           radius: SizeConfig.defaultSize * 1.5)
+    //                       : CircleAvatar(
+    //                           backgroundImage: NetworkImage(isLike == true &&
+    //                                   mainScreenProvider
+    //                                           .currentUser!.profileImage !=
+    //                                       null
+    //                               ? kIMAGEURL +
+    //                                   mainScreenProvider
+    //                                       .currentUser!.profileImage!.url!
+    //                               : kIMAGEURL +
+    //                                   likeCount[likeCount.length - 2]!
+    //                                       .likedBy!
+    //                                       .profileImage!
+    //                                       .url!),
+    //                           radius: SizeConfig.defaultSize * 1.5),
+    //                 ),
+    //               ],
+    //             )
+    //           : Stack(
+    //               children: [
+    //                 // First avatar
+    //                 likeCount[likeCount.length - 2]!.likedBy == null ||
+    //                         (likeCount[likeCount.length - 2]!.likedBy != null &&
+    //                             likeCount[likeCount.length - 2]!
+    //                                     .likedBy!
+    //                                     .profileImage ==
+    //                                 null)
+    //                     ? CircleAvatar(
+    //                         backgroundImage: const AssetImage(
+    //                             "assets/images/default_profile.jpg"),
+    //                         radius: SizeConfig.defaultSize * 1.5)
+    //                     : CircleAvatar(
+    //                         backgroundImage: NetworkImage(kIMAGEURL +
+    //                             likeCount[likeCount.length - 2]!
+    //                                 .likedBy!
+    //                                 .profileImage!
+    //                                 .url!),
+    //                         radius: SizeConfig.defaultSize * 1.5),
 
-                    // Second avatar
-                    Padding(
-                      padding:
-                          EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
-                      child: likeCount[likeCount.length - 3]!.likedBy == null ||
-                              (likeCount[likeCount.length - 3]!.likedBy !=
-                                      null &&
-                                  likeCount[likeCount.length - 3]!
-                                          .likedBy!
-                                          .profileImage ==
-                                      null)
-                          ? CircleAvatar(
-                              backgroundImage: const AssetImage(
-                                  "assets/images/default_profile.jpg"),
-                              radius: SizeConfig.defaultSize * 1.5)
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(kIMAGEURL +
-                                  likeCount[likeCount.length - 3]!
-                                      .likedBy!
-                                      .profileImage!
-                                      .url!),
-                              radius: SizeConfig.defaultSize * 1.5),
-                    ),
-                    // Third avatar
-                    Padding(
-                      padding:
-                          EdgeInsets.only(left: SizeConfig.defaultSize * 2.6),
-                      child: likeCount[likeCount.length - 1]!.likedBy == null ||
-                              (likeCount[likeCount.length - 1]!.likedBy != null &&
-                                  likeCount[likeCount.length - 1]!
-                                          .likedBy!
-                                          .profileImage ==
-                                      null)
-                          ? CircleAvatar(
-                              backgroundImage: const AssetImage(
-                                  "assets/images/default_profile.jpg"),
-                              radius: SizeConfig.defaultSize * 1.5)
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(isLike == true &&
-                                      mainScreenProvider
-                                              .currentUser!.profileImage !=
-                                          null
-                                  ? kIMAGEURL +
-                                      mainScreenProvider
-                                          .currentUser!.profileImage!.url!
-                                  : kIMAGEURL +
-                                      likeCount[likeCount.length - 1]!
-                                          .likedBy!
-                                          .profileImage!
-                                          .url!),
-                              radius: SizeConfig.defaultSize * 1.5),
-                    ),
-                  ],
-                );
-    }
+    //                 // Second avatar
+    //                 Padding(
+    //                   padding:
+    //                       EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
+    //                   child: likeCount[likeCount.length - 3]!.likedBy == null ||
+    //                           (likeCount[likeCount.length - 3]!.likedBy !=
+    //                                   null &&
+    //                               likeCount[likeCount.length - 3]!
+    //                                       .likedBy!
+    //                                       .profileImage ==
+    //                                   null)
+    //                       ? CircleAvatar(
+    //                           backgroundImage: const AssetImage(
+    //                               "assets/images/default_profile.jpg"),
+    //                           radius: SizeConfig.defaultSize * 1.5)
+    //                       : CircleAvatar(
+    //                           backgroundImage: NetworkImage(kIMAGEURL +
+    //                               likeCount[likeCount.length - 3]!
+    //                                   .likedBy!
+    //                                   .profileImage!
+    //                                   .url!),
+    //                           radius: SizeConfig.defaultSize * 1.5),
+    //                 ),
+    //                 // Third avatar
+    //                 Padding(
+    //                   padding:
+    //                       EdgeInsets.only(left: SizeConfig.defaultSize * 2.6),
+    //                   child: likeCount[likeCount.length - 1]!.likedBy == null ||
+    //                           (likeCount[likeCount.length - 1]!.likedBy != null &&
+    //                               likeCount[likeCount.length - 1]!
+    //                                       .likedBy!
+    //                                       .profileImage ==
+    //                                   null)
+    //                       ? CircleAvatar(
+    //                           backgroundImage: const AssetImage(
+    //                               "assets/images/default_profile.jpg"),
+    //                           radius: SizeConfig.defaultSize * 1.5)
+    //                       : CircleAvatar(
+    //                           backgroundImage: NetworkImage(isLike == true &&
+    //                                   mainScreenProvider
+    //                                           .currentUser!.profileImage !=
+    //                                       null
+    //                               ? kIMAGEURL +
+    //                                   mainScreenProvider
+    //                                       .currentUser!.profileImage!.url!
+    //                               : kIMAGEURL +
+    //                                   likeCount[likeCount.length - 1]!
+    //                                       .likedBy!
+    //                                       .profileImage!
+    //                                       .url!),
+    //                           radius: SizeConfig.defaultSize * 1.5),
+    //                 ),
+    //               ],
+    //             );
+    // }
   }
 
-  Widget likedAvatars(
-      {required bool isLike, required List<AllNewsPostLikesData?>? likeCount}) {
-    if (likeCount == null || likeCount.isEmpty) {
+  Widget likedAvatars({required bool isLike, required List<Like?>? likes}) {
+    print("CHECK");
+    if (likes == null || likes.isEmpty) {
       return const SizedBox();
       // If it's liked only by the current user
-    } else if (likeCount.length == 1 && isLike == true) {
-      return mainScreenProvider.currentUser!.profileImage == null
+    } else if (likes.length == 1) {
+      String? profilePicture = likes[0]?.likedBy?.profilePicture;
+      return profilePicture == null
           ? CircleAvatar(
               backgroundImage:
                   const AssetImage("assets/images/default_profile.jpg"),
               radius: SizeConfig.defaultSize * 1.5)
           : CircleAvatar(
-              backgroundImage: NetworkImage(kIMAGEURL +
-                  mainScreenProvider.currentUser!.profileImage!.url!),
+              backgroundImage: NetworkImage(kIMAGEURL + profilePicture),
               radius: SizeConfig.defaultSize * 1.5);
-    } else if (likeCount.length == 1 && isLike == false) {
-      return likeCount[likeCount.length - 1]!.attributes!.likedBy!.data ==
-                  null ||
-              (likeCount[likeCount.length - 1]!.attributes!.likedBy!.data !=
-                      null &&
-                  likeCount[likeCount.length - 1]!
-                          .attributes!
-                          .likedBy!
-                          .data!
-                          .attributes!
-                          .profileImage!
-                          .data ==
-                      null)
-          ? CircleAvatar(
-              backgroundImage:
-                  const AssetImage("assets/images/default_profile.jpg"),
-              radius: SizeConfig.defaultSize * 1.5)
-          : CircleAvatar(
-              backgroundImage: NetworkImage(kIMAGEURL +
-                  likeCount[likeCount.length - 1]!
-                      .attributes!
-                      .likedBy!
-                      .data!
-                      .attributes!
-                      .profileImage!
-                      .data!
-                      .attributes!
-                      .url!),
-              radius: SizeConfig.defaultSize * 1.5);
-    } else if (likeCount.length == 2) {
-      return likeCount[likeCount.length - 1]!.attributes!.likedBy!.data!.id !=
-              int.parse(mainScreenProvider.userId!)
-          ? Stack(
-              children: [
-                // First avatar
-                likeCount[likeCount.length - 1]!.attributes!.likedBy!.data ==
-                            null ||
-                        (likeCount[likeCount.length - 1]!
-                                    .attributes!
-                                    .likedBy!
-                                    .data !=
-                                null &&
-                            likeCount[likeCount.length - 1]!
-                                    .attributes!
-                                    .likedBy!
-                                    .data!
-                                    .attributes!
-                                    .profileImage!
-                                    .data ==
-                                null)
-                    ? CircleAvatar(
-                        backgroundImage: const AssetImage(
-                            "assets/images/default_profile.jpg"),
-                        radius: SizeConfig.defaultSize * 1.5)
-                    : CircleAvatar(
-                        backgroundImage: NetworkImage(kIMAGEURL +
-                            likeCount[likeCount.length - 1]!
-                                .attributes!
-                                .likedBy!
-                                .data!
-                                .attributes!
-                                .profileImage!
-                                .data!
-                                .attributes!
-                                .url!),
-                        radius: SizeConfig.defaultSize * 1.5),
+    } else if (likes.length == 2) {
+      String? firstProfilePicture = likes[0]?.likedBy?.profilePicture;
+      String? secondProfilePicture = likes[1]?.likedBy?.profilePicture;
+      return Stack(
+        children: [
+          // First avatar
+          firstProfilePicture == null
+              ? CircleAvatar(
+                  backgroundImage:
+                      const AssetImage("assets/images/default_profile.jpg"),
+                  radius: SizeConfig.defaultSize * 1.5)
+              : CircleAvatar(
+                  backgroundImage:
+                      NetworkImage(kIMAGEURL + firstProfilePicture),
+                  radius: SizeConfig.defaultSize * 1.5),
 
-                // Second avatar
-                Padding(
-                    padding:
-                        EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
-                    child: likeCount[likeCount.length - 2]!.attributes!.likedBy!.data == null ||
-                            (likeCount[likeCount.length - 2]!.attributes!.likedBy!.data != null &&
-                                likeCount[likeCount.length - 2]!
-                                        .attributes!
-                                        .likedBy!
-                                        .data!
-                                        .attributes!
-                                        .profileImage!
-                                        .data ==
-                                    null)
-                        ? CircleAvatar(
-                            backgroundImage: const AssetImage(
-                                "assets/images/default_profile.jpg"),
-                            radius: SizeConfig.defaultSize * 1.5)
-                        : CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                isLike == true && mainScreenProvider.currentUser!.profileImage != null
-                                    ? kIMAGEURL +
-                                        mainScreenProvider
-                                            .currentUser!.profileImage!.url!
-                                    : kIMAGEURL +
-                                        likeCount[likeCount.length - 2]!
-                                            .attributes!
-                                            .likedBy!
-                                            .data!
-                                            .attributes!
-                                            .profileImage!
-                                            .data!
-                                            .attributes!
-                                            .url!),
-                            radius: SizeConfig.defaultSize * 1.5)),
-              ],
-            )
-          : Stack(
-              children: [
-                // First avatar
-                likeCount[likeCount.length - 2]!.attributes!.likedBy!.data ==
-                            null ||
-                        (likeCount[likeCount.length - 2]!
-                                    .attributes!
-                                    .likedBy!
-                                    .data !=
-                                null &&
-                            likeCount[likeCount.length - 2]!
-                                    .attributes!
-                                    .likedBy!
-                                    .data!
-                                    .attributes!
-                                    .profileImage!
-                                    .data ==
-                                null)
-                    ? CircleAvatar(
-                        backgroundImage: const AssetImage(
-                            "assets/images/default_profile.jpg"),
-                        radius: SizeConfig.defaultSize * 1.5)
-                    : CircleAvatar(
-                        backgroundImage: NetworkImage(kIMAGEURL +
-                            likeCount[likeCount.length - 2]!
-                                .attributes!
-                                .likedBy!
-                                .data!
-                                .attributes!
-                                .profileImage!
-                                .data!
-                                .attributes!
-                                .url!),
-                        radius: SizeConfig.defaultSize * 1.5),
-
-                // Second avatar
-                Padding(
-                    padding:
-                        EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
-                    child: likeCount[likeCount.length - 1]!.attributes!.likedBy!.data == null ||
-                            (likeCount[likeCount.length - 1]!.attributes!.likedBy!.data != null &&
-                                likeCount[likeCount.length - 1]!
-                                        .attributes!
-                                        .likedBy!
-                                        .data!
-                                        .attributes!
-                                        .profileImage!
-                                        .data ==
-                                    null)
-                        ? CircleAvatar(
-                            backgroundImage: const AssetImage(
-                                "assets/images/default_profile.jpg"),
-                            radius: SizeConfig.defaultSize * 1.5)
-                        : CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                isLike == true && mainScreenProvider.currentUser!.profileImage != null
-                                    ? kIMAGEURL +
-                                        mainScreenProvider
-                                            .currentUser!.profileImage!.url!
-                                    : kIMAGEURL +
-                                        likeCount[likeCount.length - 1]!
-                                            .attributes!
-                                            .likedBy!
-                                            .data!
-                                            .attributes!
-                                            .profileImage!
-                                            .data!
-                                            .attributes!
-                                            .url!),
-                            radius: SizeConfig.defaultSize * 1.5)),
-              ],
-            );
+          // Second avatar
+          Padding(
+              padding: EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
+              child: secondProfilePicture == null
+                  ? CircleAvatar(
+                      backgroundImage:
+                          const AssetImage("assets/images/default_profile.jpg"),
+                      radius: SizeConfig.defaultSize * 1.5)
+                  : CircleAvatar(
+                      backgroundImage:
+                          NetworkImage(kIMAGEURL + secondProfilePicture),
+                      radius: SizeConfig.defaultSize * 1.5)),
+        ],
+      );
     }
     // If like count is >= 3
     else {
-      return likeCount[likeCount.length - 3]!.attributes!.likedBy!.data!.id ==
-              int.parse(mainScreenProvider.userId!)
-          ? Stack(
-              children: [
-                // First avatar
-                likeCount[likeCount.length - 1]!.attributes!.likedBy!.data ==
-                            null ||
-                        (likeCount[likeCount.length - 1]!
-                                    .attributes!
-                                    .likedBy!
-                                    .data !=
-                                null &&
-                            likeCount[likeCount.length - 1]!
-                                    .attributes!
-                                    .likedBy!
-                                    .data!
-                                    .attributes!
-                                    .profileImage!
-                                    .data ==
-                                null)
-                    ? CircleAvatar(
-                        backgroundImage: const AssetImage(
-                            "assets/images/default_profile.jpg"),
-                        radius: SizeConfig.defaultSize * 1.5)
-                    : CircleAvatar(
-                        backgroundImage: NetworkImage(kIMAGEURL +
-                            likeCount[likeCount.length - 1]!
-                                .attributes!
-                                .likedBy!
-                                .data!
-                                .attributes!
-                                .profileImage!
-                                .data!
-                                .attributes!
-                                .url!),
-                        radius: SizeConfig.defaultSize * 1.5),
+      String? firstProfilePicture = likes[0]?.likedBy?.profilePicture;
+      String? secondProfilePicture = likes[1]?.likedBy?.profilePicture;
+      String? thirdProfilePicture = likes[2]?.likedBy?.profilePicture;
+      return Stack(
+        children: [
+          // First avatar
+          firstProfilePicture == null
+              ? CircleAvatar(
+                  backgroundImage:
+                      const AssetImage("assets/images/default_profile.jpg"),
+                  radius: SizeConfig.defaultSize * 1.5)
+              : CircleAvatar(
+                  backgroundImage:
+                      NetworkImage(kIMAGEURL + firstProfilePicture),
+                  radius: SizeConfig.defaultSize * 1.5),
 
-                // Second avatar
-                Padding(
-                  padding: EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
-                  child: likeCount[likeCount.length - 2]!
-                                  .attributes!
-                                  .likedBy!
-                                  .data ==
-                              null ||
-                          (likeCount[likeCount.length - 2]!
-                                      .attributes!
-                                      .likedBy!
-                                      .data !=
-                                  null &&
-                              likeCount[likeCount.length - 2]!
-                                      .attributes!
-                                      .likedBy!
-                                      .data!
-                                      .attributes!
-                                      .profileImage!
-                                      .data ==
-                                  null)
-                      ? CircleAvatar(
-                          backgroundImage: const AssetImage(
-                              "assets/images/default_profile.jpg"),
-                          radius: SizeConfig.defaultSize * 1.5)
-                      : CircleAvatar(
-                          backgroundImage: NetworkImage(kIMAGEURL +
-                              likeCount[likeCount.length - 2]!
-                                  .attributes!
-                                  .likedBy!
-                                  .data!
-                                  .attributes!
-                                  .profileImage!
-                                  .data!
-                                  .attributes!
-                                  .url!),
-                          radius: SizeConfig.defaultSize * 1.5),
-                ),
-                // Third avatar
-                Padding(
-                  padding: EdgeInsets.only(left: SizeConfig.defaultSize * 2.6),
-                  child: likeCount[likeCount.length - 3]!.attributes!.likedBy!.data == null ||
-                          (likeCount[likeCount.length - 3]!.attributes!.likedBy!.data !=
-                                  null &&
-                              likeCount[likeCount.length - 3]!
-                                      .attributes!
-                                      .likedBy!
-                                      .data!
-                                      .attributes!
-                                      .profileImage!
-                                      .data ==
-                                  null)
-                      ? CircleAvatar(
-                          backgroundImage: const AssetImage(
-                              "assets/images/default_profile.jpg"),
-                          radius: SizeConfig.defaultSize * 1.5)
-                      : CircleAvatar(
-                          backgroundImage: NetworkImage(isLike == true &&
-                                  mainScreenProvider.currentUser!.profileImage !=
-                                      null
-                              ? kIMAGEURL +
-                                  mainScreenProvider
-                                      .currentUser!.profileImage!.url!
-                              : kIMAGEURL +
-                                  likeCount[likeCount.length - 3]!
-                                      .attributes!
-                                      .likedBy!
-                                      .data!
-                                      .attributes!
-                                      .profileImage!
-                                      .data!
-                                      .attributes!
-                                      .url!),
-                          radius: SizeConfig.defaultSize * 1.5),
-                ),
-              ],
-            )
-          : likeCount[likeCount.length - 2]!.attributes!.likedBy!.data!.id ==
-                  int.parse(mainScreenProvider.userId!)
-              ? Stack(
-                  children: [
-                    // First avatar
-                    likeCount[likeCount.length - 1]!
-                                    .attributes!
-                                    .likedBy!
-                                    .data ==
-                                null ||
-                            (likeCount[
-                                            likeCount.length - 1]!
-                                        .attributes!
-                                        .likedBy!
-                                        .data !=
-                                    null &&
-                                likeCount[
-                                            likeCount.length - 1]!
-                                        .attributes!
-                                        .likedBy!
-                                        .data!
-                                        .attributes!
-                                        .profileImage!
-                                        .data ==
-                                    null)
-                        ? CircleAvatar(
-                            backgroundImage: const AssetImage(
-                                "assets/images/default_profile.jpg"),
-                            radius: SizeConfig.defaultSize * 1.5)
-                        : CircleAvatar(
-                            backgroundImage: NetworkImage(kIMAGEURL +
-                                likeCount[likeCount.length - 1]!
-                                    .attributes!
-                                    .likedBy!
-                                    .data!
-                                    .attributes!
-                                    .profileImage!
-                                    .data!
-                                    .attributes!
-                                    .url!),
-                            radius: SizeConfig.defaultSize * 1.5),
-
-                    // Second avatar
-                    Padding(
-                      padding:
-                          EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
-                      child: likeCount[likeCount.length - 3]!
-                                      .attributes!
-                                      .likedBy!
-                                      .data ==
-                                  null ||
-                              (likeCount[likeCount.length - 3]!
-                                          .attributes!
-                                          .likedBy!
-                                          .data !=
-                                      null &&
-                                  likeCount[likeCount.length - 3]!
-                                          .attributes!
-                                          .likedBy!
-                                          .data!
-                                          .attributes!
-                                          .profileImage!
-                                          .data ==
-                                      null)
-                          ? CircleAvatar(
-                              backgroundImage: const AssetImage(
-                                  "assets/images/default_profile.jpg"),
-                              radius: SizeConfig.defaultSize * 1.5)
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(kIMAGEURL +
-                                  likeCount[likeCount.length - 3]!
-                                      .attributes!
-                                      .likedBy!
-                                      .data!
-                                      .attributes!
-                                      .profileImage!
-                                      .data!
-                                      .attributes!
-                                      .url!),
-                              radius: SizeConfig.defaultSize * 1.5),
-                    ),
-                    // Third avatar
-                    Padding(
-                      padding:
-                          EdgeInsets.only(left: SizeConfig.defaultSize * 2.6),
-                      child: likeCount[likeCount.length - 2]!.attributes!.likedBy!.data == null ||
-                              (likeCount[likeCount.length - 2]!.attributes!.likedBy!.data != null &&
-                                  likeCount[likeCount.length - 2]!
-                                          .attributes!
-                                          .likedBy!
-                                          .data!
-                                          .attributes!
-                                          .profileImage!
-                                          .data ==
-                                      null)
-                          ? CircleAvatar(
-                              backgroundImage: const AssetImage(
-                                  "assets/images/default_profile.jpg"),
-                              radius: SizeConfig.defaultSize * 1.5)
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(isLike == true &&
-                                      mainScreenProvider.currentUser!.profileImage !=
-                                          null
-                                  ? kIMAGEURL +
-                                      mainScreenProvider
-                                          .currentUser!.profileImage!.url!
-                                  : kIMAGEURL +
-                                      likeCount[likeCount.length - 2]!
-                                          .attributes!
-                                          .likedBy!
-                                          .data!
-                                          .attributes!
-                                          .profileImage!
-                                          .data!
-                                          .attributes!
-                                          .url!),
-                              radius: SizeConfig.defaultSize * 1.5),
-                    ),
-                  ],
-                )
-              : Stack(
-                  children: [
-                    // First avatar
-                    likeCount[likeCount.length - 2]!
-                                    .attributes!
-                                    .likedBy!
-                                    .data ==
-                                null ||
-                            (likeCount[
-                                            likeCount.length - 2]!
-                                        .attributes!
-                                        .likedBy!
-                                        .data !=
-                                    null &&
-                                likeCount[
-                                            likeCount.length - 2]!
-                                        .attributes!
-                                        .likedBy!
-                                        .data!
-                                        .attributes!
-                                        .profileImage!
-                                        .data ==
-                                    null)
-                        ? CircleAvatar(
-                            backgroundImage: const AssetImage(
-                                "assets/images/default_profile.jpg"),
-                            radius: SizeConfig.defaultSize * 1.5)
-                        : CircleAvatar(
-                            backgroundImage: NetworkImage(kIMAGEURL +
-                                likeCount[likeCount.length - 2]!
-                                    .attributes!
-                                    .likedBy!
-                                    .data!
-                                    .attributes!
-                                    .profileImage!
-                                    .data!
-                                    .attributes!
-                                    .url!),
-                            radius: SizeConfig.defaultSize * 1.5),
-
-                    // Second avatar
-                    Padding(
-                      padding:
-                          EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
-                      child: likeCount[likeCount.length - 3]!
-                                      .attributes!
-                                      .likedBy!
-                                      .data ==
-                                  null ||
-                              (likeCount[likeCount.length - 3]!
-                                          .attributes!
-                                          .likedBy!
-                                          .data !=
-                                      null &&
-                                  likeCount[likeCount.length - 3]!
-                                          .attributes!
-                                          .likedBy!
-                                          .data!
-                                          .attributes!
-                                          .profileImage!
-                                          .data ==
-                                      null)
-                          ? CircleAvatar(
-                              backgroundImage: const AssetImage(
-                                  "assets/images/default_profile.jpg"),
-                              radius: SizeConfig.defaultSize * 1.5)
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(kIMAGEURL +
-                                  likeCount[likeCount.length - 3]!
-                                      .attributes!
-                                      .likedBy!
-                                      .data!
-                                      .attributes!
-                                      .profileImage!
-                                      .data!
-                                      .attributes!
-                                      .url!),
-                              radius: SizeConfig.defaultSize * 1.5),
-                    ),
-                    // Third avatar
-                    Padding(
-                      padding:
-                          EdgeInsets.only(left: SizeConfig.defaultSize * 2.6),
-                      child: likeCount[likeCount.length - 1]!.attributes!.likedBy!.data == null ||
-                              (likeCount[likeCount.length - 1]!.attributes!.likedBy!.data != null &&
-                                  likeCount[likeCount.length - 1]!
-                                          .attributes!
-                                          .likedBy!
-                                          .data!
-                                          .attributes!
-                                          .profileImage!
-                                          .data ==
-                                      null)
-                          ? CircleAvatar(
-                              backgroundImage: const AssetImage(
-                                  "assets/images/default_profile.jpg"),
-                              radius: SizeConfig.defaultSize * 1.5)
-                          : CircleAvatar(
-                              backgroundImage: NetworkImage(isLike == true &&
-                                      mainScreenProvider.currentUser!.profileImage !=
-                                          null
-                                  ? kIMAGEURL +
-                                      mainScreenProvider
-                                          .currentUser!.profileImage!.url!
-                                  : kIMAGEURL +
-                                      likeCount[likeCount.length - 1]!
-                                          .attributes!
-                                          .likedBy!
-                                          .data!
-                                          .attributes!
-                                          .profileImage!
-                                          .data!
-                                          .attributes!
-                                          .url!),
-                              radius: SizeConfig.defaultSize * 1.5),
-                    ),
-                  ],
-                );
+          // Second avatar
+          Padding(
+            padding: EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
+            child: secondProfilePicture == null
+                ? CircleAvatar(
+                    backgroundImage:
+                        const AssetImage("assets/images/default_profile.jpg"),
+                    radius: SizeConfig.defaultSize * 1.5)
+                : CircleAvatar(
+                    backgroundImage:
+                        NetworkImage(kIMAGEURL + secondProfilePicture),
+                    radius: SizeConfig.defaultSize * 1.5),
+          ),
+          // Third avatar
+          Padding(
+            padding: EdgeInsets.only(left: SizeConfig.defaultSize * 2.6),
+            child: thirdProfilePicture == null
+                ? CircleAvatar(
+                    backgroundImage:
+                        const AssetImage("assets/images/default_profile.jpg"),
+                    radius: SizeConfig.defaultSize * 1.5)
+                : CircleAvatar(
+                    backgroundImage:
+                        NetworkImage(kIMAGEURL + thirdProfilePicture),
+                    radius: SizeConfig.defaultSize * 1.5),
+          ),
+        ],
+      );
     }
   }
 
@@ -1885,29 +1429,30 @@ class NewsAdProvider extends ChangeNotifier {
     toggleIspostClick();
     Map bodyData = {
       'title': postTitleController.text,
-      'posted_by': sharedPreferences.getString('id'),
+      'posted_by': mainScreenProvider.currentUserId ?? '',
       'content': postContentController.text
     };
     if (imageFileList == null || imageFileList!.isEmpty) {
       Response createResponse = await NewPostRepo.createNewPost(
-          bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
+          bodyData: bodyData,
+          jwt: mainScreenProvider.currentAccessToken.toString());
       if (createResponse.statusCode == 200) {
         String createdPostId =
             jsonDecode(createResponse.body)["data"]["id"].toString();
         Response getResponse = await NewsPostRepo.getOneUpdateNewsPost(
-            jwt: sharedPreferences.getString('jwt') ?? 'null',
+            jwt: mainScreenProvider.currentAccessToken.toString(),
             newsPostId: createdPostId);
         if (getResponse.statusCode == 200) {
-          final oneNewsPost = singleNewsPostFromJson(getResponse.body).data;
+          final oneNewsPost = singleNewsPostFromJson(getResponse.body).newsPost;
           if (oneNewsPost != null &&
-              _allNewsPost != null &&
+              _allNewsPosts != null &&
               !allNewsPostController.isClosed) {
-            _allNewsPost!.data!.insert(0, oneNewsPost);
+            _allNewsPosts!.posts!.insert(0, Post(newsPost: oneNewsPost));
             // to prevent same data from displaying twice
-            if (hasMore == true && _allNewsPost!.data!.length >= 16) {
-              _allNewsPost!.data!.removeLast();
+            if (hasMore == true && _allNewsPosts!.posts!.length >= 16) {
+              _allNewsPosts!.posts!.removeLast();
             }
-            allNewsPostController.sink.add(_allNewsPost!);
+            allNewsPostController.sink.add(_allNewsPosts!);
           }
         } else if (getResponse.statusCode == 401 ||
             getResponse.statusCode == 403) {
@@ -1921,8 +1466,8 @@ class NewsAdProvider extends ChangeNotifier {
         }
         // Since we have successfully added a new news post, we also want to add the length of total news posts list
         if (context.mounted) {
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context, setLikeSaveCommentFollow: false);
+          // mainScreenProvider.updateAndSetUserDetails(
+          //     context: context, setLikeSaveCommentFollow: false);
           showSnackBar(
               context: context,
               content: AppLocalizations.of(context).createdSuccessfully,
@@ -1957,25 +1502,25 @@ class NewsAdProvider extends ChangeNotifier {
       final streamedResponse = await NewPostRepo.createNewPostWithImage(
           bodyData: bodyData,
           imageList: compressedPostImages,
-          jwt: sharedPreferences.getString('jwt')!);
+          jwt: mainScreenProvider.currentAccessToken.toString());
       Response createResponse = await Response.fromStream(streamedResponse);
       if (createResponse.statusCode == 200) {
         String createdPostId =
             jsonDecode(createResponse.body)["data"]["id"].toString();
         Response getResponse = await NewsPostRepo.getOneUpdateNewsPost(
-            jwt: sharedPreferences.getString('jwt') ?? 'null',
+            jwt: mainScreenProvider.currentAccessToken.toString(),
             newsPostId: createdPostId);
         if (getResponse.statusCode == 200) {
-          final oneNewsPost = singleNewsPostFromJson(getResponse.body).data;
+          final oneNewsPost = singleNewsPostFromJson(getResponse.body).newsPost;
           if (oneNewsPost != null &&
-              _allNewsPost != null &&
+              _allNewsPosts != null &&
               !allNewsPostController.isClosed) {
-            _allNewsPost!.data!.insert(0, oneNewsPost);
+            _allNewsPosts!.posts!.insert(0, Post(newsPost: oneNewsPost));
             // to prevent same data from displaying twice
-            if (hasMore == true && _allNewsPost!.data!.length >= 16) {
-              _allNewsPost!.data!.removeLast();
+            if (hasMore == true && _allNewsPosts!.posts!.length >= 16) {
+              _allNewsPosts!.posts!.removeLast();
             }
-            allNewsPostController.sink.add(_allNewsPost!);
+            allNewsPostController.sink.add(_allNewsPosts!);
           }
         } else if (getResponse.statusCode == 401 ||
             getResponse.statusCode == 403) {
@@ -1988,8 +1533,8 @@ class NewsAdProvider extends ChangeNotifier {
           }
         }
         if (context.mounted) {
-          mainScreenProvider.updateAndSetUserDetails(
-              context: context, setLikeSaveCommentFollow: false);
+          // mainScreenProvider.updateAndSetUserDetails(
+          //     context: context, setLikeSaveCommentFollow: false);
           showSnackBar(
               context: context,
               content: AppLocalizations.of(context).createdSuccessfully,
@@ -2093,11 +1638,12 @@ class NewsAdProvider extends ChangeNotifier {
     }
   }
 
-  void postUserOnPress({
+  Future<void> postUserOnPress({
     required int userId,
     required BuildContext context,
-  }) {
-    if (userId != int.parse(mainScreenProvider.userId!)) {
+  }) async {
+    String currentUserId = mainScreenProvider.currentUserId ?? '';
+    if (userId != int.parse(currentUserId) && context.mounted) {
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -2110,9 +1656,10 @@ class NewsAdProvider extends ChangeNotifier {
   }
 
   // Profile topic comment by
-  void profileUserOnPress(
-      {required int commentById, required BuildContext context}) {
-    if (commentById != int.parse(mainScreenProvider.userId!)) {
+  Future<void> profileUserOnPress(
+      {required int commentById, required BuildContext context}) async {
+    String currentUserId = mainScreenProvider.currentUserId ?? '';
+    if (commentById != int.parse(currentUserId) && context.mounted) {
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -2168,50 +1715,50 @@ class NewsAdProvider extends ChangeNotifier {
       required BuildContext context,
       required String newsPostId,
       required String reason}) async {
-    if (!mainScreenProvider.reportedNewsPostidList
-        .contains(int.parse(newsPostId))) {
-      mainScreenProvider.reportedNewsPostidList.add(int.parse(newsPostId));
-      notifyListeners();
-      Map bodyData = {
-        "data": {
-          'reported_by': sharedPreferences.getString('id').toString(),
-          'news_post': newsPostId,
-          'reason': reason
-        }
-      };
-      Response reportResponse = await ReportAndBlockRepo.reportNewsPost(
-          bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
+    // if (!mainScreenProvider.reportedNewsPostidList
+    //     .contains(int.parse(newsPostId))) {
+    //   mainScreenProvider.reportedNewsPostidList.add(int.parse(newsPostId));
+    //   notifyListeners();
+    //   Map bodyData = {
+    //     "data": {
+    //       'reported_by': sharedPreferences.getString('id').toString(),
+    //       'news_post': newsPostId,
+    //       'reason': reason
+    //     }
+    //   };
+    //   Response reportResponse = await ReportAndBlockRepo.reportNewsPost(
+    //       bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
 
-      if (reportResponse.statusCode == 200 && context.mounted) {
-        newsCommentControllerList.remove(newsCommentTextEditingController);
-        removePostAfterReport(
-            context: context,
-            isOtherUserProfile: isOtherUserProfile,
-            otherUserStreamController: otherUserStreamController,
-            newsPostId: newsPostId);
-      } else if (reportResponse.statusCode == 401 ||
-          reportResponse.statusCode == 403) {
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    } else {
-      removePostAfterReport(
-          context: context,
-          isOtherUserProfile: isOtherUserProfile,
-          otherUserStreamController: otherUserStreamController,
-          newsPostId: newsPostId);
-    }
+    //   if (reportResponse.statusCode == 200 && context.mounted) {
+    //     newsCommentControllerList.remove(newsCommentTextEditingController);
+    //     removePostAfterReport(
+    //         context: context,
+    //         isOtherUserProfile: isOtherUserProfile,
+    //         otherUserStreamController: otherUserStreamController,
+    //         newsPostId: newsPostId);
+    //   } else if (reportResponse.statusCode == 401 ||
+    //       reportResponse.statusCode == 403) {
+    //     if (context.mounted) {
+    //       EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //           dismissOnTap: false, duration: const Duration(seconds: 4));
+    //       Provider.of<DrawerProvider>(context, listen: false)
+    //           .removeCredentials(context: context);
+    //       return;
+    //     }
+    //   } else {
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).tryAgainLater,
+    //         contentColor: Colors.white,
+    //         backgroundColor: Colors.red);
+    //   }
+    // } else {
+    //   removePostAfterReport(
+    //       context: context,
+    //       isOtherUserProfile: isOtherUserProfile,
+    //       otherUserStreamController: otherUserStreamController,
+    //       newsPostId: newsPostId);
+    // }
   }
 
   void removePostAfterReport(
@@ -2219,59 +1766,59 @@ class NewsAdProvider extends ChangeNotifier {
       required StreamController? otherUserStreamController,
       required BuildContext context,
       required String newsPostId}) {
-    if (isOtherUserProfile == true &&
-        otherUserStreamController != null &&
-        !otherUserStreamController.isClosed) {
-      Provider.of<ProfileProvider>(context, listen: false)
-          .removeReportOtherUserProfile(
-              context: context,
-              newsPostId: newsPostId,
-              otherUserStreamController: otherUserStreamController);
-    }
-    // DO NOT DISPLAY REPORT NEWS POST IN NEWS POSTS LIST
-    if (_allNewsPost != null &&
-        _allNewsPost!.data != null &&
-        !allNewsPostController.isClosed) {
-      NewsPost? newsPost = _allNewsPost!.data!
-          .firstWhereOrNull((element) => element.id.toString() == newsPostId);
-      if (newsPost != null) {
-        _allNewsPost!.data!
-            .removeWhere((element) => element.id.toString() == newsPostId);
-        if (_allNewsPost!.data!.length <= 15 && hasMore == true) {
-          totalInitialNewsList--;
-          notifyListeners();
-        }
-      }
+    // if (isOtherUserProfile == true &&
+    //     otherUserStreamController != null &&
+    //     !otherUserStreamController.isClosed) {
+    //   Provider.of<ProfileProvider>(context, listen: false)
+    //       .removeReportOtherUserProfile(
+    //           context: context,
+    //           newsPostId: newsPostId,
+    //           otherUserStreamController: otherUserStreamController);
+    // }
+    // // DO NOT DISPLAY REPORT NEWS POST IN NEWS POSTS LIST
+    // if (_allNewsPosts != null &&
+    //     _allNewsPosts!.posts != null &&
+    //     !allNewsPostController.isClosed) {
+    //   NewsPost? newsPost = _allNewsPosts!.posts!
+    //       .firstWhereOrNull((element) => element.newsPost?.id.toString() == newsPostId)?.newsPost;
+    //   if (newsPost != null) {
+    //     _allNewsPosts!.posts!
+    //         .removeWhere((element) => element.newsPost?.id.toString() == newsPostId);
+    //     if (_allNewsPosts!.posts!.length <= 15 && hasMore == true) {
+    //       totalInitialNewsList--;
+    //       notifyListeners();
+    //     }
+    //   }
 
-      allNewsPostController.sink.add(_allNewsPost!);
-    }
+    //   allNewsPostController.sink.add(_allNewsPosts!);
+    // }
 
-    // DO NOT DISPLAY REPORT NEWS POST IN PROFILE TAB
-    mainScreenProvider.removeNewReportNews(
-        newsPostId: newsPostId, context: context);
-    // DO NOT DISPLAY REPORT NEWS POST IN PROFILE TOPIC
-    if (_myProfileTopics != null &&
-        !mainScreenProvider.allProfileTopicController.isClosed) {
-      _myProfileTopics!.createdPost!.removeWhere(
-          (element) => element != null && element.id.toString() == newsPostId);
-      mainScreenProvider.allProfileTopicController.sink.add(_myProfileTopics!);
-    }
-    // DO NOT DISPLAY REPORT NEWS POST IN MY TOPIC AND BOOKMARK TOPIC
-    if (_singleNewsPostFromMyTopicAndBookmark != null &&
-        !mainScreenProvider.profileNewsTopicStreamController.isClosed) {
-      if (_singleNewsPostFromMyTopicAndBookmark!.id.toString() == newsPostId) {
-        _singleNewsPostFromMyTopicAndBookmark = null;
-        mainScreenProvider.profileNewsTopicStreamController.sink
-            .add(_singleNewsPostFromMyTopicAndBookmark);
-      }
-    }
-    Navigator.of(context).pop();
-    resetNewsPostReportOption();
-    showSnackBar(
-        context: context,
-        content: AppLocalizations.of(context).reportedSuccessfully,
-        contentColor: Colors.white,
-        backgroundColor: kPrimaryColor);
+    // // DO NOT DISPLAY REPORT NEWS POST IN PROFILE TAB
+    // // mainScreenProvider.removeNewReportNews(
+    // //     newsPostId: newsPostId, context: context);
+    // // DO NOT DISPLAY REPORT NEWS POST IN PROFILE TOPIC
+    // if (_myProfileTopics != null &&
+    //     !mainScreenProvider.allProfileTopicController.isClosed) {
+    //   _myProfileTopics!.createdPost!.removeWhere(
+    //       (element) => element != null && element.id.toString() == newsPostId);
+    //   mainScreenProvider.allProfileTopicController.sink.add(_myProfileTopics!);
+    // }
+    // // DO NOT DISPLAY REPORT NEWS POST IN MY TOPIC AND BOOKMARK TOPIC
+    // if (_singleNewsPostFromMyTopicAndBookmark != null &&
+    //     !mainScreenProvider.profileNewsTopicStreamController.isClosed) {
+    //   if (_singleNewsPostFromMyTopicAndBookmark!.id.toString() == newsPostId) {
+    //     _singleNewsPostFromMyTopicAndBookmark = null;
+    //     mainScreenProvider.profileNewsTopicStreamController.sink
+    //         .add(_singleNewsPostFromMyTopicAndBookmark);
+    //   }
+    // }
+    // Navigator.of(context).pop();
+    // resetNewsPostReportOption();
+    // showSnackBar(
+    //     context: context,
+    //     content: AppLocalizations.of(context).reportedSuccessfully,
+    //     contentColor: Colors.white,
+    //     backgroundColor: kPrimaryColor);
   }
 
   void removePostAfterUserBlock(
@@ -2279,59 +1826,59 @@ class NewsAdProvider extends ChangeNotifier {
       required StreamController? otherUserStreamController,
       required BuildContext context,
       required String otherUserId}) {
-    if (isOtherUserProfile == true &&
-        otherUserStreamController != null &&
-        !otherUserStreamController.isClosed) {
-      Provider.of<ProfileProvider>(context, listen: false)
-          .removeBlockOtherUserProfile(
-              context: context,
-              otherUserId: otherUserId,
-              otherUserStreamController: otherUserStreamController);
-    }
-    // DO NOT DISPLAY REPORT NEWS POST IN NEWS POSTS LIST
-    if (_allNewsPost != null &&
-        _allNewsPost!.data != null &&
-        !allNewsPostController.isClosed) {
-      NewsPost? newsPost = _allNewsPost!.data!.firstWhereOrNull((element) =>
-          element.attributes != null &&
-          element.attributes!.postedBy != null &&
-          element.attributes!.postedBy!.data != null &&
-          element.attributes!.postedBy!.data!.id.toString() == otherUserId);
-      if (newsPost != null) {
-        _allNewsPost!.data!.removeWhere((element) =>
-            element.attributes != null &&
-            element.attributes!.postedBy != null &&
-            element.attributes!.postedBy!.data != null &&
-            element.attributes!.postedBy!.data!.id.toString() == otherUserId);
-        if (_allNewsPost!.data!.length <= 15 && hasMore == true) {
-          int itemsRemoved = 15 - _allNewsPost!.data!.length;
-          totalInitialNewsList = totalInitialNewsList - itemsRemoved;
-          notifyListeners();
-        }
-      }
+    // if (isOtherUserProfile == true &&
+    //     otherUserStreamController != null &&
+    //     !otherUserStreamController.isClosed) {
+    //   Provider.of<ProfileProvider>(context, listen: false)
+    //       .removeBlockOtherUserProfile(
+    //           context: context,
+    //           otherUserId: otherUserId,
+    //           otherUserStreamController: otherUserStreamController);
+    // }
+    // // DO NOT DISPLAY REPORT NEWS POST IN NEWS POSTS LIST
+    // if (_allNewsPosts != null &&
+    //     _allNewsPosts!.posts != null &&
+    //     !allNewsPostController.isClosed) {
+    //   NewsPost? newsPost = _allNewsPosts!.posts!.firstWhereOrNull((element) =>
+    //       element.attributes != null &&
+    //       element.attributes!.postedBy != null &&
+    //       element.attributes!.postedBy!.data != null &&
+    //       element.attributes!.postedBy!.data!.id.toString() == otherUserId).newsPost;
+    //   if (newsPost != null) {
+    //     _allNewsPosts!.posts!.removeWhere((element) =>
+    //         element.attributes != null &&
+    //         element.attributes!.postedBy != null &&
+    //         element.attributes!.postedBy!.data != null &&
+    //         element.attributes!.postedBy!.data!.id.toString() == otherUserId);
+    //     if (_allNewsPosts!.data!.length <= 15 && hasMore == true) {
+    //       int itemsRemoved = 15 - _allNewsPosts!.data!.length;
+    //       totalInitialNewsList = totalInitialNewsList - itemsRemoved;
+    //       notifyListeners();
+    //     }
+    //   }
 
-      allNewsPostController.sink.add(_allNewsPost!);
-    }
+    //   allNewsPostController.sink.add(_allNewsPosts!);
+    // }
 
-    // DO NOT DISPLAY REPORT NEWS POST IN PROFILE TAB
-    mainScreenProvider.removeBlockedUsersNews(
-        otherUserId: otherUserId, context: context);
-    // DO NOT DISPLAY REPORT NEWS POST IN PROFILE TOPIC
-    if (_myProfileTopics != null &&
-        !mainScreenProvider.allProfileTopicController.isClosed) {
-      _myProfileTopics!.createdPost!.removeWhere((element) =>
-          element != null &&
-          element.postedBy != null &&
-          element.postedBy!.id.toString() == otherUserId);
-      mainScreenProvider.allProfileTopicController.sink.add(_myProfileTopics!);
-    }
+    // // DO NOT DISPLAY REPORT NEWS POST IN PROFILE TAB
+    // // mainScreenProvider.removeBlockedUsersNews(
+    // //     otherUserId: otherUserId, context: context);
+    // // DO NOT DISPLAY REPORT NEWS POST IN PROFILE TOPIC
+    // if (_myProfileTopics != null &&
+    //     !mainScreenProvider.allProfileTopicController.isClosed) {
+    //   _myProfileTopics!.createdPost!.removeWhere((element) =>
+    //       element != null &&
+    //       element.postedBy != null &&
+    //       element.postedBy!.id.toString() == otherUserId);
+    //   mainScreenProvider.allProfileTopicController.sink.add(_myProfileTopics!);
+    // }
 
-    Navigator.of(context).pop();
-    showSnackBar(
-        context: context,
-        content: AppLocalizations.of(context).accountBlockedSuccessfully,
-        contentColor: Colors.white,
-        backgroundColor: kPrimaryColor);
+    // Navigator.of(context).pop();
+    // showSnackBar(
+    //     context: context,
+    //     content: AppLocalizations.of(context).accountBlockedSuccessfully,
+    //     contentColor: Colors.white,
+    //     backgroundColor: kPrimaryColor);
   }
 
   Future<void> goBackAfterReporting(
@@ -2367,10 +1914,10 @@ class NewsAdProvider extends ChangeNotifier {
   bool followNotificationBadge = false;
 
   Future<void> setFollowNotification() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    followNotificationBadge = true;
-    sharedPreferences.setBool("follow_push_notification", true);
-    notifyListeners();
+    // sharedPreferences = await SharedPreferences.getInstance();
+    // followNotificationBadge = true;
+    // sharedPreferences.setBool("follow_push_notification", true);
+    // notifyListeners();
   }
 
   @override

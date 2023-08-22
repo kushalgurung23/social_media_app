@@ -90,24 +90,15 @@ class OtherProfileTopContainer extends StatelessWidget {
                       height: SizeConfig.defaultSize * 3.5,
                       width: SizeConfig.defaultSize * 10,
                       onPress: () async {
-                        final userFollowId = data
-                                    .mainScreenProvider.followingIdList
-                                    .contains(otherUser.id) &&
-                                otherUser.userFollower != null
-                            ? otherUser.userFollower!.firstWhereOrNull(
-                                (element) =>
-                                    element!.followedBy!.id.toString() ==
-                                    data.mainScreenProvider.userId.toString())
-                            : null;
-                        await data.toggleUserFollow(
-                          userFollowSource: UserFollowSource.otherUserScreen,
-                          otherUserStreamController: otherUserStreamController,
-                          userFollowId: userFollowId?.id.toString(),
-                          otherUserDeviceToken: otherUser.deviceToken,
-                          otherUserId: otherUser.id!,
-                          context: context,
-                          setLikeSaveCommentFollow: false,
-                        );
+                        // await data.toggleUserFollow(
+                        //   userFollowSource: UserFollowSource.otherUserScreen,
+                        //   otherUserStreamController: otherUserStreamController,
+                        //   userFollowId: userFollowId?.id.toString(),
+                        //   otherUserDeviceToken: otherUser.deviceToken,
+                        //   otherUserId: otherUser.id!,
+                        //   context: context,
+                        //   setLikeSaveCommentFollow: false,
+                        // );
                         // ignore: use_build_context_synchronously
                         data.getOtherUserProfile(
                             otherUserStreamController:
@@ -115,18 +106,9 @@ class OtherProfileTopContainer extends StatelessWidget {
                             otherUserId: otherUser.id!.toString(),
                             context: context);
                       },
-                      text: data.mainScreenProvider.followingIdList
-                              .contains(otherUser.id)
-                          ? AppLocalizations.of(context).followed
-                          : AppLocalizations.of(context).follow,
-                      textColor: data.mainScreenProvider.followingIdList
-                              .contains(otherUser.id)
-                          ? Colors.white
-                          : const Color(0xFFA08875),
-                      buttonColor: data.mainScreenProvider.followingIdList
-                              .contains(otherUser.id)
-                          ? const Color(0xFFA08875)
-                          : Colors.white,
+                      text: AppLocalizations.of(context).follow,
+                      textColor: const Color(0xFFA08875),
+                      buttonColor: Colors.white,
                       borderColor: const Color(0xFFA08875),
                       fontFamily: kHelveticaMedium,
                       keepBoxShadow: false,

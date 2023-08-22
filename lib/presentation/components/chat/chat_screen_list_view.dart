@@ -70,7 +70,7 @@ class _ChatScreenListViewState extends State<ChatScreenListView> {
                     final isMe = currentChatDetails.senderId ==
                             Provider.of<MainScreenProvider>(context,
                                     listen: false)
-                                .userId
+                                .currentUserId
                         ? true
                         : false;
                     return Padding(

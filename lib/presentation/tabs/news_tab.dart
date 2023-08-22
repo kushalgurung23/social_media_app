@@ -19,11 +19,11 @@ class NewsTab extends StatefulWidget {
 class _NewsTabState extends State<NewsTab> {
   @override
   void initState() {
-    super.initState();
-    final mainScreenProvider =
-        Provider.of<MainScreenProvider>(context, listen: false);
-    mainScreenProvider.initialSocketConnection();
-    mainScreenProvider.connectToSocketServer(context: context);
+    // super.initState();
+    // final mainScreenProvider =
+    //     Provider.of<MainScreenProvider>(context, listen: false);
+    // mainScreenProvider.initialSocketConnection();
+    // mainScreenProvider.connectToSocketServer(context: context);
   }
 
   @override

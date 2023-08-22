@@ -20,7 +20,8 @@ class DiscoverUserContainer extends StatelessWidget {
     return Consumer<DiscoverProvider>(builder: (context, data, child) {
       return GestureDetector(
         onTap: () async {
-          if (searchUser.id.toString() != data.mainScreenProvider.userId!) {
+          if (searchUser.id.toString() !=
+              data.mainScreenProvider.currentUserId) {
             await Navigator.push(
                 context,
                 MaterialPageRoute(

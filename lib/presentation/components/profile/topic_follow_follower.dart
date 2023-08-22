@@ -69,8 +69,8 @@ class TopicFollowFollower extends StatelessWidget {
                                                     : null,
                                             userId: isOtherUser == true
                                                 ? user.id.toString()
-                                                : data
-                                                    .mainScreenProvider.userId!,
+                                                : data.mainScreenProvider
+                                                    .currentUserId!,
                                           )));
                             },
                             child: Container(

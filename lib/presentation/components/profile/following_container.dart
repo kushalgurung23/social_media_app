@@ -102,7 +102,7 @@ class _FollowingContainerState extends State<FollowingContainer> {
                                   onTap: () {
                                     // If different user is tapped
                                     if (followingUser.id.toString() !=
-                                        data.mainScreenProvider.userId) {
+                                        data.mainScreenProvider.currentUserId) {
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -239,7 +239,7 @@ class _FollowingContainerState extends State<FollowingContainer> {
                                                   if (followingUser.id
                                                           .toString() !=
                                                       data.mainScreenProvider
-                                                          .userId) {
+                                                          .currentUserId) {
                                                     Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
@@ -295,7 +295,7 @@ class _FollowingContainerState extends State<FollowingContainer> {
                                                     if (followingUser.id
                                                             .toString() !=
                                                         data.mainScreenProvider
-                                                            .userId) {
+                                                            .currentUserId) {
                                                       Navigator.push(
                                                           context,
                                                           MaterialPageRoute(

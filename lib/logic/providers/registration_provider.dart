@@ -222,8 +222,6 @@ class RegistrationProvider extends ChangeNotifier {
           await RegisterRepo.registerUser(bodyData: body);
       if (registrationResponse.statusCode == 200 && context.mounted) {
         // toggling check box to false to remove previously saved login credentials in login screen
-        Provider.of<MainScreenProvider>(context, listen: false)
-            .rememberMeCheckBox = false;
         await Provider.of<LoginScreenProvider>(context, listen: false)
             .userLogin(
                 context: context,

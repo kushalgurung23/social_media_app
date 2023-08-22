@@ -66,7 +66,6 @@ class MyProfileScreen extends StatelessWidget {
               })
             ]),
         body: StreamBuilder<User>(
-          initialData: mainProviderData.currentUser,
           stream: mainProviderData.currentUserController.stream,
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
@@ -90,8 +89,8 @@ class MyProfileScreen extends StatelessWidget {
                       child: Column(children: [
                         SizedBox(height: SizeConfig.defaultSize * 2),
                         // Top Container
-                        ProfileTopContainer(
-                            user: mainProviderData.currentUser!),
+                        // ProfileTopContainer(
+                        //     user: mainProviderData.currentUser!),
                         SizedBox(
                           height: SizeConfig.defaultSize * 2.5,
                         ),

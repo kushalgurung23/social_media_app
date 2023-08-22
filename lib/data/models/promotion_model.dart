@@ -13,21 +13,17 @@ String promotionToJson(Promotion data) => json.encode(data.toJson());
 class Promotion {
   Promotion({
     this.data,
-    this.meta,
   });
 
   List<PromotionData>? data;
-  Meta? meta;
 
   factory Promotion.fromJson(Map<String, dynamic> json) => Promotion(
         data: List<PromotionData>.from(
             json["data"].map((x) => PromotionData.fromJson(x))),
-        meta: Meta.fromJson(json["meta"]),
       );
 
   Map<String, dynamic> toJson() => {
         "data": List<dynamic>.from(data!.map((x) => x.toJson())),
-        "meta": meta!.toJson(),
       };
 }
 

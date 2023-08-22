@@ -67,17 +67,17 @@ class ProfileProvider extends ChangeNotifier {
 
   // This method will update all saved user details
   setUserDetails() {
-    if (mainScreenProvider.currentUser != null) {
-      profileImage = mainScreenProvider.currentUser!.profileImage == null
-          ? 'null'
-          : mainScreenProvider.currentUser!.profileImage!.url!;
-      userNameTextController.text = mainScreenProvider.currentUser!.username!;
-      userTypeTextController.text = mainScreenProvider.currentUser!.userType!;
-      regDateTextController.text = format.format(DateTime.parse(
-          mainScreenProvider.currentUser!.createdAt!.toString()));
-      emailTextController.text = mainScreenProvider.currentUser!.email!;
-      notifyListeners();
-    }
+    // if (mainScreenProvider.currentUser != null) {
+    //   profileImage = mainScreenProvider.currentUser!.profileImage == null
+    //       ? 'null'
+    //       : mainScreenProvider.currentUser!.profileImage!.url!;
+    //   userNameTextController.text = mainScreenProvider.currentUser!.username!;
+    //   userTypeTextController.text = mainScreenProvider.currentUser!.userType!;
+    //   regDateTextController.text = format.format(DateTime.parse(
+    //       mainScreenProvider.currentUser!.createdAt!.toString()));
+    //   emailTextController.text = mainScreenProvider.currentUser!.email!;
+    //   notifyListeners();
+    // }
   }
 
   int selectedProfileTopicIndex = 0;
@@ -173,128 +173,128 @@ class ProfileProvider extends ChangeNotifier {
       required String? otherUserDeviceToken,
       required BuildContext context,
       required bool setLikeSaveCommentFollow}) async {
-    if (toggleFollowOnProcess == true) {
-      // Please wait
-      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
-          dismissOnTap: false, duration: const Duration(seconds: 1));
-      return;
-    } else if (toggleFollowOnProcess == false) {
-      toggleFollowOnProcess = true;
-      Response response;
+    // if (toggleFollowOnProcess == true) {
+    //   // Please wait
+    //   EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
+    //       dismissOnTap: false, duration: const Duration(seconds: 1));
+    //   return;
+    // } else if (toggleFollowOnProcess == false) {
+    //   toggleFollowOnProcess = true;
+    //   Response response;
 
-      String jwt = sharedPreferences.getString('jwt') ?? 'null';
-      String myId = sharedPreferences.getString('id') ?? 'null';
-      String notificationAction = '';
-      if (mainScreenProvider.followingIdList.contains(otherUserId) &&
-          userFollowId != null) {
-        notificationAction = 'unfollow';
-        mainScreenProvider.followingIdList.remove(otherUserId);
-        response = await UserFollowRepo.removeFollowing(
-            userFollowId: userFollowId, jwt: jwt);
-      } else {
-        notificationAction = 'follow';
-        mainScreenProvider.followingIdList.add(otherUserId);
-        Map bodyData = {
-          "data": {"followed_to": otherUserId.toString(), "followed_by": myId}
-        };
-        response =
-            await UserFollowRepo.addFollowing(bodyData: bodyData, jwt: jwt);
-      }
-      notifyListeners();
+    //   String jwt = sharedPreferences.getString('jwt') ?? 'null';
+    //   String myId = sharedPreferences.getString('id') ?? 'null';
+    //   String notificationAction = '';
+    //   if (mainScreenProvider.followingIdList.contains(otherUserId) &&
+    //       userFollowId != null) {
+    //     notificationAction = 'unfollow';
+    //     mainScreenProvider.followingIdList.remove(otherUserId);
+    //     response = await UserFollowRepo.removeFollowing(
+    //         userFollowId: userFollowId, jwt: jwt);
+    //   } else {
+    //     notificationAction = 'follow';
+    //     mainScreenProvider.followingIdList.add(otherUserId);
+    //     Map bodyData = {
+    //       "data": {"followed_to": otherUserId.toString(), "followed_by": myId}
+    //     };
+    //     response =
+    //         await UserFollowRepo.addFollowing(bodyData: bodyData, jwt: jwt);
+    //   }
+    //   notifyListeners();
 
-      if (response.statusCode == 200) {
-        // if user follow/unfollow is done from news post liked screen, update will be made there first
-        if (userFollowSource == UserFollowSource.newsLikedScreen &&
-            newsPostId != null &&
-            context.mounted) {
-          Provider.of<NewsAdProvider>(context, listen: false)
-              .getNewsPostLikes(newsPostId: newsPostId, context: context);
-          notifyListeners();
-        } else if (userFollowSource == UserFollowSource.otherUserScreen &&
-            otherUserStreamController != null) {
-          getOtherUserProfile(
-              otherUserId: otherUserId.toString(),
-              context: context,
-              otherUserStreamController: otherUserStreamController);
-          notifyListeners();
-        }
-        if (context.mounted) {
-          await Future.wait([
-            mainScreenProvider.updateAndSetUserDetails(
-                context: context,
-                setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-          ]);
-        }
-        notifyListeners();
-        // sending push notification if device token of receiver user is not null.
-        // if null, we can assume they have logged out of the app
-        if (otherUserDeviceToken != null || otherUserDeviceToken != '') {
-          if (context.mounted) {
-            await mainScreenProvider.sendFollowPushNotification(
-                notificationAction: notificationAction,
-                receiverUserId: otherUserId.toString(),
-                receiverUserDeviceToken: otherUserDeviceToken,
-                context: context,
-                initiatorUsername: mainScreenProvider.userName.toString());
-          }
-        }
-        // Add notification in database
-        Map notificationBodyData = {
-          "data": {
-            "sender": mainScreenProvider.userId.toString(),
-            "receiver": otherUserId.toString(),
-            "type": notificationAction
-          }
-        };
-        Response notificationResponse =
-            await PushNotificationRepo.addNotification(
-                bodyData: notificationBodyData, jwt: jwt);
-        if (notificationResponse.statusCode == 200) {
-          // SUCCESS
-          toggleFollowOnProcess = false;
-          notifyListeners();
-        } else if (response.statusCode == 401 || response.statusCode == 403) {
-          toggleFollowOnProcess = false;
-          notifyListeners();
-          if (context.mounted) {
-            EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-                dismissOnTap: false, duration: const Duration(seconds: 4));
-            Provider.of<DrawerProvider>(context, listen: false)
-                .removeCredentials(context: context);
-            return;
-          }
-        } else {
-          toggleFollowOnProcess = false;
-          notifyListeners();
-          throw Exception(
-              'notification addition unsuccessful${notificationResponse.statusCode}');
-        }
-        toggleFollowOnProcess = false;
-        notifyListeners();
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
-        toggleFollowOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else {
-        toggleFollowOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          showSnackBar(
-              context: context,
-              content: AppLocalizations.of(context).tryAgainLater,
-              contentColor: Colors.white,
-              backgroundColor: Colors.red);
-        }
-      }
-    }
-    toggleFollowOnProcess = false;
-    notifyListeners();
+    //   if (response.statusCode == 200) {
+    //     // if user follow/unfollow is done from news post liked screen, update will be made there first
+    //     if (userFollowSource == UserFollowSource.newsLikedScreen &&
+    //         newsPostId != null &&
+    //         context.mounted) {
+    //       Provider.of<NewsAdProvider>(context, listen: false)
+    //           .getNewsPostLikes(newsPostId: newsPostId, context: context);
+    //       notifyListeners();
+    //     } else if (userFollowSource == UserFollowSource.otherUserScreen &&
+    //         otherUserStreamController != null) {
+    //       getOtherUserProfile(
+    //           otherUserId: otherUserId.toString(),
+    //           context: context,
+    //           otherUserStreamController: otherUserStreamController);
+    //       notifyListeners();
+    //     }
+    //     if (context.mounted) {
+    //       await Future.wait([
+    //         mainScreenProvider.updateAndSetUserDetails(
+    //             context: context,
+    //             setLikeSaveCommentFollow: setLikeSaveCommentFollow)
+    //       ]);
+    //     }
+    //     notifyListeners();
+    //     // sending push notification if device token of receiver user is not null.
+    //     // if null, we can assume they have logged out of the app
+    //     if (otherUserDeviceToken != null || otherUserDeviceToken != '') {
+    //       if (context.mounted) {
+    //         await mainScreenProvider.sendFollowPushNotification(
+    //             notificationAction: notificationAction,
+    //             receiverUserId: otherUserId.toString(),
+    //             receiverUserDeviceToken: otherUserDeviceToken,
+    //             context: context,
+    //             initiatorUsername: mainScreenProvider.userName.toString());
+    //       }
+    //     }
+    //     // Add notification in database
+    //     Map notificationBodyData = {
+    //       "data": {
+    //         "sender": mainScreenProvider.userId.toString(),
+    //         "receiver": otherUserId.toString(),
+    //         "type": notificationAction
+    //       }
+    //     };
+    //     Response notificationResponse =
+    //         await PushNotificationRepo.addNotification(
+    //             bodyData: notificationBodyData, jwt: jwt);
+    //     if (notificationResponse.statusCode == 200) {
+    //       // SUCCESS
+    //       toggleFollowOnProcess = false;
+    //       notifyListeners();
+    //     } else if (response.statusCode == 401 || response.statusCode == 403) {
+    //       toggleFollowOnProcess = false;
+    //       notifyListeners();
+    //       if (context.mounted) {
+    //         EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //             dismissOnTap: false, duration: const Duration(seconds: 4));
+    //         Provider.of<DrawerProvider>(context, listen: false)
+    //             .removeCredentials(context: context);
+    //         return;
+    //       }
+    //     } else {
+    //       toggleFollowOnProcess = false;
+    //       notifyListeners();
+    //       throw Exception(
+    //           'notification addition unsuccessful${notificationResponse.statusCode}');
+    //     }
+    //     toggleFollowOnProcess = false;
+    //     notifyListeners();
+    //   } else if (response.statusCode == 401 || response.statusCode == 403) {
+    //     toggleFollowOnProcess = false;
+    //     notifyListeners();
+    //     if (context.mounted) {
+    //       EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //           dismissOnTap: false, duration: const Duration(seconds: 4));
+    //       Provider.of<DrawerProvider>(context, listen: false)
+    //           .removeCredentials(context: context);
+    //       return;
+    //     }
+    //   } else {
+    //     toggleFollowOnProcess = false;
+    //     notifyListeners();
+    //     if (context.mounted) {
+    //       showSnackBar(
+    //           context: context,
+    //           content: AppLocalizations.of(context).tryAgainLater,
+    //           contentColor: Colors.white,
+    //           backgroundColor: Colors.red);
+    //     }
+    //   }
+    // }
+    // toggleFollowOnProcess = false;
+    // notifyListeners();
   }
 
   String getLike({required int likeCount, required BuildContext context}) {
@@ -397,52 +397,52 @@ class ProfileProvider extends ChangeNotifier {
       {required String otherUserId,
       required BuildContext context,
       required StreamController<User> otherUserStreamController}) async {
-    final response = await OtherUserProfileRepo.getOtherUserProfile(
-        jwt: sharedPreferences.getString('jwt')!, profileId: otherUserId);
-    if (response.statusCode == 200) {
-      if (!otherUserStreamController.isClosed) {
-        User? user = userFromJson(response.body);
-        for (int i = 0;
-            i < mainScreenProvider.reportedNewsPostidList.length;
-            i++) {
-          if (user.createdPost != null) {
-            user.createdPost!.removeWhere((element) =>
-                element != null &&
-                element.id.toString() ==
-                    mainScreenProvider.reportedNewsPostidList[i].toString());
-          }
-        }
-        _otherUser = user;
-        if (_otherUser != null) {
-          otherUserStreamController.sink.add(_otherUser!);
-        } else {
-          if (context.mounted) {
-            showSnackBar(
-                context: context,
-                content: AppLocalizations.of(context).usersCouldNotLoad,
-                contentColor: Colors.white,
-                backgroundColor: Colors.red);
-          }
-        }
-      }
-      notifyListeners();
-    } else if (response.statusCode == 401 || response.statusCode == 403) {
-      if (context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-        Provider.of<DrawerProvider>(context, listen: false)
-            .removeCredentials(context: context);
-        return;
-      }
-    } else {
-      if (context.mounted) {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).usersCouldNotLoad,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    }
+    // final response = await OtherUserProfileRepo.getOtherUserProfile(
+    //     jwt: sharedPreferences.getString('jwt')!, profileId: otherUserId);
+    // if (response.statusCode == 200) {
+    //   if (!otherUserStreamController.isClosed) {
+    //     User? user = userFromJson(response.body);
+    //     for (int i = 0;
+    //         i < mainScreenProvider.reportedNewsPostidList.length;
+    //         i++) {
+    //       if (user.createdPost != null) {
+    //         user.createdPost!.removeWhere((element) =>
+    //             element != null &&
+    //             element.id.toString() ==
+    //                 mainScreenProvider.reportedNewsPostidList[i].toString());
+    //       }
+    //     }
+    //     _otherUser = user;
+    //     if (_otherUser != null) {
+    //       otherUserStreamController.sink.add(_otherUser!);
+    //     } else {
+    //       if (context.mounted) {
+    //         showSnackBar(
+    //             context: context,
+    //             content: AppLocalizations.of(context).usersCouldNotLoad,
+    //             contentColor: Colors.white,
+    //             backgroundColor: Colors.red);
+    //       }
+    //     }
+    //   }
+    //   notifyListeners();
+    // } else if (response.statusCode == 401 || response.statusCode == 403) {
+    //   if (context.mounted) {
+    //     EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //         dismissOnTap: false, duration: const Duration(seconds: 4));
+    //     Provider.of<DrawerProvider>(context, listen: false)
+    //         .removeCredentials(context: context);
+    //     return;
+    //   }
+    // } else {
+    //   if (context.mounted) {
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).usersCouldNotLoad,
+    //         contentColor: Colors.white,
+    //         backgroundColor: Colors.red);
+    //   }
+    // }
   }
 
   void removeReportOtherUserProfile(
@@ -501,72 +501,72 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   Future<void> updateUserDetails({required BuildContext context}) async {
-    turnOnUpdateLoading();
-    Map bodyData = {
-      'username': userNameTextController.text,
-      'user_type': userTypeTextController.text,
-    };
+    // turnOnUpdateLoading();
+    // Map bodyData = {
+    //   'username': userNameTextController.text,
+    //   'user_type': userTypeTextController.text,
+    // };
 
-    late Response editResponse;
-    if (image == null) {
-      editResponse = await ProfileEditRepo.editUserWithoutImage(
-          bodyData: bodyData,
-          jwt: sharedPreferences.getString('jwt')!,
-          profileId: sharedPreferences.getString('id')!);
-    } else {
-      editResponse = await ProfileEditRepo.editUserWithImage(
-          userProfileImage: mainScreenProvider.currentUser!.profileImage,
-          bodyData: bodyData,
-          image: image,
-          jwt: sharedPreferences.getString('jwt')!,
-          context: context,
-          profileId: sharedPreferences.getString('id')!);
-    }
+    // late Response editResponse;
+    // if (image == null) {
+    //   editResponse = await ProfileEditRepo.editUserWithoutImage(
+    //       bodyData: bodyData,
+    //       jwt: sharedPreferences.getString('jwt')!,
+    //       profileId: sharedPreferences.getString('id')!);
+    // } else {
+    //   editResponse = await ProfileEditRepo.editUserWithImage(
+    //       userProfileImage: mainScreenProvider.currentUser!.profileImage,
+    //       bodyData: bodyData,
+    //       image: image,
+    //       jwt: sharedPreferences.getString('jwt')!,
+    //       context: context,
+    //       profileId: sharedPreferences.getString('id')!);
+    // }
 
-    if (editResponse.statusCode == 200 && context.mounted) {
-      await Future.wait([
-        Provider.of<NewsAdProvider>(context, listen: false)
-            .updateAllNewsPosts(context: context),
-        setNewUsername(),
-        mainScreenProvider.finalizeUpdate(
-            context: context,
-            userName: userNameTextController.text,
-            userType: userTypeTextController.text)
-      ]);
-      if (context.mounted) {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).updatedSuccessfully,
-            backgroundColor: const Color(0xFFA08875),
-            contentColor: Colors.white);
-        goBackFromProfileEdit(context: context);
-      }
-      turnOffUpdateLoading();
-    } else if (editResponse.statusCode == 401 ||
-        editResponse.statusCode == 403) {
-      if (context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-        Provider.of<DrawerProvider>(context, listen: false)
-            .removeCredentials(context: context);
-        return;
-      }
-    } else if (editResponse.statusCode == 400 &&
-        (jsonDecode(editResponse.body))["error"]["message"] ==
-            "email must be a valid email") {
-      showSnackBar(
-          context: context,
-          content: AppLocalizations.of(context).enterValidEmail,
-          contentColor: Colors.white,
-          backgroundColor: Colors.red);
-    } else {
-      showSnackBar(
-          context: context,
-          content: AppLocalizations.of(context).tryAgainLater,
-          contentColor: Colors.white,
-          backgroundColor: Colors.red);
-    }
-    turnOffUpdateLoading();
+    // if (editResponse.statusCode == 200 && context.mounted) {
+    //   await Future.wait([
+    //     Provider.of<NewsAdProvider>(context, listen: false)
+    //         .updateAllNewsPosts(context: context),
+    //     setNewUsername(),
+    //     mainScreenProvider.finalizeUpdate(
+    //         context: context,
+    //         userName: userNameTextController.text,
+    //         userType: userTypeTextController.text)
+    //   ]);
+    //   if (context.mounted) {
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).updatedSuccessfully,
+    //         backgroundColor: const Color(0xFFA08875),
+    //         contentColor: Colors.white);
+    //     goBackFromProfileEdit(context: context);
+    //   }
+    //   turnOffUpdateLoading();
+    // } else if (editResponse.statusCode == 401 ||
+    //     editResponse.statusCode == 403) {
+    //   if (context.mounted) {
+    //     EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //         dismissOnTap: false, duration: const Duration(seconds: 4));
+    //     Provider.of<DrawerProvider>(context, listen: false)
+    //         .removeCredentials(context: context);
+    //     return;
+    //   }
+    // } else if (editResponse.statusCode == 400 &&
+    //     (jsonDecode(editResponse.body))["error"]["message"] ==
+    //         "email must be a valid email") {
+    //   showSnackBar(
+    //       context: context,
+    //       content: AppLocalizations.of(context).enterValidEmail,
+    //       contentColor: Colors.white,
+    //       backgroundColor: Colors.red);
+    // } else {
+    //   showSnackBar(
+    //       context: context,
+    //       content: AppLocalizations.of(context).tryAgainLater,
+    //       contentColor: Colors.white,
+    //       backgroundColor: Colors.red);
+    // }
+    // turnOffUpdateLoading();
   }
 
   //For keeping username in login text field if remember me is clicked
@@ -772,52 +772,52 @@ class ProfileProvider extends ChangeNotifier {
     required bool isOtherUserProfile,
     required StreamController? otherUserStreamController,
   }) async {
-    if (!mainScreenProvider.blockedUsersIdList
-        .contains(int.parse(otherUserId))) {
-      Map bodyData = {
-        "data": {
-          'blocked_by': sharedPreferences.getString('id').toString(),
-          'blocked_to': otherUserId
-        }
-      };
-      Response reportResponse = await ReportAndBlockRepo.blockUser(
-          bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
-      if (reportResponse.statusCode == 200 && context.mounted) {
-        mainScreenProvider.blockedUsersIdList.add(int.parse(otherUserId));
-        mainScreenProvider.updateAndSetUserDetails(
-          context: context,
-        );
-        notifyListeners();
-        final newsAdProvider =
-            Provider.of<NewsAdProvider>(context, listen: false);
-        newsAdProvider.refreshNewsPosts(context: context);
-        Navigator.of(context).pop();
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).accountBlockedSuccessfully,
-            backgroundColor: const Color(0xFFA08875),
-            contentColor: Colors.white);
-      } else if (reportResponse.statusCode == 401 ||
-          reportResponse.statusCode == 403) {
-        if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
-        }
-      } else {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).tryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    } else {
-      mainScreenProvider.updateAndSetUserDetails(
-        context: context,
-      );
-    }
+    // if (!mainScreenProvider.blockedUsersIdList
+    //     .contains(int.parse(otherUserId))) {
+    //   Map bodyData = {
+    //     "data": {
+    //       'blocked_by': sharedPreferences.getString('id').toString(),
+    //       'blocked_to': otherUserId
+    //     }
+    //   };
+    //   Response reportResponse = await ReportAndBlockRepo.blockUser(
+    //       bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
+    //   if (reportResponse.statusCode == 200 && context.mounted) {
+    //     mainScreenProvider.blockedUsersIdList.add(int.parse(otherUserId));
+    //     mainScreenProvider.updateAndSetUserDetails(
+    //       context: context,
+    //     );
+    //     notifyListeners();
+    //     final newsAdProvider =
+    //         Provider.of<NewsAdProvider>(context, listen: false);
+    //     newsAdProvider.refreshNewsPosts(context: context);
+    //     Navigator.of(context).pop();
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).accountBlockedSuccessfully,
+    //         backgroundColor: const Color(0xFFA08875),
+    //         contentColor: Colors.white);
+    //   } else if (reportResponse.statusCode == 401 ||
+    //       reportResponse.statusCode == 403) {
+    //     if (context.mounted) {
+    //       EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+    //           dismissOnTap: false, duration: const Duration(seconds: 4));
+    //       Provider.of<DrawerProvider>(context, listen: false)
+    //           .removeCredentials(context: context);
+    //       return;
+    //     }
+    //   } else {
+    //     showSnackBar(
+    //         context: context,
+    //         content: AppLocalizations.of(context).tryAgainLater,
+    //         contentColor: Colors.white,
+    //         backgroundColor: Colors.red);
+    //   }
+    // } else {
+    //   mainScreenProvider.updateAndSetUserDetails(
+    //     context: context,
+    //   );
+    // }
   }
 
   // UNBLOCK USER
@@ -833,16 +833,16 @@ class ProfileProvider extends ChangeNotifier {
         jwt: sharedPreferences.getString('jwt')!,
         userBlockId: userBlockId);
     if (reportResponse.statusCode == 200 && context.mounted) {
-      mainScreenProvider.blockedUsersIdList.remove(int.parse(otherUserId));
-      mainScreenProvider.updateAndSetUserDetails(
-        context: context,
-      );
-      notifyListeners();
-      showSnackBar(
-          context: context,
-          content: AppLocalizations.of(context).accountUnblockedSuccessfully,
-          backgroundColor: const Color(0xFFA08875),
-          contentColor: Colors.white);
+      // mainScreenProvider.blockedUsersIdList.remove(int.parse(otherUserId));
+      // mainScreenProvider.updateAndSetUserDetails(
+      //   context: context,
+      // );
+      // notifyListeners();
+      // showSnackBar(
+      //     context: context,
+      //     content: AppLocalizations.of(context).accountUnblockedSuccessfully,
+      //     backgroundColor: const Color(0xFFA08875),
+      //     contentColor: Colors.white);
     } else if (reportResponse.statusCode == 401 ||
         reportResponse.statusCode == 403) {
       if (context.mounted) {
@@ -883,36 +883,36 @@ class ProfileProvider extends ChangeNotifier {
       final fln = FlutterLocalNotificationsPlugin();
       fln.cancelAll();
 
-      final mainScreenProvider =
-          Provider.of<MainScreenProvider>(context, listen: false);
-      await sharedPreferences.setBool('isLogin', false);
-      mainScreenProvider.isLogin =
-          sharedPreferences.getBool('isLogin') ?? false;
-      sharedPreferences.remove('id');
-      sharedPreferences.remove('user_name');
-      sharedPreferences.remove('user_type');
-      sharedPreferences.remove('jwt');
-      sharedPreferences.remove('current_password');
-      sharedPreferences.remove('device_token');
-      sharedPreferences.setBool('follow_push_notification', false);
-      sharedPreferences.setBool("notification_tab_active_status", false);
-      sharedPreferences.setBool("chatroom_active_status", false);
+      // final mainScreenProvider =
+      //     Provider.of<MainScreenProvider>(context, listen: false);
+      // await sharedPreferences.setBool('isLogin', false);
+      // mainScreenProvider.isLogin =
+      //     sharedPreferences.getBool('isLogin') ?? false;
+      // sharedPreferences.remove('id');
+      // sharedPreferences.remove('user_name');
+      // sharedPreferences.remove('user_type');
+      // sharedPreferences.remove('jwt');
+      // sharedPreferences.remove('current_password');
+      // sharedPreferences.remove('device_token');
+      // sharedPreferences.setBool('follow_push_notification', false);
+      // sharedPreferences.setBool("notification_tab_active_status", false);
+      // sharedPreferences.setBool("chatroom_active_status", false);
 
-      sharedPreferences.remove('rememberMe');
-      sharedPreferences.remove('login_identifier');
-      sharedPreferences.remove('login_password');
+      // sharedPreferences.remove('rememberMe');
+      // sharedPreferences.remove('login_identifier');
+      // sharedPreferences.remove('login_password');
 
-      await mainScreenProvider.removeUser();
+      // await mainScreenProvider.removeUser();
 
-      mainScreenProvider.followerIdList.clear();
-      mainScreenProvider.followingIdList.clear();
-      mainScreenProvider.likedPostIdList.clear();
-      mainScreenProvider.savedNewsPostIdList.clear();
-      mainScreenProvider.savedInterestClassIdList.clear();
+      // mainScreenProvider.followerIdList.clear();
+      // mainScreenProvider.followingIdList.clear();
+      // mainScreenProvider.likedPostIdList.clear();
+      // mainScreenProvider.savedNewsPostIdList.clear();
+      // mainScreenProvider.savedInterestClassIdList.clear();
 
-      mainScreenProvider.loginIdentifier = '';
-      mainScreenProvider.loginPassword = '';
-      mainScreenProvider.rememberMeCheckBox = false;
+      // mainScreenProvider.loginIdentifier = '';
+      // mainScreenProvider.loginPassword = '';
+      // mainScreenProvider.rememberMeCheckBox = false;
 
       if (context.mounted) {
         final newsAdProvider =

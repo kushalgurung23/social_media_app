@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:c_talent/data/new_models/all_news_posts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class PostTopBody extends StatelessWidget {
   // postFromProfile = true denotes that the post is viewed from profile section. Two different image data type are made due to different result while fetching api from news post and user. If true, allPostImage will be used, else postImage will be used.
   final bool? postFromProfile;
   final List<AllImage?>? allPostImage;
-  final List<MultiImageData?>? postImage;
+  final List<NewsPostImage?>? postImage;
   final String? userImage;
   final String newsPostId;
   final VoidCallback saveOnPress, likeOnPress, commentOnPress;

@@ -32,8 +32,8 @@ class _ChatroomScreenState extends State<ChatroomScreen> {
             // if (chatMessageProvider.page > 1) {
             //   chatMessageProvider.refresh();
             // }
-            chatMessageProvider.sharedPreferences
-                .remove('active_chat_username');
+            // chatMessageProvider.sharedPreferences
+            //     .remove('active_chat_username');
             chatMessageProvider.removeCurrentlyOnChatroomScreen();
             Navigator.of(context).pop();
           },

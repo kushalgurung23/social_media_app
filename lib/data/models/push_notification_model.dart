@@ -10,11 +10,9 @@ String notificationToJson(PushNotification data) => json.encode(data.toJson());
 class PushNotification {
   PushNotification({
     this.data,
-    this.meta,
   });
 
   List<NotificationData?>? data;
-  Meta? meta;
 
   factory PushNotification.fromJson(Map<String, dynamic> json) =>
       PushNotification(
@@ -24,12 +22,10 @@ class PushNotification {
                 e.attributes!.sender != null &&
                 e.attributes!.sender!.data != null)
             .toList(),
-        meta: Meta.fromJson(json["meta"]),
       );
 
   Map<String, dynamic> toJson() => {
         "data": List<dynamic>.from(data!.map((x) => x!.toJson())),
-        "meta": meta!.toJson(),
       };
 }
 
@@ -109,22 +105,18 @@ String singleNotificationToJson(SingleNotification data) =>
 class SingleNotification {
   SingleNotification({
     this.data,
-    this.meta,
   });
 
   NotificationData? data;
-  Meta? meta;
 
   factory SingleNotification.fromJson(Map<String, dynamic> json) =>
       SingleNotification(
         data: json["data"] == null
             ? null
             : NotificationData.fromJson(json["data"]),
-        meta: json["meta"] == null ? null : Meta.fromJson(json["meta"]),
       );
 
   Map<String, dynamic> toJson() => {
         "data": data!.toJson(),
-        "meta": meta!.toJson(),
       };
 }

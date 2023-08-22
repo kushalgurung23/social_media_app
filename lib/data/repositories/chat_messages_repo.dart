@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:c_talent/data/constant/connection_url.dart';
+import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class ChatMessagesRepo {
@@ -68,7 +69,8 @@ class ChatMessagesRepo {
   }
 
   static Future<http.Response> deleteConversation(
-      {required String conversationId, required String jwt}) async {
+      {required String conversationId}) async {
+    final jwt = await UserSecureStorage.getSecuredAccessToken();
     var url = "${kAPIURL}conversations/$conversationId";
     try {
       var response = await http

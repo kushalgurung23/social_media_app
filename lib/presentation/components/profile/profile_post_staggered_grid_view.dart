@@ -24,6 +24,7 @@ class ProfilePostStaggeredGridView extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                           builder: (context) => AllPostImages(
+                                postImages: [],
                                 index: 0,
                                 isFromProfile: true,
                                 postImageFromProfile: postImage,
@@ -88,6 +89,7 @@ class ProfilePostStaggeredGridView extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => AllPostImages(
+                                            postImages: [],
                                             index: index,
                                             isFromProfile: true,
                                             postImageFromProfile: postImage,

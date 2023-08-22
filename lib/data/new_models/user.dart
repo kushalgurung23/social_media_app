@@ -113,8 +113,12 @@ class DeviceToken {
   factory DeviceToken.fromJson(Map<String, dynamic> json) => DeviceToken(
         id: json["id"],
         isActive: json["is_active"],
-        createdAt: json["created_at"],
-        updatedAt: json["updated_at"],
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.parse(json["created_at"]),
+        updatedAt: json["updated_at"] == null
+            ? null
+            : DateTime.parse(json["updated_at"]),
         deviceToken: json["device_token"],
       );
 

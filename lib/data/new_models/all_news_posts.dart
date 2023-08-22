@@ -3,8 +3,6 @@ import 'dart:convert';
 AllNewsPosts allNewsPostsFromJson(String str) =>
     AllNewsPosts.fromJson(json.decode(str));
 
-String allNewsPostsToJson(AllNewsPosts data) => json.encode(data.toJson());
-
 class AllNewsPosts {
   String? status;
   int? count;
@@ -29,16 +27,6 @@ class AllNewsPosts {
             ? []
             : List<Post>.from(json["posts"]!.map((x) => Post.fromJson(x))),
       );
-
-  Map<String, dynamic> toJson() => {
-        "status": status,
-        "count": count,
-        "page": page,
-        "limit": limit,
-        "posts": posts == null
-            ? []
-            : List<dynamic>.from(posts!.map((x) => x.toJson())),
-      };
 }
 
 class Post {
@@ -53,22 +41,19 @@ class Post {
             ? null
             : NewsPost.fromJson(json["news_post"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "news_post": newsPost?.toJson(),
-      };
 }
 
 class NewsPost {
   int? id;
   String? title;
-  List<Image>? images;
+  List<NewsPostImage>? images;
   String? content;
   List<Comment>? comments;
+  List<Like>? likes;
   int? isLiked;
   int? isSaved;
   int? isActive;
-  CommentBy? postedBy;
+  By? postedBy;
   DateTime? createdAt;
   DateTime? updatedAt;
   int? likesCount;
@@ -80,6 +65,7 @@ class NewsPost {
     this.images,
     this.content,
     this.comments,
+    this.likes,
     this.isLiked,
     this.isSaved,
     this.isActive,
@@ -95,8 +81,12 @@ class NewsPost {
         title: json["title"],
         images: json["images"] == null
             ? []
-            : List<Image>.from(json["images"]!.map((x) => Image.fromJson(x))),
+            : List<NewsPostImage>.from(
+                json["images"]!.map((x) => NewsPostImage.fromJson(x))),
         content: json["content"],
+        likes: json["likes"] == null
+            ? []
+            : List<Like>.from(json["likes"]!.map((x) => Like.fromJson(x))),
         comments: json["comments"] == null
             ? []
             : List<Comment>.from(
@@ -104,9 +94,8 @@ class NewsPost {
         isLiked: json["is_liked"],
         isSaved: json["is_saved"],
         isActive: json["is_active"],
-        postedBy: json["posted_by"] == null
-            ? null
-            : CommentBy.fromJson(json["posted_by"]),
+        postedBy:
+            json["posted_by"] == null ? null : By.fromJson(json["posted_by"]),
         createdAt: json["created_at"] == null
             ? null
             : DateTime.parse(json["created_at"]),
@@ -116,32 +105,12 @@ class NewsPost {
         likesCount: json["likes_count"],
         commentCount: json["comment_count"],
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "title": title,
-        "images": images == null
-            ? []
-            : List<dynamic>.from(images!.map((x) => x.toJson())),
-        "content": content,
-        "comments": comments == null
-            ? []
-            : List<dynamic>.from(comments!.map((x) => x.toJson())),
-        "is_liked": isLiked,
-        "is_saved": isSaved,
-        "is_active": isActive,
-        "posted_by": postedBy?.toJson(),
-        "created_at": createdAt?.toIso8601String(),
-        "updated_at": updatedAt?.toIso8601String(),
-        "likes_count": likesCount,
-        "comment_count": commentCount,
-      };
 }
 
 class Comment {
   int? id;
   String? comment;
-  CommentBy? commentBy;
+  By? commentBy;
   DateTime? createdAt;
   DateTime? updatedAt;
 
@@ -156,9 +125,8 @@ class Comment {
   factory Comment.fromJson(Map<String, dynamic> json) => Comment(
         id: json["id"],
         comment: json["comment"],
-        commentBy: json["comment_by"] == null
-            ? null
-            : CommentBy.fromJson(json["comment_by"]),
+        commentBy:
+            json["comment_by"] == null ? null : By.fromJson(json["comment_by"]),
         createdAt: json["created_at"] == null
             ? null
             : DateTime.parse(json["created_at"]),
@@ -166,56 +134,61 @@ class Comment {
             ? null
             : DateTime.parse(json["updated_at"]),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "comment": comment,
-        "comment_by": commentBy?.toJson(),
-        "created_at": createdAt?.toIso8601String(),
-        "updated_at": updatedAt?.toIso8601String(),
-      };
 }
 
-class CommentBy {
+class By {
   int? id;
   String? username;
   String? profilePicture;
+  String? userType;
 
-  CommentBy({
-    this.id,
-    this.username,
-    this.profilePicture,
-  });
+  By({this.id, this.username, this.profilePicture, this.userType});
 
-  factory CommentBy.fromJson(Map<String, dynamic> json) => CommentBy(
+  factory By.fromJson(Map<String, dynamic> json) => By(
         id: json["id"],
         username: json["username"],
         profilePicture: json["profile_picture"],
+        userType: json["user_type"],
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "username": username,
-        "profile_picture": profilePicture,
-      };
 }
 
-class Image {
+class NewsPostImage {
   int? id;
   String? url;
 
-  Image({
+  NewsPostImage({
     this.id,
     this.url,
   });
 
-  factory Image.fromJson(Map<String, dynamic> json) => Image(
+  factory NewsPostImage.fromJson(Map<String, dynamic> json) => NewsPostImage(
         id: json["id"],
         url: json["url"],
       );
+}
 
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "url": url,
-      };
+class Like {
+  int? id;
+  By? likedBy;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+
+  Like({
+    this.id,
+    this.likedBy,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  factory Like.fromJson(Map<String, dynamic> json) => Like(
+        id: json["id"],
+        likedBy:
+            json["liked_by"] == null ? null : By.fromJson(json["liked_by"]),
+        createdAt: json["created_at"] == null
+            ? null
+            : DateTime.parse(json["created_at"]),
+        updatedAt: json["updated_at"] == null
+            ? null
+            : DateTime.parse(json["updated_at"]),
+      );
 }

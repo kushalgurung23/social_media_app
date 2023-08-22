@@ -21,17 +21,17 @@ class _AllInterestClassesState extends State<AllInterestClasses> {
   @override
   void initState() {
     // Loading initial interest classes
-    Provider.of<InterestClassProvider>(context, listen: false)
-        .interestClassRefresh(context: context);
+    // Provider.of<InterestClassProvider>(context, listen: false)
+    //     .interestClassRefresh(context: context);
 
-    // this will load more data when we reach the end of interest class
-    scrollController.addListener(() {
-      if (scrollController.position.maxScrollExtent ==
-          scrollController.offset) {
-        loadNextData();
-      }
-    });
-    super.initState();
+    // // this will load more data when we reach the end of interest class
+    // scrollController.addListener(() {
+    //   if (scrollController.position.maxScrollExtent ==
+    //       scrollController.offset) {
+    //     loadNextData();
+    //   }
+    // });
+    // super.initState();
   }
 
   void loadNextData() async {

@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:c_talent/data/constant/font_constant.dart';
-import 'package:c_talent/data/enum/news_post_enum.dart';
 import 'package:c_talent/data/enum/post_type.dart';
 // ignore: depend_on_referenced_packages
 import 'package:c_talent/data/new_models/all_news_posts.dart';
+import 'package:c_talent/data/new_models/single_news_comments.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/presentation/components/all/post_top_body.dart';
 import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
@@ -12,12 +14,12 @@ import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/views/my_profile_screen.dart';
 import 'package:c_talent/presentation/views/news_liked_screen.dart';
 import 'package:c_talent/presentation/views/other_user_profile_screen.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 
 class NewsDescriptionScreen extends StatefulWidget {
   final NewsPost newsPost;
@@ -37,16 +39,43 @@ class NewsDescriptionScreen extends StatefulWidget {
 }
 
 class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
+  StreamController<SingleNewsComments?> allNewsCommentStreamController =
+      BehaviorSubject();
   late FocusNode focusNode;
+  final scrollController = ScrollController();
+
   @override
   void initState() {
+    loadInitialNewsComments();
     Provider.of<NewsAdProvider>(context, listen: false)
         .changeNewsReverse(isReverse: widget.scrollToBottom, fromInitial: true);
     focusNode = FocusNode();
     if (widget.focusTextfield == true) {
       focusNode.requestFocus();
     }
+    scrollController.addListener(() {
+      if (scrollController.position.maxScrollExtent ==
+          scrollController.offset) {
+        loadMoreNewsComments();
+      }
+    });
     super.initState();
+  }
+
+  Future<void> loadInitialNewsComments() async {
+    await Provider.of<NewsAdProvider>(context, listen: false)
+        .loadInitialNewsComments(
+            newsPostId: widget.newsPost.id!,
+            context: context,
+            allNewsCommentStreamController: allNewsCommentStreamController);
+  }
+
+  Future<void> loadMoreNewsComments() async {
+    await Provider.of<NewsAdProvider>(context, listen: false)
+        .loadMoreNewsComments(
+            context: context,
+            allNewsCommentStreamController: allNewsCommentStreamController,
+            newsPostId: widget.newsPost.id!);
   }
 
   @override
@@ -61,10 +90,10 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
                   color: const Color(0xFF8897A7),
                   size: SizeConfig.defaultSize * 2.7),
               onPressed: () {
-                if (widget.newsCommentTextEditingController.text != '') {
-                  widget.newsCommentTextEditingController.text = '';
-                }
-                Navigator.pop(context);
+                data.goBackFromNewsDescriptionScreen(
+                    newsCommentTextController:
+                        widget.newsCommentTextEditingController,
+                    context: context);
               },
             ),
             title: AppLocalizations.of(context).post,
@@ -111,6 +140,7 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
                                 children: [
                                   Flexible(
                                     child: SingleChildScrollView(
+                                      controller: scrollController,
                                       physics:
                                           const AlwaysScrollableScrollPhysics(
                                               parent: BouncingScrollPhysics()),
@@ -138,7 +168,8 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
                                                     if (postedBy.id !=
                                                         int.parse(data
                                                             .mainScreenProvider
-                                                            .currentUserId!)) {
+                                                            .currentUserId
+                                                            .toString())) {
                                                       Navigator.push(
                                                           context,
                                                           MaterialPageRoute(
@@ -207,32 +238,12 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
                                                 totalLikes: data.getLike(likeCount: widget.newsPost.likesCount ?? 0, context: context)),
                                           ),
                                           // News comment
-                                          // CommentListview(
-                                          //     fromProfileTopic: false,
-                                          //     // ignore: prefer_null_aware_operators
-                                          //     allComments: allComments == null
-                                          //         ? null
-                                          //         : allComments
-                                          //             .where((element) =>
-                                          //                 element.attributes !=
-                                          //                     null &&
-                                          //                 element.attributes!
-                                          //                         .commentBy !=
-                                          //                     null &&
-                                          //                 element
-                                          //                         .attributes!
-                                          //                         .commentBy!
-                                          //                         .data !=
-                                          //                     null &&
-                                          //                 !data
-                                          //                     .mainScreenProvider
-                                          //                     .blockedUsersIdList
-                                          //                     .contains(element
-                                          //                         .attributes!
-                                          //                         .commentBy!
-                                          //                         .data!
-                                          //                         .id))
-                                          //             .toList()),
+                                          widget.newsPost.id == null
+                                              ? const SizedBox()
+                                              : CommentListview(
+                                                  allNewsCommentStreamController:
+                                                      allNewsCommentStreamController,
+                                                ),
                                         ],
                                       ),
                                     ),
@@ -312,6 +323,9 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
   @override
   void dispose() {
     focusNode.dispose();
+    scrollController.dispose();
+    allNewsCommentStreamController.close();
+
     super.dispose();
   }
 }

@@ -1,236 +1,122 @@
-import 'package:flutter/material.dart';
-import 'package:c_talent/data/constant/connection_url.dart';
+import 'dart:async';
 import 'package:c_talent/data/constant/font_constant.dart';
-import 'package:c_talent/data/models/all_news_post_model.dart';
+import 'package:c_talent/data/new_models/single_news_comments.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
+import 'package:c_talent/presentation/components/news/comment_container.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-class CommentListview extends StatelessWidget {
-  final bool fromProfileTopic;
-
-  const CommentListview({Key? key, required this.fromProfileTopic})
+class CommentListview extends StatefulWidget {
+  final StreamController<SingleNewsComments?> allNewsCommentStreamController;
+  const CommentListview(
+      {Key? key, required this.allNewsCommentStreamController})
       : super(key: key);
 
+  @override
+  State<CommentListview> createState() => _CommentListviewState();
+}
+
+class _CommentListviewState extends State<CommentListview> {
   @override
   Widget build(BuildContext context) {
     return Consumer<NewsAdProvider>(builder: (context, data, child) {
       return Padding(
-          padding: EdgeInsets.only(bottom: SizeConfig.defaultSize * 2),
-          child: const SizedBox()
-          // allComments == null
-          //     ?
-          //     : SizedBox(
-          //         child: ListView.builder(
-          //             primary: false,
-          //             shrinkWrap: true,
-          //             itemCount: allComments!.length,
-          //             itemBuilder: (context, index) {
-          //               allComments!.sort((a, b) => a.attributes!.createdAt!
-          //                   .compareTo(b.attributes!.createdAt!));
-          //               final newsComment = allComments![index];
-          //               final commentBy =
-          //                   newsComment.attributes!.commentBy!.data?.attributes;
-          //               return Padding(
-          //                 padding:
-          //                     EdgeInsets.only(top: SizeConfig.defaultSize * 1.5),
-          //                 child: SizedBox(
-          //                   child: Column(
-          //                     children: [
-          //                       Row(
-          //                         crossAxisAlignment: CrossAxisAlignment.start,
-          //                         children: [
-          //                           (commentBy!.profileImage == null ||
-          //                                   commentBy.profileImage!.data == null)
-          //                               ? GestureDetector(
-          //                                   onTap: () {
-          //                                     if (newsComment.attributes!
-          //                                             .commentBy!.data!.id !=
-          //                                         null) {
-          //                                       if (fromProfileTopic == true) {
-          //                                         data.profileUserOnPress(
-          //                                             commentById: newsComment
-          //                                                 .attributes!
-          //                                                 .commentBy!
-          //                                                 .data!
-          //                                                 .id!,
-          //                                             context: context);
-          //                                       } else {
-          //                                         data.postUserOnPress(
-          //                                           userId: newsComment
-          //                                               .attributes!
-          //                                               .commentBy!
-          //                                               .data!
-          //                                               .id!,
-          //                                           context: context,
-          //                                         );
-          //                                       }
-          //                                     }
-          //                                   },
-          //                                   child: CircleAvatar(
-          //                                       backgroundImage: const AssetImage(
-          //                                           "assets/images/default_profile.jpg"),
-          //                                       radius:
-          //                                           SizeConfig.defaultSize * 1.5),
-          //                                 )
-          //                               : GestureDetector(
-          //                                   onTap: () {
-          //                                     if (newsComment.attributes!
-          //                                             .commentBy!.data!.id !=
-          //                                         null) {
-          //                                       if (fromProfileTopic == true) {
-          //                                         data.profileUserOnPress(
-          //                                             commentById: newsComment
-          //                                                 .attributes!
-          //                                                 .commentBy!
-          //                                                 .data!
-          //                                                 .id!,
-          //                                             context: context);
-          //                                       } else {
-          //                                         data.postUserOnPress(
-          //                                           userId: newsComment
-          //                                               .attributes!
-          //                                               .commentBy!
-          //                                               .data!
-          //                                               .id!,
-          //                                           context: context,
-          //                                         );
-          //                                       }
-          //                                     }
-          //                                   },
-          //                                   child: CircleAvatar(
-          //                                       backgroundImage: NetworkImage(
-          //                                           kIMAGEURL +
-          //                                               commentBy
-          //                                                   .profileImage!
-          //                                                   .data!
-          //                                                   .attributes!
-          //                                                   .url!),
-          //                                       radius:
-          //                                           SizeConfig.defaultSize * 1.5),
-          //                                 ),
-          //                           Flexible(
-          //                             child: Column(
-          //                               children: [
-          //                                 Row(
-          //                                   crossAxisAlignment:
-          //                                       CrossAxisAlignment.start,
-          //                                   children: [
-          //                                     Expanded(
-          //                                         child: Row(
-          //                                             crossAxisAlignment:
-          //                                                 CrossAxisAlignment
-          //                                                     .start,
-          //                                             children: [
-          //                                           Padding(
-          //                                             padding: EdgeInsets.only(
-          //                                                 left: SizeConfig
-          //                                                     .defaultSize),
-          //                                             child: GestureDetector(
-          //                                               onTap: () {
-          //                                                 if (newsComment
-          //                                                         .attributes!
-          //                                                         .commentBy!
-          //                                                         .data!
-          //                                                         .id !=
-          //                                                     null) {
-          //                                                   if (fromProfileTopic ==
-          //                                                       true) {
-          //                                                     data.profileUserOnPress(
-          //                                                         commentById:
-          //                                                             newsComment
-          //                                                                 .attributes!
-          //                                                                 .commentBy!
-          //                                                                 .data!
-          //                                                                 .id!,
-          //                                                         context:
-          //                                                             context);
-          //                                                   } else {
-          //                                                     data.postUserOnPress(
-          //                                                       userId: newsComment
-          //                                                           .attributes!
-          //                                                           .commentBy!
-          //                                                           .data!
-          //                                                           .id!,
-          //                                                       context: context,
-          //                                                     );
-          //                                                   }
-          //                                                 }
-          //                                               },
-          //                                               child: Container(
-          //                                                 color:
-          //                                                     Colors.transparent,
-          //                                                 child: Text(
-          //                                                   "${commentBy.username!} : ",
-          //                                                   style: TextStyle(
-          //                                                       fontFamily:
-          //                                                           kHelveticaMedium,
-          //                                                       fontSize: SizeConfig
-          //                                                               .defaultSize *
-          //                                                           1.2,
-          //                                                       color:
-          //                                                           Colors.black,
-          //                                                       height: 1.3),
-          //                                                 ),
-          //                                               ),
-          //                                             ),
-          //                                           ),
-          //                                           Expanded(
-          //                                             child: Text(
-          //                                                 newsComment
-          //                                                     .attributes!.content!,
-          //                                                 style: TextStyle(
-          //                                                     fontFamily:
-          //                                                         kHelveticaRegular,
-          //                                                     fontSize: SizeConfig
-          //                                                             .defaultSize *
-          //                                                         1.2,
-          //                                                     color: Colors.black,
-          //                                                     height: 1.3)),
-          //                                           )
-          //                                         ])),
-          //                                   ],
-          //                                 ),
-          //                                 Padding(
-          //                                   padding: EdgeInsets.only(
-          //                                       top: SizeConfig.defaultSize * 0.1,
-          //                                       bottom: SizeConfig.defaultSize *
-          //                                           0.35),
-          //                                   child: Row(
-          //                                     mainAxisAlignment:
-          //                                         MainAxisAlignment.end,
-          //                                     children: [
-          //                                       Text(
-          //                                           data.mainScreenProvider
-          //                                               .convertDateTimeToAgo(
-          //                                                   newsComment
-          //                                                       .attributes!
-          //                                                       .createdAt!,
-          //                                                   context),
-          //                                           style: TextStyle(
-          //                                             fontFamily:
-          //                                                 kHelveticaRegular,
-          //                                             fontSize:
-          //                                                 SizeConfig.defaultSize *
-          //                                                     1.05,
-          //                                             color:
-          //                                                 const Color(0xFF8897A7),
-          //                                           )),
-          //                                     ],
-          //                                   ),
-          //                                 )
-          //                               ],
-          //                             ),
-          //                           )
-          //                         ],
-          //                       ),
-          //                     ],
-          //                   ),
-          //                 ),
-          //               );
-          //             }),
-          //       ),
-          );
+        padding: EdgeInsets.only(bottom: SizeConfig.defaultSize * 2),
+        child: StreamBuilder<SingleNewsComments?>(
+          initialData: data.singleNewsComments,
+          stream: widget.allNewsCommentStreamController.stream,
+          builder: (context, snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return Center(
+                  child: Text(
+                    AppLocalizations.of(context).loading,
+                    style: TextStyle(
+                        fontFamily: kHelveticaRegular,
+                        fontSize: SizeConfig.defaultSize * 1.5),
+                  ),
+                );
+              case ConnectionState.done:
+              default:
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      AppLocalizations.of(context).errorOccured,
+                      style: TextStyle(
+                          fontFamily: kHelveticaRegular,
+                          fontSize: SizeConfig.defaultSize * 1.5),
+                    ),
+                  );
+                } else if (!snapshot.hasData) {
+                  return Center(
+                    // translate
+                    child: Text(
+                      "Comments could not load",
+                      style: TextStyle(
+                          fontFamily: kHelveticaRegular,
+                          fontSize: SizeConfig.defaultSize * 1.5),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  return snapshot.data == null ||
+                          snapshot.data?.comments == null
+                      ? Center(
+                          // translate
+                          child: Text(
+                            "Comments could not load",
+                            style: TextStyle(
+                                fontFamily: kHelveticaRegular,
+                                fontSize: SizeConfig.defaultSize * 1.5),
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          addAutomaticKeepAlives: true,
+                          itemCount: snapshot.data!.comments!.length >=
+                                  data.commentsPageSize
+                              ? snapshot.data!.comments!.length + 1
+                              : snapshot.data!.comments!.length,
+                          itemBuilder: (context, index) {
+                            if (index < snapshot.data!.comments!.length) {
+                              return CommentContainer(
+                                  comment: snapshot.data!.comments![index]);
+                            } else {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: SizeConfig.defaultSize * 3),
+                                child: Center(
+                                    child: data.hasMoreComments
+                                        ? const CircularProgressIndicator(
+                                            color: Color(0xFFA08875))
+                                        : Text(
+                                            AppLocalizations.of(context)
+                                                .caughtUp,
+                                            style: TextStyle(
+                                                fontFamily: kHelveticaMedium,
+                                                fontSize:
+                                                    SizeConfig.defaultSize *
+                                                        1.5),
+                                          )),
+                              );
+                            }
+                          });
+                } else {
+                  return Center(
+                    child: Text(
+                      AppLocalizations.of(context).noNewsPosts,
+                      style: TextStyle(
+                          fontFamily: kHelveticaRegular,
+                          fontSize: SizeConfig.defaultSize * 1.5),
+                    ),
+                  );
+                }
+            }
+          },
+        ),
+      );
     });
   }
 }

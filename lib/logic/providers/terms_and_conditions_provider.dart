@@ -1,12 +1,20 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/new_models/news_post_likes.dart';
+import 'package:c_talent/data/repositories/news_comment_repo.dart';
 import 'package:c_talent/data/repositories/register_repo.dart';
+import 'package:c_talent/logic/providers/drawer_provider.dart';
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/views/email_verification_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 
 class TermsAndConditionsProvider extends ChangeNotifier {
   bool tAndCCheckboxValue = false;

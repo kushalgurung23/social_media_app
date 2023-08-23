@@ -48,7 +48,7 @@ class NewsPost {
   String? title;
   List<NewsPostImage>? images;
   String? content;
-  List<Comment>? comments;
+  List<NewsComment>? comments;
   List<Like>? likes;
   int? isLiked;
   int? isSaved;
@@ -89,8 +89,8 @@ class NewsPost {
             : List<Like>.from(json["likes"]!.map((x) => Like.fromJson(x))),
         comments: json["comments"] == null
             ? []
-            : List<Comment>.from(
-                json["comments"]!.map((x) => Comment.fromJson(x))),
+            : List<NewsComment>.from(
+                json["comments"]!.map((x) => NewsComment.fromJson(x))),
         isLiked: json["is_liked"],
         isSaved: json["is_saved"],
         isActive: json["is_active"],
@@ -107,14 +107,14 @@ class NewsPost {
       );
 }
 
-class Comment {
+class NewsComment {
   int? id;
   String? comment;
   By? commentBy;
   DateTime? createdAt;
   DateTime? updatedAt;
 
-  Comment({
+  NewsComment({
     this.id,
     this.comment,
     this.commentBy,
@@ -122,7 +122,7 @@ class Comment {
     this.updatedAt,
   });
 
-  factory Comment.fromJson(Map<String, dynamic> json) => Comment(
+  factory NewsComment.fromJson(Map<String, dynamic> json) => NewsComment(
         id: json["id"],
         comment: json["comment"],
         commentBy:
@@ -141,15 +141,21 @@ class By {
   String? username;
   String? profilePicture;
   String? userType;
+  int? isFollowed;
 
-  By({this.id, this.username, this.profilePicture, this.userType});
+  By(
+      {this.id,
+      this.username,
+      this.profilePicture,
+      this.userType,
+      this.isFollowed});
 
   factory By.fromJson(Map<String, dynamic> json) => By(
-        id: json["id"],
-        username: json["username"],
-        profilePicture: json["profile_picture"],
-        userType: json["user_type"],
-      );
+      id: json["id"],
+      username: json["username"],
+      profilePicture: json["profile_picture"],
+      userType: json["user_type"],
+      isFollowed: json["is_followed"]);
 }
 
 class NewsPostImage {

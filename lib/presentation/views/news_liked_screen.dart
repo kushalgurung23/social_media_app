@@ -1,21 +1,18 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:c_talent/data/constant/color_constant.dart';
 import 'package:c_talent/data/constant/connection_url.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
-import 'package:c_talent/data/enum/user_follow_enum.dart';
-import 'package:c_talent/data/models/news_post_likes_model.dart';
+import 'package:c_talent/data/new_models/news_post_likes.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
-import 'package:c_talent/logic/providers/profile_provider.dart';
 import 'package:c_talent/presentation/components/all/rectangular_button.dart';
 import 'package:c_talent/presentation/components/all/top_app_bar.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
-import 'package:c_talent/presentation/views/my_profile_screen.dart';
-import 'package:c_talent/presentation/views/other_user_profile_screen.dart';
-import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-// ignore: depend_on_referenced_packages
-import 'package:collection/collection.dart';
+import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 
 class NewsLikedScreen extends StatefulWidget {
   final int postId;
@@ -27,11 +24,32 @@ class NewsLikedScreen extends StatefulWidget {
 }
 
 class _NewsLikedScreenState extends State<NewsLikedScreen> {
+  StreamController<NewsPostLikes> newsPostLikesStreamController =
+      BehaviorSubject();
+  final scrollController = ScrollController();
+
   @override
   void initState() {
-    Provider.of<NewsAdProvider>(context, listen: false).getNewsPostLikes(
-        newsPostId: widget.postId.toString(), context: context);
+    Provider.of<NewsAdProvider>(context, listen: false).loadInitialNewsLikes(
+        allNewsLikeStreamController: newsPostLikesStreamController,
+        newsPostId: widget.postId,
+        context: context);
+
+    scrollController.addListener(() {
+      if (scrollController.position.maxScrollExtent ==
+          scrollController.offset) {
+        loadNextData();
+      }
+    });
+
     super.initState();
+  }
+
+  void loadNextData() async {
+    await Provider.of<NewsAdProvider>(context, listen: false).loadMoreNewsLikes(
+        context: context,
+        newsPostId: widget.postId,
+        allNewsLikesStreamController: newsPostLikesStreamController);
   }
 
   @override
@@ -53,7 +71,7 @@ class _NewsLikedScreenState extends State<NewsLikedScreen> {
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: SizeConfig.defaultSize * 2),
           child: StreamBuilder<NewsPostLikes>(
-            stream: data.newsPostLikesStreamController.stream,
+            stream: newsPostLikesStreamController.stream,
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Center(
@@ -74,294 +92,221 @@ class _NewsLikedScreenState extends State<NewsLikedScreen> {
                   ),
                 );
               } else {
-                final newsPost = snapshot.data!.data!.attributes;
-
-                // final likedUserList = newsPost!.newsPostLikes!.data;
-
-                return Center(
-                  child: Text(
-                    AppLocalizations.of(context).beTheFirstToLikeThePost,
-                    style: TextStyle(
-                        fontFamily: kHelveticaRegular,
-                        fontSize: SizeConfig.defaultSize * 1.5),
-                  ),
-                );
-                // likedUserList!.isEmpty
-                //     ? Center(
-                //         child: Text(
-                //           AppLocalizations.of(context).beTheFirstToLikeThePost,
-                //           style: TextStyle(
-                //               fontFamily: kHelveticaRegular,
-                //               fontSize: SizeConfig.defaultSize * 1.5),
-                //         ),
-                //       )
-                //     : ListView.builder(
-                //         physics: const AlwaysScrollableScrollPhysics(
-                //             parent: BouncingScrollPhysics()),
-                //         itemCount: likedUserList.length,
-                //         itemBuilder: (context, index) {
-                //           int? likedByUserId =
-                //               likedUserList[index]!.attributes!.likedBy!.data ==
-                //                       null
-                //                   ? null
-                //                   : likedUserList[index]!
-                //                       .attributes!
-                //                       .likedBy!
-                //                       .data!
-                //                       .id!;
-                //           final likedByUser =
-                //               likedUserList[index]!.attributes!.likedBy!.data ==
-                //                       null
-                //                   ? null
-                //                   : likedUserList[index]!
-                //                       .attributes!
-                //                       .likedBy!
-                //                       .data!
-                //                       .attributes;
-                //           final userFollowData = likedUserList[index]!
-                //                       .attributes!
-                //                       .likedBy!
-                //                       .data ==
-                //                   null
-                //               ? null
-                //               : likedByUser != null &&
-                //                       likedByUser.userFollower != null
-                //                   ? likedByUser.userFollower!.data!
-                //                       .firstWhereOrNull((element) =>
-                //                           element!.attributes!.followedBy !=
-                //                               null &&
-                //                           element.attributes!.followedBy!
-                //                                   .data !=
-                //                               null &&
-                //                           element.attributes!.followedBy!.data!
-                //                                   .id
-                //                                   .toString() ==
-                //                               data.mainScreenProvider
-                //                                   .currentUserId
-                //                                   .toString())
-                //                   : null;
-
-                //           return const SizedBox();
-                //           // data.mainScreenProvider.blockedUsersIdList
-                //           //             .contains(likedByUserId) ||
-                //           //         likedByUserId == null
-                //           //     ?
-                //           //     : GestureDetector(
-                //           //         onTap: () {
-                //           //           if (likedByUserId !=
-                //           //               int.parse(
-                //           //                   data.mainScreenProvider.userId!)) {
-                //           //             Navigator.push(
-                //           //                 context,
-                //           //                 MaterialPageRoute(
-                //           //                     builder: (context) =>
-                //           //                         OtherUserProfileScreen(
-                //           //                           otherUserId: likedByUserId,
-                //           //                         )));
-                //           //           } else {
-                //           //             Navigator.pushNamed(
-                //           //                 context, MyProfileScreen.id);
-                //           //           }
-                //           //         },
-                //           //         child: Container(
-                //           //           color: Colors.transparent,
-                //           //           margin: index == 0
-                //           //               ? EdgeInsets.only(
-                //           //                   top: SizeConfig.defaultSize * 2,
-                //           //                   bottom: SizeConfig.defaultSize * 2)
-                //           //               : EdgeInsets.only(
-                //           //                   bottom:
-                //           //                       SizeConfig.defaultSize * 1.5),
-                //           //           child: Row(
-                //           //             mainAxisAlignment:
-                //           //                 MainAxisAlignment.spaceBetween,
-                //           //             crossAxisAlignment:
-                //           //                 CrossAxisAlignment.center,
-                //           //             children: [
-                //           //               SizedBox(
-                //           //                 child: Row(
-                //           //                   children: [
-                //           //                     likedByUser!.profileImage!.data ==
-                //           //                             null
-                //           //                         ? Container(
-                //           //                             height: SizeConfig
-                //           //                                     .defaultSize *
-                //           //                                 4.7,
-                //           //                             width: SizeConfig
-                //           //                                     .defaultSize *
-                //           //                                 4.7,
-                //           //                             decoration: BoxDecoration(
-                //           //                               borderRadius: BorderRadius
-                //           //                                   .circular(SizeConfig
-                //           //                                           .defaultSize *
-                //           //                                       1.5),
-                //           //                               color: Colors.white,
-                //           //                               image: const DecorationImage(
-                //           //                                   image: AssetImage(
-                //           //                                       "assets/images/default_profile.jpg"),
-                //           //                                   fit: BoxFit.cover),
-                //           //                             ))
-                //           //                         : CachedNetworkImage(
-                //           //                             imageUrl: kIMAGEURL +
-                //           //                                 likedByUser
-                //           //                                     .profileImage!
-                //           //                                     .data!
-                //           //                                     .attributes!
-                //           //                                     .url!,
-                //           //                             imageBuilder: (context,
-                //           //                                     imageProvider) =>
-                //           //                                 Container(
-                //           //                               height: SizeConfig
-                //           //                                       .defaultSize *
-                //           //                                   4.7,
-                //           //                               width: SizeConfig
-                //           //                                       .defaultSize *
-                //           //                                   4.7,
-                //           //                               decoration:
-                //           //                                   BoxDecoration(
-                //           //                                 borderRadius: BorderRadius
-                //           //                                     .circular(SizeConfig
-                //           //                                             .defaultSize *
-                //           //                                         1.5),
-                //           //                                 color: Colors.white,
-                //           //                                 image: DecorationImage(
-                //           //                                     image:
-                //           //                                         imageProvider,
-                //           //                                     fit:
-                //           //                                         BoxFit.cover),
-                //           //                               ),
-                //           //                             ),
-                //           //                             placeholder:
-                //           //                                 (context, url) =>
-                //           //                                     Container(
-                //           //                               height: SizeConfig
-                //           //                                       .defaultSize *
-                //           //                                   4.7,
-                //           //                               width: SizeConfig
-                //           //                                       .defaultSize *
-                //           //                                   4.7,
-                //           //                               decoration:
-                //           //                                   BoxDecoration(
-                //           //                                 borderRadius: BorderRadius
-                //           //                                     .circular(SizeConfig
-                //           //                                             .defaultSize *
-                //           //                                         1.5),
-                //           //                                 color: const Color(
-                //           //                                     0xFFD0E0F0),
-                //           //                               ),
-                //           //                             ),
-                //           //                             errorWidget: (context,
-                //           //                                     url, error) =>
-                //           //                                 const Icon(
-                //           //                                     Icons.error),
-                //           //                           ),
-                //           //                     Padding(
-                //           //                       padding: EdgeInsets.only(
-                //           //                           left:
-                //           //                               SizeConfig.defaultSize),
-                //           //                       child: Text(
-                //           //                           likedByUser.username!,
-                //           //                           style: TextStyle(
-                //           //                               fontFamily:
-                //           //                                   kHelveticaMedium,
-                //           //                               fontSize: SizeConfig
-                //           //                                       .defaultSize *
-                //           //                                   1.4)),
-                //           //                     )
-                //           //                   ],
-                //           //                 ),
-                //           //               ),
-                //           //               //  button
-                //           //               likedByUserId ==
-                //           //                       int.parse(data
-                //           //                           .mainScreenProvider.userId!)
-                //           //                   ? const SizedBox()
-                //           //                   : RectangularButton(
-                //           //                       textPadding:
-                //           //                           EdgeInsets.symmetric(
-                //           //                               horizontal: SizeConfig
-                //           //                                       .defaultSize *
-                //           //                                   0.5),
-                //           //                       height: SizeConfig.defaultSize *
-                //           //                           3.5,
-                //           //                       width:
-                //           //                           SizeConfig.defaultSize * 10,
-                //           //                       onPress: () async {
-                //           //                         await Provider.of<
-                //           //                                     ProfileProvider>(
-                //           //                                 context,
-                //           //                                 listen: false)
-                //           //                             .toggleUserFollow(
-                //           //                           userFollowSource:
-                //           //                               UserFollowSource
-                //           //                                   .newsLikedScreen,
-                //           //                           newsPostId: widget.postId
-                //           //                               .toString(),
-                //           //                           userFollowId: data
-                //           //                                       .mainScreenProvider
-                //           //                                       .followingIdList
-                //           //                                       .contains(
-                //           //                                           likedByUserId) &&
-                //           //                                   likedByUser
-                //           //                                           .userFollower !=
-                //           //                                       null
-                //           //                               ? userFollowData?.id
-                //           //                                   .toString()
-                //           //                               : null,
-                //           //                           otherUserDeviceToken:
-                //           //                               likedByUser.deviceToken,
-                //           //                           otherUserId: likedByUserId,
-                //           //                           context: context,
-                //           //                           setLikeSaveCommentFollow:
-                //           //                               false,
-                //           //                         );
-                //           //                       },
-                //           //                       text: data.mainScreenProvider
-                //           //                               .followingIdList
-                //           //                               .contains(likedByUserId)
-                //           //                           ? AppLocalizations.of(
-                //           //                                   context)
-                //           //                               .followed
-                //           //                           : AppLocalizations.of(
-                //           //                                   context)
-                //           //                               .follow,
-                //           //                       textColor: data
-                //           //                               .mainScreenProvider
-                //           //                               .followingIdList
-                //           //                               .contains(likedByUserId)
-                //           //                           ? Colors.white
-                //           //                           : const Color(0xFFA08875),
-                //           //                       buttonColor: data
-                //           //                               .mainScreenProvider
-                //           //                               .followingIdList
-                //           //                               .contains(likedByUserId)
-                //           //                           ? const Color(0xFFA08875)
-                //           //                           : Colors.white,
-                //           //                       borderColor: data
-                //           //                               .mainScreenProvider
-                //           //                               .followingIdList
-                //           //                               .contains(likedByUserId)
-                //           //                           ? const Color(0xFFA08875)
-                //           //                           : const Color(0xFF5349C7),
-                //           //                       fontFamily: kHelveticaMedium,
-                //           //                       keepBoxShadow: false,
-                //           //                       borderRadius:
-                //           //                           SizeConfig.defaultSize *
-                //           //                               1.8,
-                //           //                       fontSize:
-                //           //                           SizeConfig.defaultSize *
-                //           //                               1.1,
-                //           //                     )
-                //           //             ],
-                //           //           ),
-                //           //         ),
-                //           //       );
-                //         });
+                if (snapshot.data == null ||
+                    snapshot.data?.likes == null ||
+                    snapshot.data!.likes!.isEmpty) {
+                  return Center(
+                    child: Text(
+                      AppLocalizations.of(context).beTheFirstToLikeThePost,
+                      style: TextStyle(
+                          fontFamily: kHelveticaRegular,
+                          fontSize: SizeConfig.defaultSize * 1.5),
+                    ),
+                  );
+                } else {
+                  final likeList = snapshot.data!.likes!;
+                  return ListView.builder(
+                      controller: scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics()),
+                      itemCount: likeList.length,
+                      itemBuilder: (context, index) {
+                        final likedBy = likeList[index].likedBy;
+                        return likedBy == null
+                            ? const SizedBox()
+                            : GestureDetector(
+                                onTap: () {
+                                  // if (likedByUserId !=
+                                  //     int.parse(
+                                  //         data.mainScreenProvider.userId!)) {
+                                  //   Navigator.push(
+                                  //       context,
+                                  //       MaterialPageRoute(
+                                  //           builder: (context) =>
+                                  //               OtherUserProfileScreen(
+                                  //                 otherUserId: likedByUserId,
+                                  //               )));
+                                  // } else {
+                                  //   Navigator.pushNamed(
+                                  //       context, MyProfileScreen.id);
+                                  // }
+                                },
+                                child: Container(
+                                  color: Colors.transparent,
+                                  margin: index == 0
+                                      ? EdgeInsets.only(
+                                          top: SizeConfig.defaultSize * 2,
+                                          bottom: SizeConfig.defaultSize * 2)
+                                      : EdgeInsets.only(
+                                          bottom: SizeConfig.defaultSize * 1.5),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        child: Row(
+                                          children: [
+                                            likedBy.profilePicture == null
+                                                ? Container(
+                                                    height:
+                                                        SizeConfig.defaultSize *
+                                                            4.7,
+                                                    width:
+                                                        SizeConfig.defaultSize *
+                                                            4.7,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius
+                                                          .circular(SizeConfig
+                                                                  .defaultSize *
+                                                              1.5),
+                                                      color: Colors.white,
+                                                      image: const DecorationImage(
+                                                          image: AssetImage(
+                                                              "assets/images/default_profile.jpg"),
+                                                          fit: BoxFit.cover),
+                                                    ))
+                                                : CachedNetworkImage(
+                                                    imageUrl: kIMAGEURL +
+                                                        likedBy.profilePicture
+                                                            .toString(),
+                                                    imageBuilder: (context,
+                                                            imageProvider) =>
+                                                        Container(
+                                                      height: SizeConfig
+                                                              .defaultSize *
+                                                          4.7,
+                                                      width: SizeConfig
+                                                              .defaultSize *
+                                                          4.7,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius
+                                                            .circular(SizeConfig
+                                                                    .defaultSize *
+                                                                1.5),
+                                                        color: Colors.white,
+                                                        image: DecorationImage(
+                                                            image:
+                                                                imageProvider,
+                                                            fit: BoxFit.cover),
+                                                      ),
+                                                    ),
+                                                    placeholder:
+                                                        (context, url) =>
+                                                            Container(
+                                                      height: SizeConfig
+                                                              .defaultSize *
+                                                          4.7,
+                                                      width: SizeConfig
+                                                              .defaultSize *
+                                                          4.7,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius: BorderRadius
+                                                            .circular(SizeConfig
+                                                                    .defaultSize *
+                                                                1.5),
+                                                        color: const Color(
+                                                            0xFFD0E0F0),
+                                                      ),
+                                                    ),
+                                                    errorWidget: (context, url,
+                                                            error) =>
+                                                        const Icon(Icons.error),
+                                                  ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: SizeConfig.defaultSize),
+                                              child: Text(
+                                                  likedBy.username.toString(),
+                                                  style: TextStyle(
+                                                      fontFamily:
+                                                          kHelveticaMedium,
+                                                      fontSize: SizeConfig
+                                                              .defaultSize *
+                                                          1.4)),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      //  button
+                                      likedBy.id ==
+                                              int.parse(data.mainScreenProvider
+                                                  .currentUserId
+                                                  .toString())
+                                          ? const SizedBox()
+                                          : RectangularButton(
+                                              textPadding: EdgeInsets.symmetric(
+                                                  horizontal:
+                                                      SizeConfig.defaultSize *
+                                                          0.5),
+                                              height:
+                                                  SizeConfig.defaultSize * 3.5,
+                                              width:
+                                                  SizeConfig.defaultSize * 10,
+                                              onPress: () async {
+                                                // await Provider.of<ProfileProvider>(
+                                                //         context,
+                                                //         listen: false)
+                                                //     .toggleUserFollow(
+                                                //   userFollowSource: UserFollowSource
+                                                //       .newsLikedScreen,
+                                                //   newsPostId:
+                                                //       widget.postId.toString(),
+                                                //   userFollowId: data
+                                                //               .mainScreenProvider
+                                                //               .followingIdList
+                                                //               .contains(
+                                                //                   likedByUserId) &&
+                                                //           likedByUser.userFollower !=
+                                                //               null
+                                                //       ? userFollowData?.id.toString()
+                                                //       : null,
+                                                //   otherUserDeviceToken:
+                                                //       likedByUser.deviceToken,
+                                                //   otherUserId: likedByUserId,
+                                                //   context: context,
+                                                //   setLikeSaveCommentFollow: false,
+                                                // );
+                                              },
+                                              text: likedBy.isFollowed == 1
+                                                  ? AppLocalizations.of(context)
+                                                      .following
+                                                  : AppLocalizations.of(context)
+                                                      .follow,
+                                              textColor: likedBy.isFollowed == 1
+                                                  ? Colors.white
+                                                  : const Color(0xFFA08875),
+                                              buttonColor:
+                                                  likedBy.isFollowed == 1
+                                                      ? kPrimaryColor
+                                                      : Colors.white,
+                                              borderColor: kPrimaryColor,
+                                              fontFamily: kHelveticaMedium,
+                                              keepBoxShadow: false,
+                                              borderRadius:
+                                                  SizeConfig.defaultSize * 1.8,
+                                              fontSize:
+                                                  SizeConfig.defaultSize * 1.1,
+                                            )
+                                    ],
+                                  ),
+                                ),
+                              );
+                      });
+                }
               }
             },
           ),
         ),
       );
     });
+  }
+
+  @override
+  void dispose() {
+    newsPostLikesStreamController.close();
+    scrollController.dispose();
+    super.dispose();
   }
 }

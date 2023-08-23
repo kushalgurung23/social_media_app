@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:c_talent/data/new_models/all_news_posts.dart';
 
-SingleNewsComments singleNewsCommentsFromJson(String str) =>
+SingleNewsComments? singleNewsCommentsFromJson(String str) =>
     SingleNewsComments.fromJson(json.decode(str));
 
 class SingleNewsComments {
@@ -10,7 +10,7 @@ class SingleNewsComments {
   int? count;
   int? page;
   int? limit;
-  List<Comment>? comments;
+  List<NewsComment>? comments;
 
   SingleNewsComments({
     this.status,
@@ -28,7 +28,7 @@ class SingleNewsComments {
         limit: json["limit"],
         comments: json["comments"] == null
             ? []
-            : List<Comment>.from(
-                json["comments"]!.map((x) => Comment.fromJson(x))),
+            : List<NewsComment>.from(
+                json["comments"]!.map((x) => NewsComment.fromJson(x))),
       );
 }

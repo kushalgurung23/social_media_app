@@ -124,8 +124,7 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                       userType: data.getUserType(
                           userType: widget.newsPost.postedBy?.userType ?? '',
                           context: context),
-                      isSave: data.checkNewsPostSaveStatus(
-                          postId: widget.newsPost.id!),
+                      isSave: widget.newsPost.isSaved == 1 ? true : false,
                       saveOnPress: () async {
                         // await data.toggleNewsPostSave(
                         //     newsPostSource: NewsPostSource.all,
@@ -135,8 +134,7 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                         //     context: context,
                         //     setLikeSaveCommentFollow: false);
                       },
-                      isLike: data.checkNewsPostLikeStatus(
-                          postId: widget.newsPost.id!),
+                      isLike: widget.newsPost.isLiked == 1 ? true : false,
                       likeOnPress: () async {
                         // await data.toggleNewsPostLike(
                         //     newsPostSource: NewsPostSource.all,
@@ -207,136 +205,128 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                           },
                           borderRadius: SizeConfig.defaultSize * 1.5),
                     ),
-                    SizedBox(
-                        child: SizedBox(
-                      height: SizeConfig.defaultSize,
-                    )
-                        //   widget.allComments == null ||
-                        //     (widget.allComments != null &&
-                        //         widget.allComments!.isEmpty)
-                        // ? SizedBox(
-                        //     height: SizeConfig.defaultSize,
-                        //   )
-                        // : Padding(
-                        //     padding: EdgeInsets.only(
-                        //         top: SizeConfig.defaultSize * 2),
-                        //     child: ListView.builder(
-                        //         shrinkWrap: true,
-                        //         primary: false,
-                        //         itemCount:
-                        //             widget.allComments!.length >= 2 ? 2 : 1,
-                        //         itemBuilder: (context, index) {
-                        //           widget.allComments!.sort((a, b) => a
-                        //               .attributes!.createdAt!
-                        //               .compareTo(b.attributes!.createdAt!));
-                        //           final commentData =
-                        //               widget.allComments!.length > 2
-                        //                   ? widget.allComments![
-                        //                       (widget.allComments!.length -
-                        //                               2) +
-                        //                           index]
-                        //                   : widget.allComments![index];
-                        //           return Padding(
-                        //             padding: EdgeInsets.only(
-                        //                 bottom: SizeConfig.defaultSize * 0.6),
-                        //             child: Row(
-                        //               mainAxisAlignment:
-                        //                   MainAxisAlignment.spaceBetween,
-                        //               children: [
-                        //                 Flexible(
-                        //                   child: Row(
-                        //                     children: [
-                        //                       Flexible(
-                        //                           child: Row(children: [
-                        //                         GestureDetector(
-                        //                           onTap: () {
-                        //                             if (commentData
-                        //                                     .attributes!
-                        //                                     .commentBy!
-                        //                                     .data!
-                        //                                     .id !=
-                        //                                 null) {
-                        //                               if (commentData
-                        //                                       .attributes!
-                        //                                       .commentBy!
-                        //                                       .data!
-                        //                                       .id !=
-                        //                                   int.parse(data
-                        //                                       .mainScreenProvider
-                        //                                       .currentUserId!)) {
-                        //                                 Navigator.push(
-                        //                                     context,
-                        //                                     MaterialPageRoute(
-                        //                                         builder:
-                        //                                             (context) =>
-                        //                                                 OtherUserProfileScreen(
-                        //                                                   otherUserId:
-                        //                                                       commentData.attributes!.commentBy!.data!.id!,
-                        //                                                 )));
-                        //                               } else {
-                        //                                 Navigator.pushNamed(
-                        //                                     context,
-                        //                                     MyProfileScreen
-                        //                                         .id);
-                        //                               }
-                        //                             }
-                        //                           },
-                        //                           child: Container(
-                        //                             color: Colors.transparent,
-                        //                             child: Text(
-                        //                               '${commentData.attributes!.commentBy!.data!.attributes!.username} : ',
-                        //                               overflow: TextOverflow
-                        //                                   .ellipsis,
-                        //                               style: TextStyle(
-                        //                                   fontFamily:
-                        //                                       kHelveticaMedium,
-                        //                                   fontSize: SizeConfig
-                        //                                           .defaultSize *
-                        //                                       1.3,
-                        //                                   color:
-                        //                                       Colors.black),
-                        //                             ),
-                        //                           ),
-                        //                         ),
-                        //                         Expanded(
-                        //                           child: Text(
-                        //                               commentData
-                        //                                   .attributes!.content
-                        //                                   .toString(),
-                        //                               overflow: TextOverflow
-                        //                                   .ellipsis,
-                        //                               style: TextStyle(
-                        //                                   fontFamily:
-                        //                                       kHelveticaRegular,
-                        //                                   fontSize: SizeConfig
-                        //                                           .defaultSize *
-                        //                                       1.4)),
-                        //                         )
-                        //                       ])),
-                        //                       SizedBox(
-                        //                           width:
-                        //                               SizeConfig.defaultSize *
-                        //                                   1)
-                        //                     ],
-                        //                   ),
-                        //                 ),
-                        //                 Text(
-                        //                     data.mainScreenProvider
-                        //                         .convertDateTimeToAgo(
-                        //                             commentData.attributes!
-                        //                                 .createdAt!,
-                        //                             context),
-                        //                     style: TextStyle(
-                        //                         fontFamily: kHelveticaRegular,
-                        //                         fontSize:
-                        //                             SizeConfig.defaultSize *
-                        //                                 1.1)),
-                        //               ],
-                        //             ),
-                        //           );
-                        //         }),
-                        //   ),
-                        ),
+                    widget.newsPost.comments != null &&
+                            widget.newsPost.commentCount != null &&
+                            widget.newsPost.commentCount! >= 1
+                        ? Padding(
+                            padding: EdgeInsets.only(
+                                top: SizeConfig.defaultSize * 2),
+                            child: ListView.builder(
+                                shrinkWrap: true,
+                                primary: false,
+                                itemCount:
+                                    widget.newsPost.commentCount! >= 2 ? 2 : 1,
+                                itemBuilder: (context, index) {
+                                  final commentData = widget
+                                      .newsPost.comments?.reversed
+                                      .toList()[index];
+                                  return commentData == null ||
+                                          commentData.commentBy == null
+                                      ? const SizedBox()
+                                      : Padding(
+                                          padding: EdgeInsets.only(
+                                              bottom:
+                                                  SizeConfig.defaultSize * 0.6),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Flexible(
+                                                child: Row(
+                                                  children: [
+                                                    Flexible(
+                                                        child: Row(children: [
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          if (commentData
+                                                                  .commentBy
+                                                                  ?.id !=
+                                                              null) {
+                                                            if (commentData
+                                                                    .commentBy
+                                                                    ?.id !=
+                                                                int.parse(data
+                                                                    .mainScreenProvider
+                                                                    .currentUserId!)) {
+                                                              Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                      builder: (context) =>
+                                                                          OtherUserProfileScreen(
+                                                                            otherUserId:
+                                                                                commentData.commentBy!.id!,
+                                                                          )));
+                                                            } else {
+                                                              Navigator.pushNamed(
+                                                                  context,
+                                                                  MyProfileScreen
+                                                                      .id);
+                                                            }
+                                                          }
+                                                        },
+                                                        child: Container(
+                                                          color: Colors
+                                                              .transparent,
+                                                          child: Text(
+                                                            '${commentData.commentBy?.username} : ',
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    kHelveticaMedium,
+                                                                fontSize: SizeConfig
+                                                                        .defaultSize *
+                                                                    1.3,
+                                                                color: Colors
+                                                                    .black),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Text(
+                                                            commentData.comment
+                                                                .toString(),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    kHelveticaRegular,
+                                                                fontSize: SizeConfig
+                                                                        .defaultSize *
+                                                                    1.4)),
+                                                      )
+                                                    ])),
+                                                    SizedBox(
+                                                        width: SizeConfig
+                                                                .defaultSize *
+                                                            1)
+                                                  ],
+                                                ),
+                                              ),
+                                              Text(
+                                                  commentData.createdAt == null
+                                                      ? ''
+                                                      : data.mainScreenProvider
+                                                          .convertDateTimeToAgo(
+                                                              commentData
+                                                                  .createdAt!,
+                                                              context),
+                                                  style: TextStyle(
+                                                      fontFamily:
+                                                          kHelveticaRegular,
+                                                      fontSize: SizeConfig
+                                                              .defaultSize *
+                                                          1.1)),
+                                            ],
+                                          ),
+                                        );
+                                }),
+                          )
+                        : SizedBox(
+                            height: SizeConfig.defaultSize,
+                          ),
                     widget.newsPost.commentCount != null &&
                             widget.newsPost.commentCount! > 2
                         ? Center(

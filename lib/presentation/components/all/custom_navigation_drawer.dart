@@ -1,3 +1,4 @@
+import 'package:c_talent/presentation/views/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -92,7 +93,9 @@ class CustomNavigationDrawer extends StatelessWidget {
                 text: AppLocalizations.of(context).logOut,
                 selected: NavigationItems.logOut == data.navigationItem,
                 onTap: () {
-                  data.logOut(context: context);
+                  // data.logOut(context: context);
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, LoginScreen.id, (route) => false);
                 },
               ),
               SizedBox(

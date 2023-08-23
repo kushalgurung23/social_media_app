@@ -1,11 +1,28 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:c_talent/data/constant/connection_url.dart';
+import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/enum/news_post_enum.dart';
+import 'package:c_talent/data/models/push_notification_model.dart';
+import 'package:c_talent/data/models/user_model.dart';
 // ignore: depend_on_referenced_packages
 import 'package:c_talent/data/new_models/all_news_posts.dart';
+import 'package:c_talent/data/new_models/news_post_likes.dart';
+import 'package:c_talent/data/new_models/single_news_comments.dart';
 import 'package:c_talent/data/new_models/single_news_post.dart';
-import 'package:c_talent/data/service/user_secure_storage.dart';
-import 'package:collection/collection.dart';
+import 'package:c_talent/data/repositories/new_post_repo.dart';
+import 'package:c_talent/data/repositories/news_comment_repo.dart';
+import 'package:c_talent/data/repositories/news_likes_repo.dart';
+import 'package:c_talent/data/repositories/news_post_repo.dart';
+import 'package:c_talent/data/repositories/profile_topic_repo.dart';
+import 'package:c_talent/data/repositories/push_notification_repo.dart';
+import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
+import 'package:c_talent/logic/providers/drawer_provider.dart';
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/views/my_profile_screen.dart';
+import 'package:c_talent/presentation/views/other_user_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -13,28 +30,6 @@ import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:c_talent/data/constant/color_constant.dart';
-import 'package:c_talent/data/constant/connection_url.dart';
-import 'package:c_talent/data/constant/font_constant.dart';
-import 'package:c_talent/data/enum/news_post_enum.dart';
-import 'package:c_talent/data/models/all_news_post_model.dart';
-import 'package:c_talent/data/models/news_post_likes_model.dart';
-import 'package:c_talent/data/models/push_notification_model.dart';
-import 'package:c_talent/data/models/user_model.dart';
-import 'package:c_talent/data/repositories/new_post_repo.dart';
-import 'package:c_talent/data/repositories/news_comment_repo.dart';
-import 'package:c_talent/data/repositories/news_post_repo.dart';
-import 'package:c_talent/data/repositories/profile_topic_repo.dart';
-import 'package:c_talent/data/repositories/push_notification_repo.dart';
-import 'package:c_talent/data/repositories/report_news_post_repo.dart';
-import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
-import 'package:c_talent/logic/providers/drawer_provider.dart';
-import 'package:c_talent/logic/providers/main_screen_provider.dart';
-import 'package:c_talent/logic/providers/profile_provider.dart';
-import 'package:c_talent/presentation/helper/size_configuration.dart';
-import 'package:c_talent/presentation/views/my_profile_screen.dart';
-import 'package:c_talent/presentation/views/other_user_profile_screen.dart';
 
 class NewsAdProvider extends ChangeNotifier {
   GlobalKey<FormState> postContentKey = GlobalKey<FormState>();
@@ -79,7 +74,7 @@ class NewsAdProvider extends ChangeNotifier {
 
   String getUserType(
       {required String userType, required BuildContext context}) {
-    if (userType == 'Member') {
+    if (userType == 'Student') {
       return AppLocalizations.of(context).member;
     } else if (userType == 'Therapist') {
       return AppLocalizations.of(context).therapist;
@@ -262,29 +257,102 @@ class NewsAdProvider extends ChangeNotifier {
     // }
   }
 
-  StreamController<NewsPostLikes> newsPostLikesStreamController =
-      BehaviorSubject();
-  Future getNewsPostLikes(
-      {required String newsPostId, required BuildContext context}) async {
-    Response response = await NewsPostRepo.getAllNewsPostsLikes(
-        jwt: mainScreenProvider.currentAccessToken.toString(),
-        newsPostId: newsPostId);
+  // NEWS COMMENTS
+  bool isLoadingComments = false;
+  int commentsPageNumber = 1;
+  int commentsPageSize = 15;
+  bool hasMoreComments = true;
+
+  SingleNewsComments? _singleNewsComments;
+  SingleNewsComments? get singleNewsComments => _singleNewsComments;
+
+  Future<void> loadInitialNewsComments(
+      {required StreamController<SingleNewsComments?>
+          allNewsCommentStreamController,
+      required int newsPostId,
+      required BuildContext context}) async {
+    Response response = await NewsCommentRepo.getAllNewsComments(
+        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        page: commentsPageNumber.toString(),
+        pageSize: commentsPageSize.toString(),
+        newsPostId: newsPostId.toString());
+
     if (response.statusCode == 200) {
-      final newsPostLikes = newsPostLikesFromJson(response.body);
-      newsPostLikesStreamController.sink.add(newsPostLikes);
-      notifyListeners();
-      return true;
+      _singleNewsComments = singleNewsCommentsFromJson(response.body);
+      if (_singleNewsComments != null) {
+        allNewsCommentStreamController.sink.add(_singleNewsComments);
+        notifyListeners();
+      }
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context.mounted) {
         EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
             dismissOnTap: false, duration: const Duration(seconds: 4));
         Provider.of<DrawerProvider>(context, listen: false)
             .removeCredentials(context: context);
-        return false;
+        return;
       }
-    } else {
-      return false;
     }
+  }
+
+  // Loading more news posts when user reach maximum pageSize item of a page in listview
+  Future<void> loadMoreNewsComments(
+      {required BuildContext context,
+      required StreamController<SingleNewsComments?>
+          allNewsCommentStreamController,
+      required int newsPostId}) async {
+    commentsPageNumber++;
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
+    if (isLoadingComments) {
+      return;
+    }
+    isLoadingComments = true;
+
+    Response response = await NewsCommentRepo.getAllNewsComments(
+        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        page: commentsPageNumber.toString(),
+        pageSize: commentsPageSize.toString(),
+        newsPostId: newsPostId.toString());
+    if (response.statusCode == 200) {
+      final newComments = singleNewsCommentsFromJson(response.body);
+
+      // isLoading = false indicates that the loading is complete
+      isLoadingComments = false;
+
+      if (newComments?.comments == null) return;
+      // If the newly added data is less than our default pageSize, it means we won't have further more data. Hence hasMore = false
+      if (newComments!.comments!.length < commentsPageSize) {
+        hasMoreComments = false;
+      }
+      // ADDING NEWS COMMENTS IN TOTAL NEWS COMMENTS
+      if (_singleNewsComments != null &&
+          _singleNewsComments?.comments != null) {
+        for (int i = 0; i < newComments.comments!.length; i++) {
+          _singleNewsComments!.comments!.add(newComments.comments![i]);
+        }
+        allNewsCommentStreamController.sink.add(_singleNewsComments);
+      }
+      notifyListeners();
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
+      if (context.mounted) {
+        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+            dismissOnTap: false, duration: const Duration(seconds: 4));
+        Provider.of<DrawerProvider>(context, listen: false)
+            .removeCredentials(context: context);
+        return;
+      }
+    }
+  }
+
+  void goBackFromNewsDescriptionScreen(
+      {required TextEditingController newsCommentTextController,
+      required BuildContext context}) {
+    commentsPageNumber = 1;
+    commentsPageSize = 15;
+    hasMoreComments = true;
+    isLoadingComments = false;
+    newsCommentTextController.clear();
+    notifyListeners();
+    Navigator.of(context).pop();
   }
 
   Future refreshNewsPosts({required BuildContext context}) async {
@@ -298,6 +366,102 @@ class NewsAdProvider extends ChangeNotifier {
     await loadInitialNewsPosts(context: context);
     // await setUnreadNotificationBadge();
     notifyListeners();
+  }
+
+  // NEWS POST LIKES
+  bool isLoadingLikes = false;
+  int likesPageNumber = 1;
+  int likesPageSize = 15;
+  bool hasMoreLikes = true;
+
+  NewsPostLikes? _singleNewsLikes;
+  NewsPostLikes? get singleNewsLikes => _singleNewsLikes;
+
+  Future<void> loadInitialNewsLikes(
+      {required StreamController<NewsPostLikes?> allNewsLikeStreamController,
+      required int newsPostId,
+      required BuildContext context}) async {
+    Response response = await NewsLikesRepo.getAllNewsLikes(
+        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        page: likesPageNumber.toString(),
+        pageSize: likesPageSize.toString(),
+        newsPostId: newsPostId.toString());
+
+    if (response.statusCode == 200) {
+      _singleNewsLikes = newsPostLikesFromJson(response.body);
+      if (_singleNewsLikes != null) {
+        allNewsLikeStreamController.sink.add(_singleNewsLikes);
+        notifyListeners();
+      }
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
+      if (context.mounted) {
+        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+            dismissOnTap: false, duration: const Duration(seconds: 4));
+        Provider.of<DrawerProvider>(context, listen: false)
+            .removeCredentials(context: context);
+        return;
+      }
+    }
+  }
+
+  // Loading more news posts when user reach maximum pageSize item of a page in listview
+  Future<void> loadMoreNewsLikes(
+      {required BuildContext context,
+      required StreamController<NewsPostLikes?> allNewsLikesStreamController,
+      required int newsPostId}) async {
+    likesPageNumber++;
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
+    if (isLoadingLikes) {
+      return;
+    }
+    isLoadingLikes = true;
+
+    Response response = await NewsLikesRepo.getAllNewsLikes(
+        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        page: likesPageNumber.toString(),
+        pageSize: likesPageSize.toString(),
+        newsPostId: newsPostId.toString());
+    if (response.statusCode == 200) {
+      final newLikes = newsPostLikesFromJson(response.body);
+
+      // isLoading = false indicates that the loading is complete
+      isLoadingLikes = false;
+
+      if (newLikes.likes == null) return;
+      // If the newly added data is less than our default pageSize, it means we won't have further more data. Hence hasMore = false
+      if (newLikes.likes!.length < likesPageSize) {
+        hasMoreLikes = false;
+      }
+      // ADDING NEWS LIKES IN TOTAL NEWS LIKES
+      if (_singleNewsLikes != null && _singleNewsLikes?.likes != null) {
+        for (int i = 0; i < newLikes.likes!.length; i++) {
+          _singleNewsLikes!.likes!.add(newLikes.likes![i]);
+        }
+        allNewsLikesStreamController.sink.add(_singleNewsLikes);
+      }
+      notifyListeners();
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
+      if (context.mounted) {
+        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+            dismissOnTap: false, duration: const Duration(seconds: 4));
+        Provider.of<DrawerProvider>(context, listen: false)
+            .removeCredentials(context: context);
+        return;
+      }
+    }
+  }
+
+  void clearNewsLikesDetails() {
+    likesPageNumber = 1;
+    likesPageSize = 15;
+    hasMoreLikes = true;
+    isLoadingLikes = false;
+    notifyListeners();
+  }
+
+  void goBackFromNewsLikesScreen({required BuildContext context}) {
+    clearNewsLikesDetails();
+    Navigator.of(context).pop();
   }
 
   // Profile topics
@@ -374,24 +538,6 @@ class NewsAdProvider extends ChangeNotifier {
           contentColor: Colors.white,
           backgroundColor: Colors.red);
     }
-  }
-
-  bool checkNewsPostSaveStatus({required int postId}) {
-    return true;
-    // if (mainScreenProvider.savedNewsPostIdList.contains(postId)) {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
-  }
-
-  bool checkNewsPostLikeStatus({required int postId}) {
-    // if (mainScreenProvider.likedPostIdList.contains(postId)) {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
-    return true;
   }
 
   bool toggleSaveOnProcess = false;
@@ -1267,7 +1413,6 @@ class NewsAdProvider extends ChangeNotifier {
   }
 
   Widget likedAvatars({required bool isLike, required List<Like?>? likes}) {
-    print("CHECK");
     if (likes == null || likes.isEmpty) {
       return const SizedBox();
       // If it's liked only by the current user
@@ -1925,7 +2070,6 @@ class NewsAdProvider extends ChangeNotifier {
     postContentController.dispose();
     postTitleController.dispose();
     allNewsPostController.close();
-    newsPostLikesStreamController.close();
     super.dispose();
   }
 }

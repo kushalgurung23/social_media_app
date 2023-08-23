@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:c_talent/data/models/all_news_post_model.dart';
 
-NewsPostLikes newsPostLikesFromJson(String str) =>
-    NewsPostLikes.fromJson(json.decode(str));
+NewsPostLikesss newsPostLikesssFromJson(String str) =>
+    NewsPostLikesss.fromJson(json.decode(str));
 
-String newsPostLikesToJson(NewsPostLikes data) => json.encode(data.toJson());
+String newsPostLikesToJson(NewsPostLikesss data) => json.encode(data.toJson());
 
-class NewsPostLikes {
-  NewsPostLikes({
+class NewsPostLikesss {
+  NewsPostLikesss({
     this.data,
     this.meta,
   });
@@ -15,7 +15,8 @@ class NewsPostLikes {
   NewsPostLikesData? data;
   Meta? meta;
 
-  factory NewsPostLikes.fromJson(Map<String, dynamic> json) => NewsPostLikes(
+  factory NewsPostLikesss.fromJson(Map<String, dynamic> json) =>
+      NewsPostLikesss(
         data: NewsPostLikesData.fromJson(json["data"]),
         meta: Meta.fromJson(json["meta"]),
       );

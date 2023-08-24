@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/new_models/all_news_posts.dart';
 import 'package:c_talent/data/new_models/single_news_comments.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/presentation/components/news/comment_container.dart';
@@ -9,9 +10,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class CommentListview extends StatefulWidget {
-  final StreamController<SingleNewsComments?> allNewsCommentStreamController;
+  final NewsPost newsPost;
+  final StreamController<List<NewsComment>?> allNewsCommentStreamController;
   const CommentListview(
-      {Key? key, required this.allNewsCommentStreamController})
+      {Key? key,
+      required this.newsPost,
+      required this.allNewsCommentStreamController})
       : super(key: key);
 
   @override
@@ -24,8 +28,8 @@ class _CommentListviewState extends State<CommentListview> {
     return Consumer<NewsAdProvider>(builder: (context, data, child) {
       return Padding(
         padding: EdgeInsets.only(bottom: SizeConfig.defaultSize * 2),
-        child: StreamBuilder<SingleNewsComments?>(
-          initialData: data.singleNewsComments,
+        child: StreamBuilder<List<NewsComment>?>(
+          initialData: widget.newsPost.comments,
           stream: widget.allNewsCommentStreamController.stream,
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
@@ -60,8 +64,7 @@ class _CommentListviewState extends State<CommentListview> {
                     ),
                   );
                 } else if (snapshot.hasData) {
-                  return snapshot.data == null ||
-                          snapshot.data?.comments == null
+                  return snapshot.data == null
                       ? Center(
                           // translate
                           child: Text(
@@ -75,14 +78,14 @@ class _CommentListviewState extends State<CommentListview> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           addAutomaticKeepAlives: true,
-                          itemCount: snapshot.data!.comments!.length >=
-                                  data.commentsPageSize
-                              ? snapshot.data!.comments!.length + 1
-                              : snapshot.data!.comments!.length,
+                          itemCount:
+                              snapshot.data!.length >= data.commentsPageSize
+                                  ? snapshot.data!.length + 1
+                                  : snapshot.data!.length,
                           itemBuilder: (context, index) {
-                            if (index < snapshot.data!.comments!.length) {
+                            if (index < snapshot.data!.length) {
                               return CommentContainer(
-                                  comment: snapshot.data!.comments![index]);
+                                  comment: snapshot.data![index]);
                             } else {
                               return Padding(
                                 padding: EdgeInsets.symmetric(
@@ -106,7 +109,8 @@ class _CommentListviewState extends State<CommentListview> {
                 } else {
                   return Center(
                     child: Text(
-                      AppLocalizations.of(context).noNewsPosts,
+                      // translate
+                      "Comments could not load",
                       style: TextStyle(
                           fontFamily: kHelveticaRegular,
                           fontSize: SizeConfig.defaultSize * 1.5),

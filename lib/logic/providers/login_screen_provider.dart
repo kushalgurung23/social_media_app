@@ -87,7 +87,9 @@ class LoginScreenProvider extends ChangeNotifier {
           return;
         }
         await saveUserCredentials(
+            profilePicture: loginSuccess.user?.profilePicture,
             userId: loginSuccess.user!.id.toString(),
+            username: loginSuccess.user!.username.toString(),
             refreshToken: loginSuccess.refreshToken.toString(),
             accessToken: loginSuccess.accessToken.toString());
         EasyLoading.dismiss();
@@ -114,16 +116,22 @@ class LoginScreenProvider extends ChangeNotifier {
 
   Future<void> saveUserCredentials(
       {required String userId,
+      required String username,
       required String refreshToken,
-      required String accessToken}) async {
+      required String accessToken,
+      required String? profilePicture}) async {
     mainScreenProvider.saveUserLoginDetails(
+        currentProfilePicture: profilePicture,
         currentUserId: userId,
+        username: username,
         currentAccessToken: accessToken,
         isKeepUserLoggedIn: isKeepUserLoggedIn);
     clearLoginInput();
     if (isKeepUserLoggedIn) {
       await UserSecureStorage.secureAndSaveUserDetails(
+          profilePicture: profilePicture,
           userId: userId,
+          currentUsername: username,
           refreshToken: refreshToken,
           accessToken: accessToken,
           isKeepUserLoggedIn: isKeepUserLoggedIn);

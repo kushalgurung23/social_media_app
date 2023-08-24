@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 AllNewsPosts allNewsPostsFromJson(String str) =>
     AllNewsPosts.fromJson(json.decode(str));
 
@@ -98,10 +100,14 @@ class NewsPost {
             json["posted_by"] == null ? null : By.fromJson(json["posted_by"]),
         createdAt: json["created_at"] == null
             ? null
-            : DateTime.parse(json["created_at"]),
+            : DateFormat("yyyy-MM-dd HH:mm:ss")
+                .parse(json["created_at"], true)
+                .toLocal(),
         updatedAt: json["updated_at"] == null
             ? null
-            : DateTime.parse(json["updated_at"]),
+            : DateFormat("yyyy-MM-dd HH:mm:ss")
+                .parse(json["updated_at"], true)
+                .toLocal(),
         likesCount: json["likes_count"],
         commentCount: json["comment_count"],
       );
@@ -129,10 +135,14 @@ class NewsComment {
             json["comment_by"] == null ? null : By.fromJson(json["comment_by"]),
         createdAt: json["created_at"] == null
             ? null
-            : DateTime.parse(json["created_at"]),
+            : DateFormat("yyyy-MM-dd HH:mm:ss")
+                .parse(json["created_at"], true)
+                .toLocal(),
         updatedAt: json["updated_at"] == null
             ? null
-            : DateTime.parse(json["updated_at"]),
+            : DateFormat("yyyy-MM-dd HH:mm:ss")
+                .parse(json["updated_at"], true)
+                .toLocal(),
       );
 }
 
@@ -192,9 +202,13 @@ class Like {
             json["liked_by"] == null ? null : By.fromJson(json["liked_by"]),
         createdAt: json["created_at"] == null
             ? null
-            : DateTime.parse(json["created_at"]),
+            : DateFormat("yyyy-MM-dd HH:mm:ss")
+                .parse(json["created_at"], true)
+                .toLocal(),
         updatedAt: json["updated_at"] == null
             ? null
-            : DateTime.parse(json["updated_at"]),
+            : DateFormat("yyyy-MM-dd HH:mm:ss")
+                .parse(json["updated_at"], true)
+                .toLocal(),
       );
 }

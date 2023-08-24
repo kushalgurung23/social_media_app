@@ -4,7 +4,6 @@ import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/data/enum/post_type.dart';
 // ignore: depend_on_referenced_packages
 import 'package:c_talent/data/new_models/all_news_posts.dart';
-import 'package:c_talent/data/new_models/single_news_comments.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/presentation/components/all/post_top_body.dart';
 import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
@@ -39,7 +38,7 @@ class NewsDescriptionScreen extends StatefulWidget {
 }
 
 class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
-  StreamController<SingleNewsComments?> allNewsCommentStreamController =
+  StreamController<List<NewsComment>?> allNewsCommentStreamController =
       BehaviorSubject();
   late FocusNode focusNode;
   final scrollController = ScrollController();
@@ -65,7 +64,7 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
   Future<void> loadInitialNewsComments() async {
     await Provider.of<NewsAdProvider>(context, listen: false)
         .loadInitialNewsComments(
-            newsPostId: widget.newsPost.id!,
+            newsPost: widget.newsPost,
             context: context,
             allNewsCommentStreamController: allNewsCommentStreamController);
   }
@@ -75,7 +74,7 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
         .loadMoreNewsComments(
             context: context,
             allNewsCommentStreamController: allNewsCommentStreamController,
-            newsPostId: widget.newsPost.id!);
+            newsPost: widget.newsPost);
   }
 
   @override
@@ -212,11 +211,19 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
                                                 isSave: widget.newsPost.isSaved == 1
                                                     ? true
                                                     : false,
-                                                saveOnPress: () async {},
+                                                saveOnPress: () async {
+                                                  await data.toggleNewsPostSave(
+                                                      newsPost: widget.newsPost,
+                                                      context: context);
+                                                },
                                                 isLike: widget.newsPost.isLiked == 1
                                                     ? true
                                                     : false,
-                                                likeOnPress: () async {},
+                                                likeOnPress: () async {
+                                                  await data.toggleNewsPostLike(
+                                                      newsPost: widget.newsPost,
+                                                      context: context);
+                                                },
                                                 hasLikes: widget.newsPost.likesCount == null ||
                                                         widget.newsPost.likesCount! < 1
                                                     ? false
@@ -234,13 +241,17 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
                                                                         .toString()),
                                                               )));
                                                 },
-                                                likedAvtars: data.likedAvatars(likes: widget.newsPost.likes, isLike: widget.newsPost.isLiked == 1 ? true : false),
+                                                likedAvtars: data.likedAvatars(newsPost: widget.newsPost, isLike: widget.newsPost.isLiked == 1 ? true : false),
                                                 totalLikes: data.getLike(likeCount: widget.newsPost.likesCount ?? 0, context: context)),
                                           ),
                                           // News comment
-                                          widget.newsPost.id == null
+                                          widget.newsPost.comments == null ||
+                                                  widget.newsPost
+                                                          .commentCount ==
+                                                      0
                                               ? const SizedBox()
                                               : CommentListview(
+                                                  newsPost: widget.newsPost,
                                                   allNewsCommentStreamController:
                                                       allNewsCommentStreamController,
                                                 ),
@@ -294,16 +305,11 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
                                                 isReverse: true);
                                             focusNode.unfocus();
 
-                                            // await data.postNewsComment(
-                                            //     newsPostSource:
-                                            //         NewsPostSource.all,
-                                            //     context: context,
-                                            //     newsPostId:
-                                            //         newsPost.id.toString(),
-                                            //     newsCommentController: widget
-                                            //         .newsCommentTextEditingController,
-                                            //     setLikeSaveCommentFollow:
-                                            //         false);
+                                            await data.writeNewsPostComment(
+                                                newsPost: widget.newsPost,
+                                                commentTextController: widget
+                                                    .newsCommentTextEditingController,
+                                                context: context);
                                           }
                                         },
                                         borderRadius:

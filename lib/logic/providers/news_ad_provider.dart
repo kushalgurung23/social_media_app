@@ -17,6 +17,7 @@ import 'package:c_talent/data/repositories/news_likes_repo.dart';
 import 'package:c_talent/data/repositories/news_post_repo.dart';
 import 'package:c_talent/data/repositories/profile_topic_repo.dart';
 import 'package:c_talent/data/repositories/push_notification_repo.dart';
+import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
 import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
@@ -30,6 +31,8 @@ import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
+// ignore: depend_on_referenced_packages
+import 'package:collection/collection.dart';
 
 class NewsAdProvider extends ChangeNotifier {
   GlobalKey<FormState> postContentKey = GlobalKey<FormState>();
@@ -101,27 +104,38 @@ class NewsAdProvider extends ChangeNotifier {
 
   // This method will be called to gets news posts, when user is logged in
   Future<void> loadInitialNewsPosts({required BuildContext context}) async {
-    Response response = await NewsPostRepo.getAllNewsPosts(
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
-        page: page.toString(),
-        pageSize: pageSize.toString());
-
-    if (response.statusCode == 200) {
-      _allNewsPosts = allNewsPostsFromJson(response.body);
-      if (_allNewsPosts != null) {
-        allNewsPostController.sink.add(_allNewsPosts!);
-        notifyListeners();
-      }
-    } else if (response.statusCode == 401 || response.statusCode == 403) {
-      if (context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-        Provider.of<DrawerProvider>(context, listen: false)
-            .removeCredentials(context: context);
+    try {
+      Response response = await NewsPostRepo.getAllNewsPosts(
+          accessToken: mainScreenProvider.currentAccessToken.toString(),
+          page: page.toString(),
+          pageSize: pageSize.toString());
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        _allNewsPosts = allNewsPostsFromJson(response.body);
+        if (_allNewsPosts != null) {
+          allNewsPostController.sink.add(_allNewsPosts!);
+          notifyListeners();
+        }
+      } else if (response.statusCode == 401 || response.statusCode == 403) {
+        if (context.mounted) {
+          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+              dismissOnTap: false, duration: const Duration(seconds: 4));
+          Provider.of<DrawerProvider>(context, listen: false)
+              .removeCredentials(context: context);
+          return;
+        }
+      } else {
+        if (context.mounted) {
+          EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
+              dismissOnTap: false, duration: const Duration(seconds: 4));
+        }
         return;
       }
-    } else {
-      return;
+    } catch (err) {
+      if (err.toString() == 'Connection refused') {
+        EasyLoading.showInfo("Please check your internet connection.",
+            duration: const Duration(seconds: 5), dismissOnTap: true);
+      }
     }
   }
 
@@ -263,24 +277,28 @@ class NewsAdProvider extends ChangeNotifier {
   int commentsPageSize = 15;
   bool hasMoreComments = true;
 
-  SingleNewsComments? _singleNewsComments;
-  SingleNewsComments? get singleNewsComments => _singleNewsComments;
+  // SingleNewsComments? _singleNewsComments;
+  // SingleNewsComments? get singleNewsComments => _singleNewsComments;
 
   Future<void> loadInitialNewsComments(
-      {required StreamController<SingleNewsComments?>
+      {required StreamController<List<NewsComment>?>
           allNewsCommentStreamController,
-      required int newsPostId,
+      required NewsPost newsPost,
       required BuildContext context}) async {
     Response response = await NewsCommentRepo.getAllNewsComments(
         accessToken: mainScreenProvider.currentAccessToken.toString(),
         page: commentsPageNumber.toString(),
         pageSize: commentsPageSize.toString(),
-        newsPostId: newsPostId.toString());
+        newsPostId: newsPost.id.toString());
 
     if (response.statusCode == 200) {
-      _singleNewsComments = singleNewsCommentsFromJson(response.body);
-      if (_singleNewsComments != null) {
-        allNewsCommentStreamController.sink.add(_singleNewsComments);
+      final singleNewsComments = singleNewsCommentsFromJson(response.body);
+      if (singleNewsComments != null) {
+        // FOR NEWS POST LIST
+        newsPost.comments = singleNewsComments.comments;
+
+        // FOR NEWS POST DESCRIPTION SCREEN
+        allNewsCommentStreamController.sink.add(newsPost.comments);
         notifyListeners();
       }
     } else if (response.statusCode == 401 || response.statusCode == 403) {
@@ -291,15 +309,19 @@ class NewsAdProvider extends ChangeNotifier {
             .removeCredentials(context: context);
         return;
       }
+    } else {
+      // translate
+      EasyLoading.showInfo("Sorry, comments could not load.",
+          dismissOnTap: true, duration: const Duration(seconds: 4));
     }
   }
 
   // Loading more news posts when user reach maximum pageSize item of a page in listview
   Future<void> loadMoreNewsComments(
       {required BuildContext context,
-      required StreamController<SingleNewsComments?>
+      required StreamController<List<NewsComment>?>
           allNewsCommentStreamController,
-      required int newsPostId}) async {
+      required NewsPost newsPost}) async {
     commentsPageNumber++;
     // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
     if (isLoadingComments) {
@@ -311,7 +333,7 @@ class NewsAdProvider extends ChangeNotifier {
         accessToken: mainScreenProvider.currentAccessToken.toString(),
         page: commentsPageNumber.toString(),
         pageSize: commentsPageSize.toString(),
-        newsPostId: newsPostId.toString());
+        newsPostId: newsPost.id.toString());
     if (response.statusCode == 200) {
       final newComments = singleNewsCommentsFromJson(response.body);
 
@@ -324,12 +346,13 @@ class NewsAdProvider extends ChangeNotifier {
         hasMoreComments = false;
       }
       // ADDING NEWS COMMENTS IN TOTAL NEWS COMMENTS
-      if (_singleNewsComments != null &&
-          _singleNewsComments?.comments != null) {
+      if (newsPost.comments != null) {
+        // ADDING NEW COMMENTS FOR NEWS POST LIST
         for (int i = 0; i < newComments.comments!.length; i++) {
-          _singleNewsComments!.comments!.add(newComments.comments![i]);
+          newsPost.comments!.add(newComments.comments![i]);
         }
-        allNewsCommentStreamController.sink.add(_singleNewsComments);
+        // ADD NEW COMMENTS FOR NEWS POST DESCRIPTION SCREEN
+        allNewsCommentStreamController.sink.add(newsPost.comments);
       }
       notifyListeners();
     } else if (response.statusCode == 401 || response.statusCode == 403) {
@@ -340,6 +363,10 @@ class NewsAdProvider extends ChangeNotifier {
             .removeCredentials(context: context);
         return;
       }
+    } else {
+      // translate
+      EasyLoading.showInfo("Sorry, comments could not load.",
+          dismissOnTap: true, duration: const Duration(seconds: 4));
     }
   }
 
@@ -543,168 +570,196 @@ class NewsAdProvider extends ChangeNotifier {
   bool toggleSaveOnProcess = false;
 
   Future<void> toggleNewsPostSave(
-      {required NewsPostSource newsPostSource,
-      required String? newsPostSaveId,
-      required BuildContext context,
-      required String postId,
-      required bool setLikeSaveCommentFollow}) async {
+      {required NewsPost newsPost, required BuildContext context}) async {
     if (toggleSaveOnProcess == true) {
       // Please wait
       EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
           dismissOnTap: false, duration: const Duration(seconds: 1));
       return;
-    } else if (toggleSaveOnProcess == false) {
-      // toggleSaveOnProcess = true;
-      // Response response;
-      // if (mainScreenProvider.savedNewsPostIdList.contains(int.parse(postId)) &&
-      //     newsPostSaveId != null) {
-      //   mainScreenProvider.savedNewsPostIdList.remove(int.parse(postId));
-      //   response = await NewsPostRepo.removeNewsPostSave(
-      //       newsPostSavedId: newsPostSaveId,
-      //       jwt: sharedPreferences.getString('jwt')!);
-      // } else {
-      //   mainScreenProvider.savedNewsPostIdList.add(int.parse(postId));
-      //   Map bodyData = {
-      //     "data": {"saved_by": mainScreenProvider.userId, "news_post": postId}
-      //   };
-      //   response = await NewsPostRepo.addNewsPostSave(
-      //       bodyData: bodyData, jwt: sharedPreferences.getString('jwt')!);
-      // }
-      // notifyListeners();
-      // if (response.statusCode == 200 && context.mounted) {
-      //   await Future.wait([
-      //     updateSelectedNewsPosts(
-      //         context: context,
-      //         newsPostId: postId,
-      //         newsPostSource: newsPostSource),
-      //     mainScreenProvider.updateAndSetUserDetails(
-      //         context: context,
-      //         setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-      //   ]);
-      //   toggleSaveOnProcess = false;
-      //   notifyListeners();
-      // } else if (response.statusCode == 401 || response.statusCode == 403) {
-      //   toggleSaveOnProcess = false;
-      //   notifyListeners();
-      //   if (context.mounted) {
-      //     EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-      //         dismissOnTap: false, duration: const Duration(seconds: 4));
-      //     Provider.of<DrawerProvider>(context, listen: false)
-      //         .removeCredentials(context: context);
-      //     return;
-      //   }
-      // } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
-      //     'Not Found') {
-      //   toggleSaveOnProcess = false;
-      //   notifyListeners();
-      //   showSnackBar(
-      //       context: context,
-      //       content: AppLocalizations.of(context).tryAgainLater,
-      //       contentColor: Colors.white,
-      //       backgroundColor: Colors.red);
-      // } else {
-      //   toggleSaveOnProcess = false;
-      //   notifyListeners();
-      //   showSnackBar(
-      //       context: context,
-      //       content: AppLocalizations.of(context).tryAgainLater,
-      //       contentColor: Colors.white,
-      //       backgroundColor: Colors.red);
-      // }
+    } else {
+      toggleSaveOnProcess = true;
+      int? currentSaveStatus = newsPost.isSaved;
+      if (currentSaveStatus == 1) {
+        newsPost.isSaved = 0;
+      } else {
+        newsPost.isSaved = 1;
+      }
+      notifyListeners();
+      Response response = await NewsPostRepo.toggleNewsPostSave(
+          jwt: mainScreenProvider.currentAccessToken.toString(),
+          bodyData: jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
+
+      if (response.statusCode == 200 && context.mounted) {
+        toggleSaveOnProcess = false;
+        notifyListeners();
+      } else if (response.statusCode == 400 ||
+          response.statusCode == 404 &&
+              (jsonDecode(response.body))["status"] == 'Error') {
+        // if error occurs, keep current save status
+        newsPost.isSaved = currentSaveStatus;
+        toggleSaveOnProcess = false;
+        notifyListeners();
+        if (context.mounted) {
+          EasyLoading.showInfo((jsonDecode(response.body))["msg"],
+              dismissOnTap: false, duration: const Duration(seconds: 4));
+        }
+      } else {
+        // if error occurs, keep current save status
+        newsPost.isSaved = currentSaveStatus;
+        toggleSaveOnProcess = false;
+        notifyListeners();
+        EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
+            dismissOnTap: false, duration: const Duration(seconds: 4));
+      }
     }
-    toggleSaveOnProcess = false;
-    notifyListeners();
   }
 
   bool toggleLikeOnProcess = false;
 
   Future<void> toggleNewsPostLike(
-      {required NewsPostSource newsPostSource,
-      required String? newsPostLikeId,
-      required BuildContext context,
-      required String postId,
-      required bool setLikeSaveCommentFollow,
-      required int postLikeCount}) async {
-    // if (toggleLikeOnProcess == true) {
-    //   // Please wait
-    //   EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
-    //       dismissOnTap: false, duration: const Duration(seconds: 1));
-    //   return;
-    // } else if (toggleLikeOnProcess == false) {
-    //   toggleLikeOnProcess = true;
-    //   Response response;
+      {required NewsPost newsPost, required BuildContext context}) async {
+    if (toggleLikeOnProcess == true) {
+      // Please wait
+      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
+          dismissOnTap: false, duration: const Duration(seconds: 1));
+      return;
+    } else {
+      toggleLikeOnProcess = true;
+      int? currentLikeStatus = newsPost.isLiked;
+      if (currentLikeStatus == 1) {
+        newsPost.isLiked = 0;
+      } else {
+        newsPost.isLiked = 1;
+      }
+      notifyListeners();
+      Response response = await NewsPostRepo.toggleNewsPostLike(
+          jwt: mainScreenProvider.currentAccessToken.toString(),
+          bodyData: jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
 
-    //   if (mainScreenProvider.likedPostIdList.contains(int.parse(postId)) &&
-    //       newsPostLikeId != null) {
-    //     mainScreenProvider.likedPostIdList.remove(int.parse(postId));
-    //     postLikeCount--;
-    //     Map bodyDataTwo = {
-    //       "data": {"like_count": postLikeCount.toString()}
-    //     };
-    //     response = await NewsPostRepo.removeNewsPostLike(
-    //         newsPostLikeId: newsPostLikeId,
-    //         jwt: sharedPreferences.getString('jwt')!,
-    //         bodyDataTwo: bodyDataTwo,
-    //         postId: postId);
-    //   } else {
-    //     mainScreenProvider.likedPostIdList.add(int.parse(postId));
-    //     postLikeCount++;
-    //     Map bodyDataOne = {
-    //       "data": {"liked_by": mainScreenProvider.userId, "news_post": postId}
-    //     };
-    //     Map bodyDataTwo = {
-    //       "data": {"like_count": postLikeCount.toString()}
-    //     };
-    //     response = await NewsPostRepo.addNewsPostLike(
-    //         bodyDataOne: bodyDataOne,
-    //         jwt: sharedPreferences.getString('jwt')!,
-    //         bodyDataTwo: bodyDataTwo,
-    //         postId: postId);
-    //   }
-    //   notifyListeners();
-    //   if (response.statusCode == 200 && context.mounted) {
-    //     await Future.wait([
-    //       updateSelectedNewsPosts(
-    //           context: context,
-    //           newsPostId: postId,
-    //           newsPostSource: newsPostSource),
-    //       mainScreenProvider.updateAndSetUserDetails(
-    //           context: context,
-    //           setLikeSaveCommentFollow: setLikeSaveCommentFollow)
-    //     ]);
-    //     toggleLikeOnProcess = false;
-    //     notifyListeners();
-    //   } else if (response.statusCode == 401 || response.statusCode == 403) {
-    //     toggleLikeOnProcess = false;
-    //     notifyListeners();
-    //     if (context.mounted) {
-    //       EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-    //           dismissOnTap: false, duration: const Duration(seconds: 4));
-    //       Provider.of<DrawerProvider>(context, listen: false)
-    //           .removeCredentials(context: context);
-    //       return;
-    //     }
-    //   } else if (((jsonDecode(response.body))["error"]["message"]).toString() ==
-    //       'Not Found') {
-    //     toggleLikeOnProcess = false;
-    //     notifyListeners();
-    //     showSnackBar(
-    //         context: context,
-    //         content: AppLocalizations.of(context).tryAgainLater,
-    //         contentColor: Colors.white,
-    //         backgroundColor: Colors.red);
-    //   } else {
-    //     toggleLikeOnProcess = false;
-    //     notifyListeners();
-    //     showSnackBar(
-    //         context: context,
-    //         content: AppLocalizations.of(context).tryAgainLater,
-    //         contentColor: Colors.white,
-    //         backgroundColor: Colors.red);
-    //   }
-    // }
-    // toggleLikeOnProcess = false;
-    // notifyListeners();
+      if (response.statusCode == 200 && context.mounted) {
+        print(mainScreenProvider.currentProfilePicture);
+        // SHOW PROFILE IMAGE AVATAR
+        if (newsPost.isLiked == 1) {
+          newsPost.likes?.insert(
+              0,
+              Like(
+                  likedBy: By(
+                      id: int.tryParse(
+                          mainScreenProvider.currentUserId.toString()),
+                      profilePicture:
+                          mainScreenProvider.currentProfilePicture)));
+          if (newsPost.likesCount != null) {
+            newsPost.likesCount = newsPost.likesCount! + 1;
+          }
+        }
+        // REMOVE PROFILE IMAGE AVATAR
+        else {
+          newsPost.likes?.removeWhere((element) =>
+              element.likedBy?.id ==
+              int.tryParse(mainScreenProvider.currentUserId.toString()));
+          if (newsPost.likesCount != null) {
+            newsPost.likesCount = newsPost.likesCount! - 1;
+          }
+        }
+        toggleLikeOnProcess = false;
+        notifyListeners();
+      } else if (response.statusCode == 400 ||
+          response.statusCode == 404 &&
+              (jsonDecode(response.body))["status"] == 'Error') {
+        // if error occurs, keep current save status
+        newsPost.isLiked = currentLikeStatus;
+        toggleLikeOnProcess = false;
+        notifyListeners();
+        if (context.mounted) {
+          EasyLoading.showInfo((jsonDecode(response.body))["msg"],
+              dismissOnTap: false, duration: const Duration(seconds: 4));
+        }
+      } else {
+        // if error occurs, keep current save status
+        newsPost.isLiked = currentLikeStatus;
+        toggleLikeOnProcess = false;
+        notifyListeners();
+        EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
+            dismissOnTap: false, duration: const Duration(seconds: 4));
+      }
+    }
+  }
+
+  bool toggleCommentOnProcess = false;
+
+  Future<void> writeNewsPostComment(
+      {required NewsPost newsPost,
+      required TextEditingController commentTextController,
+      required BuildContext context}) async {
+    if (toggleCommentOnProcess == true) {
+      // Please wait
+      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
+          dismissOnTap: false, duration: const Duration(seconds: 1));
+      return;
+    } else {
+      toggleCommentOnProcess = true;
+      final currentLocalDateTime = DateTime.now();
+
+      addNewCommentToObject(
+          newsComments: newsPost.comments,
+          currentLocalDateTime: currentLocalDateTime,
+          commentTextController: commentTextController);
+      if (newsPost.commentCount != null) {
+        newsPost.commentCount = newsPost.commentCount! + 1;
+      }
+      notifyListeners();
+      Response response = await NewsPostRepo.writeNewsComment(
+          jwt: mainScreenProvider.currentAccessToken.toString(),
+          bodyData: jsonEncode({
+            "post_id": int.parse(newsPost.id.toString()),
+            "comment": commentTextController.text,
+            "created_at_utc": currentLocalDateTime.toUtc().toString(),
+            "updated_at_utc": currentLocalDateTime.toUtc().toString()
+          }));
+      if (response.statusCode == 200 && context.mounted) {
+        commentTextController.clear();
+        toggleCommentOnProcess = false;
+        notifyListeners();
+      } else if (response.statusCode == 400 ||
+          response.statusCode == 404 &&
+              (jsonDecode(response.body))["status"] == 'Error') {
+        if (newsPost.commentCount != null) {
+          newsPost.commentCount = newsPost.commentCount! - 1;
+        }
+        // if error occurs, remove new comment
+        newsPost.comments?.removeAt(0);
+        toggleCommentOnProcess = false;
+        notifyListeners();
+        EasyLoading.showInfo((jsonDecode(response.body))["msg"],
+            dismissOnTap: false, duration: const Duration(seconds: 4));
+      } else {
+        if (newsPost.commentCount != null) {
+          newsPost.commentCount = newsPost.commentCount! - 1;
+        }
+        // if error occurs, remove new comment
+        newsPost.comments?.removeAt(0);
+        toggleCommentOnProcess = false;
+        notifyListeners();
+        EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
+            dismissOnTap: false, duration: const Duration(seconds: 4));
+      }
+    }
+  }
+
+  void addNewCommentToObject(
+      {required List<NewsComment>? newsComments,
+      required DateTime currentLocalDateTime,
+      required TextEditingController commentTextController}) {
+    newsComments?.insert(
+        0,
+        NewsComment(
+            createdAt: currentLocalDateTime,
+            updatedAt: currentLocalDateTime,
+            comment: commentTextController.text,
+            commentBy: By(
+                id: int.tryParse(mainScreenProvider.currentUserId.toString()),
+                profilePicture: mainScreenProvider.currentProfilePicture,
+                username: mainScreenProvider.currentUsername)));
   }
 
   // if the comment is posted in further studies news post, then we will require currentCommentCount and comment count from discussCommentCounts in order to provide color to fire icon accordingly.
@@ -1412,7 +1467,8 @@ class NewsAdProvider extends ChangeNotifier {
     // }
   }
 
-  Widget likedAvatars({required bool isLike, required List<Like?>? likes}) {
+  Widget likedAvatars({required bool isLike, required NewsPost newsPost}) {
+    List<Like?>? likes = newsPost.likes?.reversed.toList();
     if (likes == null || likes.isEmpty) {
       return const SizedBox();
       // If it's liked only by the current user
@@ -1426,9 +1482,25 @@ class NewsAdProvider extends ChangeNotifier {
           : CircleAvatar(
               backgroundImage: NetworkImage(kIMAGEURL + profilePicture),
               radius: SizeConfig.defaultSize * 1.5);
-    } else if (likes.length == 2) {
-      String? firstProfilePicture = likes[0]?.likedBy?.profilePicture;
-      String? secondProfilePicture = likes[1]?.likedBy?.profilePicture;
+    }
+    // IF POST IS LIKED BY 2 USERS
+    else if (likes.length == 2) {
+      String? firstProfilePicture;
+      String? secondProfilePicture;
+      // IF CURRENT USER HAS LIKED POST, SHOW THIER PICTURE AT THE LAST
+      if (isLike) {
+        if (likes[0]?.likedBy?.id.toString() ==
+            mainScreenProvider.currentUserId) {
+          firstProfilePicture = likes[1]?.likedBy?.profilePicture;
+          secondProfilePicture = likes[0]?.likedBy?.profilePicture;
+        } else {
+          firstProfilePicture = likes[0]?.likedBy?.profilePicture;
+          secondProfilePicture = likes[1]?.likedBy?.profilePicture;
+        }
+      } else {
+        firstProfilePicture = likes[0]?.likedBy?.profilePicture;
+        secondProfilePicture = likes[1]?.likedBy?.profilePicture;
+      }
       return Stack(
         children: [
           // First avatar
@@ -1457,11 +1529,106 @@ class NewsAdProvider extends ChangeNotifier {
         ],
       );
     }
-    // If like count is >= 3
+    // If like count is == 3
+    else if (likes.length == 3) {
+      String? firstProfilePicture;
+      String? secondProfilePicture;
+      String? thirdProfilePicture;
+
+      if (isLike) {
+        if (likes[0]?.likedBy?.id.toString() ==
+            mainScreenProvider.currentUserId) {
+          firstProfilePicture = likes[1]?.likedBy?.profilePicture;
+          secondProfilePicture = likes[2]?.likedBy?.profilePicture;
+          thirdProfilePicture = likes[0]?.likedBy?.profilePicture;
+        } else if (likes[1]?.likedBy?.id.toString() ==
+            mainScreenProvider.currentUserId) {
+          firstProfilePicture = likes[0]?.likedBy?.profilePicture;
+          secondProfilePicture = likes[2]?.likedBy?.profilePicture;
+          thirdProfilePicture = likes[1]?.likedBy?.profilePicture;
+        } else {
+          firstProfilePicture = likes[0]?.likedBy?.profilePicture;
+          secondProfilePicture = likes[1]?.likedBy?.profilePicture;
+          thirdProfilePicture = likes[2]?.likedBy?.profilePicture;
+        }
+      } else {
+        firstProfilePicture = likes[0]?.likedBy?.profilePicture;
+        secondProfilePicture = likes[1]?.likedBy?.profilePicture;
+        thirdProfilePicture = likes[2]?.likedBy?.profilePicture;
+      }
+      return Stack(
+        children: [
+          // First avatar
+          firstProfilePicture == null
+              ? CircleAvatar(
+                  backgroundImage:
+                      const AssetImage("assets/images/default_profile.jpg"),
+                  radius: SizeConfig.defaultSize * 1.5)
+              : CircleAvatar(
+                  backgroundImage:
+                      NetworkImage(kIMAGEURL + firstProfilePicture),
+                  radius: SizeConfig.defaultSize * 1.5),
+
+          // Second avatar
+          Padding(
+            padding: EdgeInsets.only(left: SizeConfig.defaultSize * 1.3),
+            child: secondProfilePicture == null
+                ? CircleAvatar(
+                    backgroundImage:
+                        const AssetImage("assets/images/default_profile.jpg"),
+                    radius: SizeConfig.defaultSize * 1.5)
+                : CircleAvatar(
+                    backgroundImage:
+                        NetworkImage(kIMAGEURL + secondProfilePicture),
+                    radius: SizeConfig.defaultSize * 1.5),
+          ),
+          // Third avatar
+          Padding(
+            padding: EdgeInsets.only(left: SizeConfig.defaultSize * 2.6),
+            child: thirdProfilePicture == null || thirdProfilePicture == ''
+                ? CircleAvatar(
+                    backgroundImage:
+                        const AssetImage("assets/images/default_profile.jpg"),
+                    radius: SizeConfig.defaultSize * 1.5)
+                : CircleAvatar(
+                    backgroundImage:
+                        NetworkImage(kIMAGEURL + thirdProfilePicture),
+                    radius: SizeConfig.defaultSize * 1.5),
+          ),
+        ],
+      );
+    }
+    // WHEN NEWS POST IS LOADED, ONLY 3 lIKES WILL BE LOADED TO DISPLAY LIKERS' PROFILE PICTURE.
+    // THEREFORE, WHENEVER CURRENT USER LIKES THE POST, THERE CAN ONLY BE UPTO 4 LIKES IN THE LIST OR EVEN 3,
+    // IF CURRENT USER HAS ALREADY LIKED THE POST.
+    // THEREFORE IF LIKES COUNT IS 4, THEN FOLLOWING CONDITION WILL RUN
     else {
-      String? firstProfilePicture = likes[0]?.likedBy?.profilePicture;
-      String? secondProfilePicture = likes[1]?.likedBy?.profilePicture;
-      String? thirdProfilePicture = likes[2]?.likedBy?.profilePicture;
+      String? firstProfilePicture;
+      String? secondProfilePicture;
+      String? thirdProfilePicture;
+
+      if (isLike) {
+        // We will start from 1 index instead of 0, because item in 0 index is the oldest after reversing the list at the top.
+        if (likes[1]?.likedBy?.id.toString() ==
+            mainScreenProvider.currentUserId) {
+          firstProfilePicture = likes[2]?.likedBy?.profilePicture;
+          secondProfilePicture = likes[3]?.likedBy?.profilePicture;
+          thirdProfilePicture = likes[1]?.likedBy?.profilePicture;
+        } else if (likes[2]?.likedBy?.id.toString() ==
+            mainScreenProvider.currentUserId) {
+          firstProfilePicture = likes[1]?.likedBy?.profilePicture;
+          secondProfilePicture = likes[3]?.likedBy?.profilePicture;
+          thirdProfilePicture = likes[2]?.likedBy?.profilePicture;
+        } else {
+          firstProfilePicture = likes[1]?.likedBy?.profilePicture;
+          secondProfilePicture = likes[2]?.likedBy?.profilePicture;
+          thirdProfilePicture = likes[3]?.likedBy?.profilePicture;
+        }
+      } else {
+        firstProfilePicture = likes[1]?.likedBy?.profilePicture;
+        secondProfilePicture = likes[2]?.likedBy?.profilePicture;
+        thirdProfilePicture = likes[3]?.likedBy?.profilePicture;
+      }
       return Stack(
         children: [
           // First avatar
@@ -1507,7 +1674,7 @@ class NewsAdProvider extends ChangeNotifier {
   }
 
   // New post
-  goBack({required BuildContext context}) {
+  goBackFromNewNewsPostScreen({required BuildContext context}) {
     if (imageFileList != null || imageFileList!.isNotEmpty) {
       imageFileList!.clear();
     }
@@ -1618,7 +1785,7 @@ class NewsAdProvider extends ChangeNotifier {
               content: AppLocalizations.of(context).createdSuccessfully,
               backgroundColor: const Color(0xFFA08875),
               contentColor: Colors.white);
-          goBack(context: context);
+          goBackFromNewNewsPostScreen(context: context);
         }
       } else if (createResponse.statusCode == 401 ||
           createResponse.statusCode == 403) {
@@ -1685,7 +1852,7 @@ class NewsAdProvider extends ChangeNotifier {
               content: AppLocalizations.of(context).createdSuccessfully,
               backgroundColor: const Color(0xFFA08875),
               contentColor: Colors.white);
-          goBack(context: context);
+          goBackFromNewNewsPostScreen(context: context);
         }
       } else if (createResponse.statusCode == 401 ||
           createResponse.statusCode == 403) {

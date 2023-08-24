@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 User userFromJson(String str) => User.fromJson(json.decode(str));
 
 String userToJson(User data) => json.encode(data.toJson());
@@ -62,10 +64,10 @@ class UserObject {
         userType: json["user_type"],
         createdAt: json["created_at"] == null
             ? null
-            : DateTime.parse(json["created_at"]),
+            : DateTime.parse(json["created_at"]).toLocal(),
         updatedAt: json["updated_at"] == null
             ? null
-            : DateTime.parse(json["updated_at"]),
+            : DateTime.parse(json["updated_at"]).toLocal(),
         isVerified: json["is_verified"],
         verifiedOn: json["verified_on"] == null
             ? null
@@ -115,10 +117,14 @@ class DeviceToken {
         isActive: json["is_active"],
         createdAt: json["created_at"] == null
             ? null
-            : DateTime.parse(json["created_at"]),
+            : DateFormat("yyyy-MM-dd HH:mm:ss")
+                .parse(json["created_at"], true)
+                .toLocal(),
         updatedAt: json["updated_at"] == null
             ? null
-            : DateTime.parse(json["updated_at"]),
+            : DateFormat("yyyy-MM-dd HH:mm:ss")
+                .parse(json["updated_at"], true)
+                .toLocal(),
         deviceToken: json["device_token"],
       );
 

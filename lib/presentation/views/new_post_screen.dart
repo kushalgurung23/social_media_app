@@ -27,7 +27,7 @@ class NewPostScreen extends StatelessWidget {
                 color: const Color(0xFF8897A7),
                 size: SizeConfig.defaultSize * 2.7),
             onPressed: () {
-              data.goBack(context: context);
+              data.goBackFromNewNewsPostScreen(context: context);
             },
           ),
           title: AppLocalizations.of(context).newPost,

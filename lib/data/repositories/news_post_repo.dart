@@ -29,8 +29,8 @@ class NewsPostRepo {
           headers: {'Authorization': 'Bearer $accessToken'});
 
       return response;
-    } on Exception {
-      throw Exception('Unable to load news posts');
+    } catch (err) {
+      rethrow;
     }
   }
 
@@ -62,20 +62,37 @@ class NewsPostRepo {
     }
   }
 
-  static Future<http.Response> addNewsPostSave(
-      {required Map bodyData, required String jwt}) async {
+  static Future<http.Response> toggleNewsPostSave(
+      {required String bodyData, required String jwt}) async {
     try {
-      var url = "${kAPIURL}news-post-saves";
+      var url = "${kAPIURL}posts/toggle-save";
       var response = await http.post(Uri.parse(url),
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $jwt'
           },
-          body: jsonEncode(bodyData));
+          body: bodyData);
 
       return response;
-    } on Exception {
-      throw Exception('Unable to add news post save');
+    } catch (err) {
+      rethrow;
+    }
+  }
+
+  static Future<http.Response> toggleNewsPostLike(
+      {required String bodyData, required String jwt}) async {
+    try {
+      var url = "${kAPIURL}posts/toggle-like";
+      var response = await http.post(Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $jwt'
+          },
+          body: bodyData);
+
+      return response;
+    } catch (err) {
+      rethrow;
     }
   }
 
@@ -166,6 +183,23 @@ class NewsPostRepo {
       }
     } on Exception {
       throw Exception('Unable to toggle like');
+    }
+  }
+
+  static Future<http.Response> writeNewsComment(
+      {required String bodyData, required String jwt}) async {
+    try {
+      var url = "${kAPIURL}posts/comments";
+      var response = await http.post(Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $jwt'
+          },
+          body: bodyData);
+
+      return response;
+    } catch (err) {
+      rethrow;
     }
   }
 }

@@ -35,22 +35,31 @@ class MainScreenProvider extends ChangeNotifier {
   // // Details of current user are added to sink of this controller
   StreamController<User> currentUserController = BehaviorSubject();
 
-  String? currentUserId, currentAccessToken;
+  String? currentUserId,
+      currentAccessToken,
+      currentProfilePicture,
+      currentUsername;
   bool? isKeepUserLoggedIn;
 
   void saveUserLoginDetails(
       {required String currentUserId,
       required String currentAccessToken,
-      required bool isKeepUserLoggedIn}) {
-    currentUserId = currentUserId;
-    currentAccessToken = currentAccessToken;
-    isKeepUserLoggedIn = isKeepUserLoggedIn;
+      required String? currentProfilePicture,
+      required bool isKeepUserLoggedIn,
+      required String username}) {
+    this.currentUserId = currentUserId;
+    this.currentAccessToken = currentAccessToken;
+    this.currentProfilePicture = currentProfilePicture;
+    this.isKeepUserLoggedIn = isKeepUserLoggedIn;
+    currentUsername = username;
   }
 
   void removeUserLoginDetails() {
     currentUserId = null;
     currentAccessToken = null;
     isKeepUserLoggedIn = null;
+    currentProfilePicture = null;
+    currentUsername = null;
   }
 
   // Last topic and bookmark topic of profile tab are stored in the sink of this controller
@@ -73,6 +82,9 @@ class MainScreenProvider extends ChangeNotifier {
         currentAccessToken =
             await UserSecureStorage.getSecuredAccessToken() ?? '';
         isKeepUserLoggedIn = isLogin;
+        currentProfilePicture =
+            await UserSecureStorage.getSecuredProfilePicture();
+        currentUsername = await UserSecureStorage.getSecuredUsername();
         // the following two sharedPreferences are set to false, because if it is true notification badge won't be popped
         if (navigatorKey.currentContext != null) {
           Provider.of<BottomNavProvider>(navigatorKey.currentContext!,

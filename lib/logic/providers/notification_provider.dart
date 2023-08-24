@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:c_talent/data/new_models/all_news_posts.dart';
+import 'package:c_talent/data/repositories/news_post_repo.dart';
 import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -13,6 +16,7 @@ import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/views/other_user_profile_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';

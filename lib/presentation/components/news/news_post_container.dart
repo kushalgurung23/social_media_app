@@ -126,24 +126,13 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                           context: context),
                       isSave: widget.newsPost.isSaved == 1 ? true : false,
                       saveOnPress: () async {
-                        // await data.toggleNewsPostSave(
-                        //     newsPostSource: NewsPostSource.all,
-                        //     newsPostSaveId:
-                        //         widget.checkNewsPostSave?.id.toString(),
-                        //     postId: widget.newsPost.id.toString(),
-                        //     context: context,
-                        //     setLikeSaveCommentFollow: false);
+                        await data.toggleNewsPostSave(
+                            newsPost: widget.newsPost, context: context);
                       },
                       isLike: widget.newsPost.isLiked == 1 ? true : false,
                       likeOnPress: () async {
-                        // await data.toggleNewsPostLike(
-                        //     newsPostSource: NewsPostSource.all,
-                        //     newsPostLikeId:
-                        //         widget.checkNewsPostLike?.id.toString(),
-                        //     postId: widget.newsPost.id.toString(),
-                        //     postLikeCount: 0,
-                        //     context: context,
-                        //     setLikeSaveCommentFollow: false);
+                        await data.toggleNewsPostLike(
+                            newsPost: widget.newsPost, context: context);
                       },
                       hasLikes: widget.newsPost.likesCount == null ||
                               widget.newsPost.likesCount! < 1
@@ -158,7 +147,7 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                                     )));
                       },
                       likedAvtars: data.likedAvatars(
-                          likes: widget.newsPost.likes,
+                          newsPost: widget.newsPost,
                           isLike: widget.newsPost.isLiked == 1 ? true : false),
                       totalLikes: data.getLike(
                         likeCount: widget.newsPost.likesCount ?? 0,
@@ -193,14 +182,11 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                             if (newsTextEditingController.text
                                 .trim()
                                 .isNotEmpty) {
-                              // await data.postNewsComment(
-                              //   newsPostSource: NewsPostSource.all,
-                              //   context: context,
-                              //   newsPostId: widget.newsPost.id.toString(),
-                              //   newsCommentController:
-                              //       widget.newsCommentTextEditingController,
-                              //   setLikeSaveCommentFollow: false,
-                              // );
+                              await data.writeNewsPostComment(
+                                  newsPost: widget.newsPost,
+                                  commentTextController:
+                                      newsTextEditingController,
+                                  context: context);
                             }
                           },
                           borderRadius: SizeConfig.defaultSize * 1.5),
@@ -217,9 +203,8 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                                 itemCount:
                                     widget.newsPost.commentCount! >= 2 ? 2 : 1,
                                 itemBuilder: (context, index) {
-                                  final commentData = widget
-                                      .newsPost.comments?.reversed
-                                      .toList()[index];
+                                  final commentData =
+                                      widget.newsPost.comments?[index];
                                   return commentData == null ||
                                           commentData.commentBy == null
                                       ? const SizedBox()

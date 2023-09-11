@@ -2,29 +2,20 @@ import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:c_talent/data/enum/navigation_items.dart';
+import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
-import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/home_screen.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/language_screen.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/privacy_policy_screen.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/terms_and_conditions_screen.dart';
-import 'package:c_talent/presentation/views/login_screen.dart';
+import 'package:c_talent/presentation/views/auth/login_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DrawerProvider extends ChangeNotifier {
-  late SharedPreferences sharedPreferences;
   late MainScreenProvider mainScreenProvider;
-  DrawerProvider({required this.mainScreenProvider}) {
-    initial();
-  }
-
-  void initial() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-  }
+  DrawerProvider({required this.mainScreenProvider});
 
   NavigationItems _navigationItem = NavigationItems.home;
 
@@ -64,31 +55,7 @@ class DrawerProvider extends ChangeNotifier {
     final fln = FlutterLocalNotificationsPlugin();
     fln.cancelAll();
     await UserSecureStorage.removeSecuredUserDetails();
-    // sharedPreferences.remove('id');
-    // sharedPreferences.remove('user_name');
-    // sharedPreferences.remove('user_type');
-    // sharedPreferences.remove('jwt');
-    // sharedPreferences.remove('current_password');
-    // sharedPreferences.remove('device_token');
-    // sharedPreferences.setBool('follow_push_notification', false);
-    // sharedPreferences.setBool("notification_tab_active_status", false);
-    // sharedPreferences.setBool("chatroom_active_status", false);
-    // if (mainScreenProvider.rememberMeCheckBox == false) {
-    //   sharedPreferences.remove('login_identifier');
-    //   sharedPreferences.remove('login_password');
-    // }
-
-    // await mainScreenProvider.removeUser();
-
-    // mainScreenProvider.followerIdList.clear();
-    // mainScreenProvider.followingIdList.clear();
-    // mainScreenProvider.likedPostIdList.clear();
-    // mainScreenProvider.savedNewsPostIdList.clear();
-    // mainScreenProvider.savedInterestClassIdList.clear();
     if (context.mounted) {
-      final newsAdProvider =
-          Provider.of<NewsAdProvider>(context, listen: false);
-      newsAdProvider.newsCommentControllerList.clear();
       notifyListeners();
       Navigator.pushNamedAndRemoveUntil(
           context, LoginScreen.id, (route) => false);
@@ -98,8 +65,6 @@ class DrawerProvider extends ChangeNotifier {
   Future<void> logOut({required BuildContext context}) async {
     EasyLoading.show(
         status: AppLocalizations.of(context).loggingOut, dismissOnTap: false);
-    Provider.of<MainScreenProvider>(context, listen: false).socket.close();
-    Provider.of<MainScreenProvider>(context, listen: false).socket.dispose();
     setNavigationOnly(navigationItems: NavigationItems.home);
     await removeCredentials(context: context);
     EasyLoading.dismiss();

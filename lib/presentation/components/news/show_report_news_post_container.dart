@@ -1,9 +1,7 @@
-import 'dart:async';
-
+import 'package:c_talent/data/enum/all.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
-import 'package:c_talent/data/models/user_model.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/presentation/components/all/custom_dropdown_button.dart';
 import 'package:c_talent/presentation/components/all/rectangular_button.dart';
@@ -11,12 +9,9 @@ import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 
 showReportNewsPostContainer(
-    {required TextEditingController newsCommentTextEditingController,
-    required BuildContext context,
+    {required BuildContext context,
     required String newsPostId,
-    required bool isFromDescriptionScreen,
-    isOtherUserProfile,
-    StreamController<User>? otherUserStreamController}) {
+    required NewsPostFrom newsPostFrom}) {
   return showModalBottomSheet(
     shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -228,29 +223,11 @@ showReportNewsPostContainer(
                                             AppLocalizations.of(context)
                                                 .other) {
                                       data.reportNewsPost(
-                                          newsCommentTextEditingController:
-                                              newsCommentTextEditingController,
-                                          otherUserStreamController:
-                                              isOtherUserProfile == false
-                                                  ? null
-                                                  : otherUserStreamController,
-                                          isOtherUserProfile:
-                                              isOtherUserProfile,
-                                          isFromDescriptionScreen:
-                                              isFromDescriptionScreen,
-                                          context: bottomSheetContext,
-                                          newsPostId: newsPostId,
-                                          reason: data.reportNewsPostReasonType
-                                                  .toString() +
-                                              ((data.reportNewsPostReasonType
-                                                          .toString() ==
-                                                      AppLocalizations.of(
-                                                              context)
-                                                          .other)
-                                                  ? (': ${data.reportNewsPostOtherReason}')
-                                                  : ''));
+                                          newsPostFrom: newsPostFrom,
+                                          postId: newsPostId,
+                                          context: context);
                                     } else {
-                                      data.showSnackBar(
+                                      data.mainScreenProvider.showSnackBar(
                                           context: bottomSheetContext,
                                           content: AppLocalizations.of(context)
                                               .pleaseEnterOtherReason,
@@ -258,7 +235,7 @@ showReportNewsPostContainer(
                                           backgroundColor: Colors.red);
                                     }
                                   } else {
-                                    data.showSnackBar(
+                                    data.mainScreenProvider.showSnackBar(
                                         context: bottomSheetContext,
                                         content: AppLocalizations.of(context)
                                             .pleaseSelectReason,

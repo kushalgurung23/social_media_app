@@ -1,19 +1,17 @@
-import 'package:c_talent/data/new_models/all_news_posts.dart';
+import 'package:c_talent/data/enum/all.dart';
+import 'package:c_talent/data/models/all_news_posts.dart';
+import 'package:c_talent/presentation/components/news/liked_avatars.dart';
+import 'package:c_talent/presentation/views/news_posts/news_liked_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
-import 'package:c_talent/data/enum/news_post_enum.dart';
-import 'package:c_talent/data/enum/post_type.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/presentation/components/all/post_top_body.dart';
 import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
-import 'package:c_talent/presentation/views/my_profile_screen.dart';
-import 'package:c_talent/presentation/views/news_description_screen.dart';
-import 'package:c_talent/presentation/views/news_liked_screen.dart';
-import 'package:c_talent/presentation/views/other_user_profile_screen.dart';
+import '../../views/news_posts/news_description_screen.dart';
 
 class NewsPostContainer extends StatefulWidget {
   final NewsPost newsPost;
@@ -43,8 +41,7 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                     context,
                     MaterialPageRoute(
                         builder: (context) => NewsDescriptionScreen(
-                              focusTextfield: false,
-                              scrollToBottom: false,
+                              isFocusTextField: false,
                               newsPost: widget.newsPost,
                               newsCommentTextEditingController:
                                   newsTextEditingController,
@@ -77,45 +74,43 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                       newsCommentTextEditingController:
                           newsTextEditingController,
                       isOtherUserProfile: false,
-                      isFromDescriptionScreen: false,
+                      newsPostFrom: NewsPostFrom.newsPostList,
                       newsPostId: widget.newsPost.id.toString(),
                       postedByOnPress: () {
-                        if (widget.newsPost.postedBy == null ||
-                            widget.newsPost.postedBy?.id == null) {
-                          return;
-                        } else if (widget.newsPost.postedBy?.id !=
-                            int.parse(data.mainScreenProvider.currentUserId
-                                .toString())) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => OtherUserProfileScreen(
-                                        otherUserId: int.parse(widget
-                                            .newsPost.postedBy!.id
-                                            .toString()),
-                                      )));
-                        } else {
-                          Navigator.pushNamed(context, MyProfileScreen.id);
-                        }
+                        // if (widget.newsPost.postedBy == null ||
+                        //     widget.newsPost.postedBy?.id == null) {
+                        //   return;
+                        // } else if (widget.newsPost.postedBy?.id !=
+                        //     int.parse(data.mainScreenProvider.currentUserId
+                        //         .toString())) {
+                        //   Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //           builder: (context) => OtherUserProfileScreen(
+                        //                 otherUserId: int.parse(widget
+                        //                     .newsPost.postedBy!.id
+                        //                     .toString()),
+                        //               )));
+                        // } else {
+                        //   Navigator.pushNamed(context, MyProfileScreen.id);
+                        // }
                       },
                       commentOnPress: () {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => NewsDescriptionScreen(
-                                      focusTextfield: true,
-                                      scrollToBottom: true,
+                                      isFocusTextField: true,
                                       newsPost: widget.newsPost,
                                       newsCommentTextEditingController:
                                           newsTextEditingController,
                                     )));
                       },
-                      postType: PostType.newsPost,
                       showLevel: true,
                       title: widget.newsPost.title.toString(),
                       userName: widget.newsPost.postedBy?.username ?? 'User',
                       postContent: widget.newsPost.content.toString(),
-                      postImage: widget.newsPost.images,
+                      postImages: widget.newsPost.images,
                       postedTime: widget.newsPost.createdAt == null
                           ? ''
                           : data.mainScreenProvider.convertDateTimeToAgo(
@@ -146,7 +141,7 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                                       postId: widget.newsPost.id!,
                                     )));
                       },
-                      likedAvtars: data.likedAvatars(
+                      likedAvtars: LikedAvatars(
                           newsPost: widget.newsPost,
                           isLike: widget.newsPost.isLiked == 1 ? true : false),
                       totalLikes: data.getLike(
@@ -222,33 +217,7 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                                                     Flexible(
                                                         child: Row(children: [
                                                       GestureDetector(
-                                                        onTap: () {
-                                                          if (commentData
-                                                                  .commentBy
-                                                                  ?.id !=
-                                                              null) {
-                                                            if (commentData
-                                                                    .commentBy
-                                                                    ?.id !=
-                                                                int.parse(data
-                                                                    .mainScreenProvider
-                                                                    .currentUserId!)) {
-                                                              Navigator.push(
-                                                                  context,
-                                                                  MaterialPageRoute(
-                                                                      builder: (context) =>
-                                                                          OtherUserProfileScreen(
-                                                                            otherUserId:
-                                                                                commentData.commentBy!.id!,
-                                                                          )));
-                                                            } else {
-                                                              Navigator.pushNamed(
-                                                                  context,
-                                                                  MyProfileScreen
-                                                                      .id);
-                                                            }
-                                                          }
-                                                        },
+                                                        onTap: () {},
                                                         child: Container(
                                                           color: Colors
                                                               .transparent,
@@ -322,8 +291,7 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                                       MaterialPageRoute(
                                           builder: (context) =>
                                               NewsDescriptionScreen(
-                                                focusTextfield: false,
-                                                scrollToBottom: true,
+                                                isFocusTextField: false,
                                                 newsPost: widget.newsPost,
                                                 newsCommentTextEditingController:
                                                     newsTextEditingController,

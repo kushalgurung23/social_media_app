@@ -1,54 +1,38 @@
-import 'dart:async';
-
-import 'package:c_talent/data/new_models/all_news_posts.dart';
+import 'package:c_talent/data/enum/all.dart';
+import 'package:c_talent/data/models/all_news_posts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:c_talent/data/constant/connection_url.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
-import 'package:c_talent/data/enum/post_type.dart';
-import 'package:c_talent/data/models/all_news_post_model.dart';
-import 'package:c_talent/data/models/user_model.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/presentation/components/all/post_options.dart';
 import 'package:c_talent/presentation/components/all/post_staggered_grid_view.dart';
 import 'package:c_talent/presentation/components/news/show_report_news_post_container.dart';
-import 'package:c_talent/presentation/components/profile/profile_post_staggered_grid_view.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class PostTopBody extends StatelessWidget {
-  final Enum postType;
   final String title, userName, userType, postContent, totalLikes, postedTime;
   // postFromProfile = true denotes that the post is viewed from profile section. Two different image data type are made due to different result while fetching api from news post and user. If true, allPostImage will be used, else postImage will be used.
-  final bool? postFromProfile;
-  final List<AllImage?>? allPostImage;
-  final List<NewsPostImage?>? postImage;
+  final List<NewsPostImage?>? postImages;
   final String? userImage;
   final String newsPostId;
   final VoidCallback saveOnPress, likeOnPress, commentOnPress;
-  final bool isSave,
-      isLike,
-      hasLikes,
-      showLevel,
-      isFromDescriptionScreen,
-      isOtherUserProfile;
+  final bool isSave, isLike, hasLikes, showLevel, isOtherUserProfile;
   final VoidCallback? seeLikesOnPress, postedByOnPress;
   final Widget likedAvtars;
-  StreamController<User>? otherUserStreamController;
+  final NewsPostFrom newsPostFrom;
   final TextEditingController newsCommentTextEditingController;
-  PostTopBody(
+  const PostTopBody(
       {Key? key,
-      this.otherUserStreamController,
-      required this.isFromDescriptionScreen,
+      required this.newsPostFrom,
       required this.newsPostId,
       required this.isOtherUserProfile,
-      this.postFromProfile = false,
       required this.commentOnPress,
-      required this.postType,
       required this.showLevel,
       required this.totalLikes,
       required this.likedAvtars,
@@ -58,8 +42,7 @@ class PostTopBody extends StatelessWidget {
       required this.postedTime,
       required this.userType,
       required this.postContent,
-      this.allPostImage,
-      this.postImage,
+      this.postImages,
       required this.saveOnPress,
       required this.likeOnPress,
       required this.isSave,
@@ -107,12 +90,7 @@ class PostTopBody extends StatelessWidget {
                         if (value == AppLocalizations.of(context).report) {
                           data.resetNewsPostReportOption();
                           showReportNewsPostContainer(
-                              newsCommentTextEditingController:
-                                  newsCommentTextEditingController,
-                              isOtherUserProfile: isOtherUserProfile,
-                              otherUserStreamController:
-                                  otherUserStreamController,
-                              isFromDescriptionScreen: isFromDescriptionScreen,
+                              newsPostFrom: newsPostFrom,
                               context: context,
                               newsPostId: newsPostId);
                         }
@@ -230,31 +208,12 @@ class PostTopBody extends StatelessWidget {
                       vertical: SizeConfig.defaultSize),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(18),
-                      color: postType == PostType.newsPost
-                          ? const Color(0xFFEFE9FF)
-                          : postType == PostType.recentTopic
-                              ? const Color(0xFFE9F7FF)
-                              : postType == PostType.profileTopic
-                                  ? const Color(0xFFE9FFEC)
-                                  : const Color(0xFFEFE9FF),
+                      color: const Color(0xFFEFE9FF),
                       border: Border.all(
-                          color: postType == PostType.newsPost
-                              ? const Color(0xFFEFE9FF)
-                              : postType == PostType.recentTopic
-                                  ? const Color(0xFFDFE6F3)
-                                  : postType == PostType.profileTopic
-                                      ? const Color(0xFFDFF3E9)
-                                      : const Color(0xFFEFE9FF),
-                          width: 0.5)),
+                          color: const Color(0xFFEFE9FF), width: 0.5)),
                   child: Text(userType,
                       style: TextStyle(
-                          color: postType == PostType.newsPost
-                              ? const Color(0xFFA08875)
-                              : postType == PostType.recentTopic
-                                  ? const Color(0xFF457ACF)
-                                  : postType == PostType.profileTopic
-                                      ? const Color(0xFF4ACF45)
-                                      : const Color(0xFFA08875),
+                          color: const Color(0xFFA08875),
                           fontFamily: kHelveticaMedium,
                           fontSize: SizeConfig.defaultSize * 1.25)),
                 )
@@ -283,9 +242,7 @@ class PostTopBody extends StatelessWidget {
             SizedBox(
               height: SizeConfig.defaultSize * 1.5,
             ),
-            postFromProfile == false
-                ? PostStaggeredGridView(postImage: postImage)
-                : ProfilePostStaggeredGridView(postImage: allPostImage),
+            PostStaggeredGridView(postImage: postImages),
             SizedBox(
               height: SizeConfig.defaultSize * 1.5,
             ),

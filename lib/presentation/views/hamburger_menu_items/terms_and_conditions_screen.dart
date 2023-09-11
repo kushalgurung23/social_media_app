@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:c_talent/data/constant/connection_url.dart';
-import 'package:c_talent/data/enum/navigation_items.dart';
+import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/presentation/components/all/custom_navigation_drawer.dart';
 import 'package:c_talent/presentation/components/all/top_app_bar.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class TermsAndConditionsScreen extends StatefulWidget {
@@ -42,24 +41,24 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
           onWebResourceError: (WebResourceError error) {},
         ),
       );
-    setWeb();
+    // setWeb();
   }
 
-  void setWeb() async {
-    String tncUrl = '$webUrl/TermsAndConditions/';
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String languageLocale =
-        sharedPreferences.getString("language_locale") ?? 'zh_Hant';
-    if (languageLocale == 'zh_Hant') {
-      tncUrl = '$webUrl/TermsAndConditions/tc.html';
-    } else if (languageLocale == 'zh_Hans') {
-      tncUrl = '$webUrl/TermsAndConditions/sc.html';
-    } else if (languageLocale == 'en') {
-      tncUrl = '$webUrl/TermsAndConditions/en.html';
-    }
+  // void setWeb() async {
+  //   String tncUrl = '$webUrl/TermsAndConditions/';
+  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  //   String languageLocale =
+  //       sharedPreferences.getString("language_locale") ?? 'zh_Hant';
+  //   if (languageLocale == 'zh_Hant') {
+  //     tncUrl = '$webUrl/TermsAndConditions/tc.html';
+  //   } else if (languageLocale == 'zh_Hans') {
+  //     tncUrl = '$webUrl/TermsAndConditions/sc.html';
+  //   } else if (languageLocale == 'en') {
+  //     tncUrl = '$webUrl/TermsAndConditions/en.html';
+  //   }
 
-    _controller.loadRequest(Uri.parse(tncUrl));
-  }
+  //   _controller.loadRequest(Uri.parse(tncUrl));
+  // }
 
   @override
   Widget build(BuildContext context) {

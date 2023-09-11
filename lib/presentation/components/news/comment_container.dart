@@ -1,6 +1,6 @@
 import 'package:c_talent/data/constant/connection_url.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
-import 'package:c_talent/data/new_models/all_news_posts.dart';
+import 'package:c_talent/data/models/all_news_posts.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +12,7 @@ class CommentContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(comment.createdAt);
     return comment.commentBy == null
         ? const SizedBox()
         : Padding(

@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:c_talent/data/constant/connection_url.dart';
-import 'package:c_talent/data/enum/navigation_items.dart';
+import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/presentation/components/all/custom_navigation_drawer.dart';
 import 'package:c_talent/presentation/components/all/top_app_bar.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PrivacyPolicyScreen extends StatefulWidget {
@@ -41,22 +40,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
           onWebResourceError: (WebResourceError error) {},
         ),
       );
-    setWeb();
-  }
-
-  void setWeb() async {
-    String ppUrl = '$webUrl/PrivacyPolicy/';
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String languageLocale =
-        sharedPreferences.getString("language_locale") ?? 'zh_Hant';
-    if (languageLocale == 'zh_Hant') {
-      ppUrl = '$webUrl/PrivacyPolicy/tc.html';
-    } else if (languageLocale == 'zh_Hans') {
-      ppUrl = '$webUrl/PrivacyPolicy/sc.html';
-    } else if (languageLocale == 'en') {
-      ppUrl = '$webUrl/PrivacyPolicy/en.html';
-    }
-    _controller.loadRequest(Uri.parse(ppUrl));
   }
 
   @override

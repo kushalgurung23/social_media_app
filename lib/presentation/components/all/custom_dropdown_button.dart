@@ -21,8 +21,10 @@ class CustomDropdownButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:
-          EdgeInsets.symmetric(horizontal: SizeConfig.defaultSize, vertical: 0),
+      padding: EdgeInsets.only(
+          left: SizeConfig.defaultSize,
+          top: SizeConfig.defaultSize,
+          bottom: SizeConfig.defaultSize),
       child: Center(
         child: DropdownButton(
             underline: const SizedBox(),
@@ -47,6 +49,8 @@ class CustomDropdownButton extends StatelessWidget {
                   value: valueItem,
                   child: Text(
                     valueItem,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: SizeConfig.defaultSize * 2.1,

@@ -1,39 +1,19 @@
 import 'dart:convert';
-import 'package:firebase_messaging/firebase_messaging.dart';
+
+import 'package:c_talent/data/repositories/auth/register_repo.dart';
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/presentation/views/auth/email_verification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:c_talent/data/constant/font_constant.dart';
-import 'package:c_talent/data/repositories/register_repo.dart';
-import 'package:c_talent/logic/providers/drawer_provider.dart';
-import 'package:c_talent/logic/providers/login_screen_provider.dart';
-import 'package:c_talent/logic/providers/main_screen_provider.dart';
-import 'package:c_talent/presentation/helper/size_configuration.dart';
-import 'package:c_talent/presentation/views/register_terms_and_conditions_screen.dart';
-import 'package:http/http.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:http/http.dart';
 
 class RegistrationProvider extends ChangeNotifier {
-  GlobalKey<FormState> userRegistrationKey = GlobalKey<FormState>();
+  late MainScreenProvider mainScreenProvider;
+  RegistrationProvider({required this.mainScreenProvider});
 
-  late TextEditingController userNameTextController,
-      emailTextController,
-      passwordTextController,
-      confirmPasswordTextController;
-
-  // Constructor
-  RegistrationProvider() {
-    userNameTextController = TextEditingController();
-    emailTextController = TextEditingController();
-    passwordTextController = TextEditingController();
-    confirmPasswordTextController = TextEditingController();
-  }
-
-  Map<String, String> getUserTypeList({required BuildContext context}) {
-    return <String, String>{
-      AppLocalizations.of(context).member: "Member",
-      AppLocalizations.of(context).therapist: "Therapist"
-    };
+  List<String> getUserTypeList({required BuildContext context}) {
+    return ['Parent', 'Student'];
   }
 
   String? userTypeValue;
@@ -111,7 +91,10 @@ class RegistrationProvider extends ChangeNotifier {
   }
 
   String? validatePassword(
-      {required BuildContext context, required String value}) {
+      {required BuildContext context,
+      required String value,
+      required TextEditingController confirmPasswordTextController,
+      required TextEditingController passwordTextController}) {
     if (RegExp(r"\s").hasMatch(value)) {
       return AppLocalizations.of(context).whiteSpacesNotAllowedPassword;
     } else if (value.trim().isEmpty) {
@@ -130,7 +113,10 @@ class RegistrationProvider extends ChangeNotifier {
   }
 
   String? validateConfirmPassword(
-      {required BuildContext context, required String value}) {
+      {required BuildContext context,
+      required String value,
+      required TextEditingController confirmPasswordTextController,
+      required TextEditingController passwordTextController}) {
     if (RegExp(r"\s").hasMatch(value)) {
       return AppLocalizations.of(context).whiteSpacesNotAllowedPassword;
     } else if (value.trim().isEmpty) {
@@ -147,160 +133,122 @@ class RegistrationProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> goToTermsAndConditionScreen(
+  Future<void> registerUser(
       {required BuildContext context,
-      required String username,
-      required String emailAddress}) async {
-    Response response = await RegisterRepo.searchDuplicateIdentifier(
-        username: username, emailAddress: emailAddress);
-    if (response.statusCode == 200) {
-      List resultList = jsonDecode(response.body);
+      required TextEditingController usernameTextController,
+      required TextEditingController emailTextController,
+      required TextEditingController passwordTextController,
+      required TextEditingController confirmPasswordTextController}) async {
+    try {
+      EasyLoading.show(
+          status: AppLocalizations.of(context).pleaseWait, dismissOnTap: false);
+      String body = jsonEncode({
+        "username": usernameTextController.text,
+        "email": emailTextController.text,
+        "password": passwordTextController.text,
+        "user_type": userTypeValue
+      });
 
-      // if username and email address are unique
-      if (resultList.isEmpty && context.mounted) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => RegisterTermsAndConditionsScreen(
-                      isTutor: false,
-                      isCenter: false,
-                      isParent: true,
-                      isStudent: false,
-                      emailAddress: emailTextController.text,
-                    )));
-      }
-      // If username or email address is not unique
-      else {
-        for (int i = 0; i < resultList.length; i++) {
-          if (resultList[i]['username'] == username) {
-            showSnackBar(
-                context: context,
-                content: AppLocalizations.of(context).usernameTaken,
-                contentColor: Colors.white,
-                backgroundColor: Colors.red);
-            return;
-          } else if (resultList[i]['email'] == emailAddress) {
-            showSnackBar(
-                context: context,
-                content: AppLocalizations.of(context).accountEmailRegistered,
-                contentColor: Colors.white,
-                backgroundColor: Colors.red);
-            return;
-          }
+      Response registerResponse =
+          await RegisterRepo.registerUser(bodyData: body);
+      if (registerResponse.statusCode == 201 &&
+          jsonDecode(registerResponse.body)['status'] == 'Success') {
+        String recipientEmailAddress = emailTextController.text;
+        clearRegistrationData(
+            usernameTextController: usernameTextController,
+            emailTextController: emailTextController,
+            passwordTextController: passwordTextController,
+            confirmPasswordTextController: confirmPasswordTextController);
+        EasyLoading.dismiss();
+        if (context.mounted) {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => EmailVerificationScreen(
+                  recipientEmailAddress: recipientEmailAddress)));
         }
-      }
-    } else if (response.statusCode == 401 || response.statusCode == 403) {
-      if (context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-        Provider.of<DrawerProvider>(context, listen: false)
-            .removeCredentials(context: context);
+      } else if (jsonDecode(registerResponse.body)['status'] == 'Error') {
+        EasyLoading.showInfo(jsonDecode(registerResponse.body)['msg'],
+            duration: const Duration(seconds: 4), dismissOnTap: true);
+        return;
+      } else {
+        EasyLoading.showInfo("Please try again later.",
+            duration: const Duration(seconds: 3), dismissOnTap: true);
         return;
       }
-    } else {
-      if (context.mounted) {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).unsuccessfulTryAgainLater,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-    }
-  }
-
-  Future<void> registerUser({required BuildContext context}) async {
-    try {
-      String? deviceToken = await FirebaseMessaging.instance.getToken();
-      String body = jsonEncode({
-        "username": userNameTextController.text.trim(),
-        "email": emailTextController.text,
-        "password": confirmPasswordTextController.text,
-        "user_type": userTypeValue,
-        "device_token": deviceToken,
-      });
-      Response registrationResponse =
-          await RegisterRepo.registerUser(bodyData: body);
-      if (registrationResponse.statusCode == 200 && context.mounted) {
-        // toggling check box to false to remove previously saved login credentials in login screen
-        await Provider.of<LoginScreenProvider>(context, listen: false)
-            .userLogin(
-                context: context,
-                email: userNameTextController.text,
-                password: confirmPasswordTextController.text);
-        clearData();
-      } else if (registrationResponse.statusCode == 400 &&
-          (jsonDecode(registrationResponse.body))["error"]["message"] ==
-              "Email is already taken") {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).emailRegistered,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      } else if (registrationResponse.statusCode == 400 &&
-          (jsonDecode(registrationResponse.body))["error"]["message"] ==
-              "An error occurred during account creation") {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).usernameTaken,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      } else if (registrationResponse.statusCode == 400) {
-        showSnackBar(
-            context: context,
-            content: ((jsonDecode(registrationResponse.body))["error"]
-                    ["message"])
-                .toString(),
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      } else {
-        showSnackBar(
-            context: context,
-            content: AppLocalizations.of(context).usernameEmailRegistered,
-            contentColor: Colors.white,
-            backgroundColor: Colors.red);
-      }
-      return;
     } on Exception {
+      // translate
+      EasyLoading.showInfo("Please try again later.",
+          duration: const Duration(seconds: 3), dismissOnTap: true);
       return;
     }
   }
 
-  void showSnackBar(
-      {required BuildContext context,
-      required String content,
-      required Color backgroundColor,
-      required Color contentColor}) {
-    final snackBar = SnackBar(
-        duration: const Duration(milliseconds: 2000),
-        backgroundColor: backgroundColor,
-        onVisible: () {},
-        behavior: SnackBarBehavior.fixed,
-        content: Text(
-          content,
-          style: TextStyle(
-            color: contentColor,
-            fontFamily: kHelveticaMedium,
-            fontSize: SizeConfig.defaultSize * 1.6,
-          ),
-        ));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    notifyListeners();
-  }
-
-  void clearData() {
-    userNameTextController.clear();
+  void clearRegistrationData({
+    required TextEditingController usernameTextController,
+    required TextEditingController emailTextController,
+    required TextEditingController passwordTextController,
+    required TextEditingController confirmPasswordTextController,
+  }) {
+    usernameTextController.clear();
     emailTextController.clear();
     passwordTextController.clear();
     confirmPasswordTextController.clear();
     userTypeValue = null;
+    notifyListeners();
   }
 
-  @override
-  void dispose() {
-    userNameTextController.dispose();
-    emailTextController.dispose();
-    passwordTextController.dispose();
-    confirmPasswordTextController.dispose();
-    super.dispose();
+  // EMAIL VERIFICATION //
+  String? validateSixDigitCode({
+    required String value,
+    required String recipientEmailAddress,
+  }) {
+    // translate
+    if (value.isEmpty) {
+      return 'Please enter the code';
+    } else if (value.length != 6) {
+      return 'Incorrect code';
+    } else {
+      return null;
+    }
+  }
+
+  void clearEmailVerificationData(
+      {required TextEditingController sixDigitCodeTextController}) {
+    sixDigitCodeTextController.clear();
+    notifyListeners();
+  }
+
+  Future<void> verifyEmailAddress(
+      {required BuildContext context,
+      required TextEditingController sixDigitTextController,
+      required String recipientEmailAddress}) async {
+    try {
+      // translate
+      EasyLoading.show(status: 'Verifying..', dismissOnTap: false);
+      String body = jsonEncode({
+        "verificationToken": sixDigitTextController.text,
+        "email": recipientEmailAddress
+      });
+      Response verificationResponse =
+          await RegisterRepo.verifyEmail(bodyData: body);
+      if (verificationResponse.statusCode == 200) {
+        print("VERIFIED SUCCESSFULLY");
+        clearEmailVerificationData(
+            sixDigitCodeTextController: sixDigitTextController);
+        EasyLoading.dismiss();
+      } else if (jsonDecode(verificationResponse.body)['status'] == 'Error') {
+        EasyLoading.showInfo(jsonDecode(verificationResponse.body)['msg'],
+            duration: const Duration(seconds: 4), dismissOnTap: true);
+        return;
+      } else {
+        EasyLoading.showInfo("Please try again later.",
+            duration: const Duration(seconds: 3), dismissOnTap: true);
+        return;
+      }
+    } on Exception {
+      // translate
+      EasyLoading.showInfo("Please try again later.",
+          duration: const Duration(seconds: 3), dismissOnTap: true);
+      return;
+    }
   }
 }

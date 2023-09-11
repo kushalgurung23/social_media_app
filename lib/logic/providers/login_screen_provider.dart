@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'package:c_talent/data/constant/font_constant.dart';
-import 'package:c_talent/data/new_models/login_success.dart';
-import 'package:c_talent/data/new_repositories/auth/login_repo.dart';
+import 'package:c_talent/data/models/login_success.dart';
+import 'package:c_talent/data/repositories/auth/login_repo.dart';
 import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/home_screen.dart';
-import 'package:c_talent/presentation/views/registration_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -14,7 +13,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
 
 class LoginScreenProvider extends ChangeNotifier {
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late TextEditingController userNameController, passwordController;
   late final MainScreenProvider mainScreenProvider;
 
@@ -36,7 +34,8 @@ class LoginScreenProvider extends ChangeNotifier {
   String? validateUserName(
       {required BuildContext context, required String value}) {
     if (value.isEmpty) {
-      return AppLocalizations.of(context).enterUsernameId;
+      // translate
+      return 'Enter username / Email';
     } else {
       return null;
     }
@@ -73,7 +72,7 @@ class LoginScreenProvider extends ChangeNotifier {
       EasyLoading.show(status: AppLocalizations.of(context).loggingIn);
       String? currentDeviceToken = await FirebaseMessaging.instance.getToken();
       String body = jsonEncode({
-        "email": email,
+        "identifier": email,
         "password": password,
         "device_token": currentDeviceToken
       });
@@ -149,9 +148,9 @@ class LoginScreenProvider extends ChangeNotifier {
   }
 
   void goToRegisterScreen({required BuildContext context}) {
-    hidePassword();
-    clearLoginInput();
-    Navigator.pushNamed(context, RegistrationScreen.id);
+    // hidePassword();
+    // clearLoginInput();
+    // Navigator.pushNamed(context, RegistrationScreen.id);
   }
 
   void showSnackBar(

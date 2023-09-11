@@ -6,7 +6,7 @@ import 'package:c_talent/presentation/helper/size_configuration.dart';
 
 class CustomTextFormField extends StatelessWidget {
   final String labelText;
-  final IconButton? iconButton;
+  final Widget? iconButton;
   final bool obscureText, isEnabled, isReadOnly;
   final FormFieldValidator validator;
   final FormFieldSetter<String> onSaved;

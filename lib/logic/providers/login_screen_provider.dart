@@ -5,6 +5,9 @@ import 'package:c_talent/data/repositories/auth/login_repo.dart';
 import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/views/auth/email_verification_screen.dart';
+import 'package:c_talent/presentation/views/auth/forgot_password_email_screen.dart';
+import 'package:c_talent/presentation/views/auth/registration_screen.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/home_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +36,10 @@ class LoginScreenProvider extends ChangeNotifier {
 
   String? validateUserName(
       {required BuildContext context, required String value}) {
-    if (value.isEmpty) {
+    if (RegExp(r"\s").hasMatch(value)) {
+      // translate
+      return 'White space is not allowed.';
+    } else if (value.trim().isEmpty) {
       // translate
       return 'Enter username / Email';
     } else {
@@ -43,10 +49,14 @@ class LoginScreenProvider extends ChangeNotifier {
 
   String? validatePassword(
       {required BuildContext context, required String value}) {
-    if (value.isEmpty) {
+    if (RegExp(r"\s").hasMatch(value)) {
+      return AppLocalizations.of(context).whiteSpacesNotAllowedPassword;
+    } else if (value.trim().isEmpty) {
       return AppLocalizations.of(context).enterPassword;
-    } else if (value.length < 6) {
+    } else if (value.trim().length < 6) {
       return AppLocalizations.of(context).enter6Characters;
+    } else if (value.trim().length >= 51) {
+      return AppLocalizations.of(context).passowrdCannotMore50Characters;
     } else {
       return null;
     }
@@ -66,17 +76,19 @@ class LoginScreenProvider extends ChangeNotifier {
 
   Future<void> userLogin(
       {required BuildContext context,
-      required String email,
+      required String identifier,
       required String password}) async {
     try {
-      EasyLoading.show(status: AppLocalizations.of(context).loggingIn);
+      EasyLoading.show(
+          status: AppLocalizations.of(context).loggingIn, dismissOnTap: false);
       String? currentDeviceToken = await FirebaseMessaging.instance.getToken();
       String body = jsonEncode({
-        "identifier": email,
+        "identifier": identifier,
         "password": password,
         "device_token": currentDeviceToken
       });
       Response loginResponse = await NewLoginRepo.loginUser(bodyData: body);
+
       if (loginResponse.statusCode == 200 &&
           jsonDecode(loginResponse.body)['status'] == 'Success') {
         LoginSuccess loginSuccess = loginSuccessFromJson(loginResponse.body);
@@ -97,7 +109,22 @@ class LoginScreenProvider extends ChangeNotifier {
               context, HomeScreen.id, (route) => false);
         }
       } else if (loginResponse.statusCode == 401 &&
-          jsonDecode(loginResponse.body)['status'] == 'Error') {
+          jsonDecode(loginResponse.body)['msg'] ==
+              'User is not verified yet. Please verify your email.') {
+        // translate
+        EasyLoading.showInfo(
+            'User is not verified yet. Please verify your email.',
+            duration: const Duration(seconds: 4),
+            dismissOnTap: true);
+        if (context.mounted) {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => EmailVerificationScreen(
+                    emailAddress:
+                        jsonDecode(loginResponse.body)['email'].toString(),
+                    password: password,
+                  )));
+        }
+      } else if (jsonDecode(loginResponse.body)['status'] == 'Error') {
         EasyLoading.showInfo(jsonDecode(loginResponse.body)['msg'],
             duration: const Duration(seconds: 3), dismissOnTap: true);
         return;
@@ -126,7 +153,9 @@ class LoginScreenProvider extends ChangeNotifier {
         currentAccessToken: accessToken,
         isKeepUserLoggedIn: isKeepUserLoggedIn);
     clearLoginInput();
+    hidePassword();
     if (isKeepUserLoggedIn) {
+      print("THE REF TOKEN IS $refreshToken");
       await UserSecureStorage.secureAndSaveUserDetails(
           profilePicture: profilePicture,
           userId: userId,
@@ -148,9 +177,15 @@ class LoginScreenProvider extends ChangeNotifier {
   }
 
   void goToRegisterScreen({required BuildContext context}) {
-    // hidePassword();
-    // clearLoginInput();
-    // Navigator.pushNamed(context, RegistrationScreen.id);
+    hidePassword();
+    clearLoginInput();
+    Navigator.pushNamed(context, RegistrationScreen.id);
+  }
+
+  void goToForgotPasswordScreen({required BuildContext context}) {
+    hidePassword();
+    clearLoginInput();
+    Navigator.pushNamed(context, ForgotPasswordEmailScreen.id);
   }
 
   void showSnackBar(

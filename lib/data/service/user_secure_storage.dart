@@ -29,6 +29,10 @@ class UserSecureStorage {
     ]);
   }
 
+  static Future setNewAccessToken({required String newAccessToken}) async {
+    await _storage.write(key: _securedAccessToken, value: newAccessToken);
+  }
+
   static Future<void> setIsUserLoggedIn(
       {required bool isKeepUserLoggedIn}) async {
     await _storage.write(

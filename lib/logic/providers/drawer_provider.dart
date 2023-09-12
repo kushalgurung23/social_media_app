@@ -1,4 +1,5 @@
 import 'package:c_talent/data/service/user_secure_storage.dart';
+import 'package:c_talent/logic/providers/login_screen_provider.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/cupertino.dart';
@@ -65,6 +66,8 @@ class DrawerProvider extends ChangeNotifier {
   Future<void> logOut({required BuildContext context}) async {
     EasyLoading.show(
         status: AppLocalizations.of(context).loggingOut, dismissOnTap: false);
+    Provider.of<LoginScreenProvider>(context, listen: false)
+        .toggleKeepUserLoggedIn(newValue: false);
     setNavigationOnly(navigationItems: NavigationItems.home);
     await removeCredentials(context: context);
     EasyLoading.dismiss();

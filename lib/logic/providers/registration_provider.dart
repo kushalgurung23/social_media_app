@@ -1,12 +1,13 @@
 import 'dart:convert';
-
 import 'package:c_talent/data/repositories/auth/register_repo.dart';
+import 'package:c_talent/logic/providers/login_screen_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/presentation/views/auth/email_verification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 
 class RegistrationProvider extends ChangeNotifier {
   late MainScreenProvider mainScreenProvider;
@@ -153,17 +154,13 @@ class RegistrationProvider extends ChangeNotifier {
           await RegisterRepo.registerUser(bodyData: body);
       if (registerResponse.statusCode == 201 &&
           jsonDecode(registerResponse.body)['status'] == 'Success') {
-        String recipientEmailAddress = emailTextController.text;
-        clearRegistrationData(
-            usernameTextController: usernameTextController,
-            emailTextController: emailTextController,
-            passwordTextController: passwordTextController,
-            confirmPasswordTextController: confirmPasswordTextController);
         EasyLoading.dismiss();
         if (context.mounted) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: (context) => EmailVerificationScreen(
-                  recipientEmailAddress: recipientEmailAddress)));
+                    emailAddress: emailTextController.text,
+                    password: passwordTextController.text,
+                  )));
         }
       } else if (jsonDecode(registerResponse.body)['status'] == 'Error') {
         EasyLoading.showInfo(jsonDecode(registerResponse.body)['msg'],
@@ -197,10 +194,7 @@ class RegistrationProvider extends ChangeNotifier {
   }
 
   // EMAIL VERIFICATION //
-  String? validateSixDigitCode({
-    required String value,
-    required String recipientEmailAddress,
-  }) {
+  String? validateSixDigitCode({required String value}) {
     // translate
     if (value.isEmpty) {
       return 'Please enter the code';
@@ -211,32 +205,81 @@ class RegistrationProvider extends ChangeNotifier {
     }
   }
 
-  void clearEmailVerificationData(
-      {required TextEditingController sixDigitCodeTextController}) {
+  void goBackFromEmailVerificationScreen(
+      {required BuildContext context,
+      required TextEditingController sixDigitCodeTextController}) {
+    clearDataFromEmailVerificationScreen(
+        context: context,
+        sixDigitCodeTextController: sixDigitCodeTextController);
+    Navigator.of(context).pop();
+  }
+
+  void clearDataFromEmailVerificationScreen(
+      {required BuildContext context,
+      required TextEditingController sixDigitCodeTextController}) {
+    userTypeValue = null;
+    toggleUserTypeValidation(context: context, value: 'prev');
     sixDigitCodeTextController.clear();
     notifyListeners();
   }
 
   Future<void> verifyEmailAddress(
       {required BuildContext context,
-      required TextEditingController sixDigitTextController,
-      required String recipientEmailAddress}) async {
+      required String emailAddress,
+      required String password,
+      required TextEditingController sixDigitTextController}) async {
     try {
       // translate
       EasyLoading.show(status: 'Verifying..', dismissOnTap: false);
+      String userEmail = emailAddress;
+      String userPassword = password;
       String body = jsonEncode({
         "verificationToken": sixDigitTextController.text,
-        "email": recipientEmailAddress
+        "email": userEmail
       });
       Response verificationResponse =
           await RegisterRepo.verifyEmail(bodyData: body);
       if (verificationResponse.statusCode == 200) {
-        print("VERIFIED SUCCESSFULLY");
-        clearEmailVerificationData(
-            sixDigitCodeTextController: sixDigitTextController);
-        EasyLoading.dismiss();
+        if (context.mounted) {
+          clearDataFromEmailVerificationScreen(
+              context: context,
+              sixDigitCodeTextController: sixDigitTextController);
+          final loginProvider =
+              Provider.of<LoginScreenProvider>(context, listen: false);
+          loginProvider.toggleKeepUserLoggedIn(newValue: false);
+          loginProvider.userLogin(
+              context: context, identifier: userEmail, password: userPassword);
+        }
       } else if (jsonDecode(verificationResponse.body)['status'] == 'Error') {
         EasyLoading.showInfo(jsonDecode(verificationResponse.body)['msg'],
+            duration: const Duration(seconds: 4), dismissOnTap: true);
+        return;
+      } else {
+        EasyLoading.showInfo("Please try again later.",
+            duration: const Duration(seconds: 3), dismissOnTap: true);
+        return;
+      }
+    } on Exception {
+      // translate
+      EasyLoading.showInfo("Please try again later.",
+          duration: const Duration(seconds: 3), dismissOnTap: true);
+      return;
+    }
+  }
+
+  Future<void> resendVerificationToken(
+      {required BuildContext context, required String emailAddress}) async {
+    try {
+      // translate
+      EasyLoading.show(status: 'Resending..', dismissOnTap: false);
+      String body = jsonEncode({"email": emailAddress});
+      Response resendCodeResponse =
+          await RegisterRepo.resendVerificationCode(bodyData: body);
+      if (resendCodeResponse.statusCode == 200) {
+        EasyLoading.showSuccess("Verification code is resent successfully.",
+            dismissOnTap: true, duration: const Duration(seconds: 3));
+      } else if (jsonDecode(resendCodeResponse.body)['status'] == 'Error') {
+        EasyLoading.showInfo(jsonDecode(resendCodeResponse.body)['msg'],
             duration: const Duration(seconds: 4), dismissOnTap: true);
         return;
       } else {

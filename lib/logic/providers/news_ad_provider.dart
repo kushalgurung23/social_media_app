@@ -5,10 +5,12 @@ import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_news_posts.dart';
 import 'package:c_talent/data/models/news_post_likes.dart';
 import 'package:c_talent/data/models/single_news_comments.dart';
+import 'package:c_talent/data/repositories/auth/json_web_token_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_comment_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_likes_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_post_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_save_repo.dart';
+import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
 import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
@@ -450,7 +452,8 @@ class NewsAdProvider extends ChangeNotifier {
       Response response = await NewsLikesRepo.toggleNewsPostLike(
           jwt: mainScreenProvider.currentAccessToken.toString(),
           bodyData: jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
-
+      print(response.statusCode);
+      // SUCCESSFUL
       if (response.statusCode == 200 && context.mounted) {
         // SHOW PROFILE IMAGE AVATAR
         if (newsPost.isLiked == 1) {
@@ -477,9 +480,39 @@ class NewsAdProvider extends ChangeNotifier {
         }
         toggleLikeOnProcess = false;
         notifyListeners();
-      } else if (response.statusCode == 400 ||
-          response.statusCode == 404 &&
-              (jsonDecode(response.body))["status"] == 'Error') {
+      }
+
+      // ACCESS TOKEN EXPIRED
+      else if (response.statusCode == 401 || response.statusCode == 403) {
+        newsPost.isLiked = currentLikeStatus;
+        toggleLikeOnProcess = false;
+        notifyListeners();
+        final newAccessTokenResponse =
+            await JsonWebTokenRepo.generateNewAccessToken();
+
+        if (newAccessTokenResponse.statusCode == 200 &&
+            jsonDecode(newAccessTokenResponse.body)['status'] == 'Success') {
+          String newAccessToken =
+              jsonDecode(newAccessTokenResponse.body)['accessToken'];
+          print("CHELSEA $newAccessToken");
+          mainScreenProvider.setNewAccessToken(newAccessToken: newAccessToken);
+          bool isKeepLoggedIn =
+              await UserSecureStorage.getSecuredIsLoggedInStatus() ?? false;
+          if (isKeepLoggedIn) {
+            await UserSecureStorage.setNewAccessToken(
+                newAccessToken: newAccessToken);
+          }
+          notifyListeners();
+        } else {
+          if (context.mounted) {
+            EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+                dismissOnTap: false, duration: const Duration(seconds: 4));
+            Provider.of<DrawerProvider>(context, listen: false)
+                .removeCredentials(context: context);
+            return;
+          }
+        }
+      } else if ((jsonDecode(response.body))["status"] == 'Error') {
         // if error occurs, keep current save status
         newsPost.isLiked = currentLikeStatus;
         toggleLikeOnProcess = false;

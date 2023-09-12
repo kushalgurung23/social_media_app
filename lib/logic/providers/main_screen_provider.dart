@@ -38,6 +38,10 @@ class MainScreenProvider extends ChangeNotifier {
     currentUsername = username;
   }
 
+  void setNewAccessToken({required String newAccessToken}) {
+    currentAccessToken = newAccessToken;
+  }
+
   void removeUserLoginDetails() {
     currentUserId = null;
     currentAccessToken = null;
@@ -63,6 +67,7 @@ class MainScreenProvider extends ChangeNotifier {
         // the following two sharedPreferences are set to false, because if it is true notification badge won't be popped
         if (navigatorKey.currentContext != null) {
           print(await UserSecureStorage.getSecuredAccessToken());
+          print(await UserSecureStorage.getSecuredRefreshToken());
           Provider.of<BottomNavProvider>(navigatorKey.currentContext!,
                   listen: false)
               .setBottomIndex(index: 0, context: navigatorKey.currentContext!);

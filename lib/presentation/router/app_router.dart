@@ -1,3 +1,4 @@
+import 'package:c_talent/presentation/views/auth/forgot_password_email_screen.dart';
 import 'package:c_talent/presentation/views/auth/registration_screen.dart';
 import 'package:c_talent/presentation/views/news_posts/new_post_screen.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,9 @@ Route? onGenerateRoute(RouteSettings routeSettings) {
     case RegistrationScreen.id:
       return MaterialPageRoute(
           builder: (context) => const RegistrationScreen());
+    case ForgotPasswordEmailScreen.id:
+      return MaterialPageRoute(
+          builder: (context) => const ForgotPasswordEmailScreen());
     case HomeScreen.id:
       return MaterialPageRoute(builder: (context) => const HomeScreen());
 

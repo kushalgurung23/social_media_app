@@ -93,7 +93,7 @@ class CustomNavigationDrawer extends StatelessWidget {
                 text: AppLocalizations.of(context).logOut,
                 selected: NavigationItems.logOut == data.navigationItem,
                 onTap: () {
-                  // data.logOut(context: context);
+                  data.logOut(context: context);
                   Navigator.pushNamedAndRemoveUntil(
                       context, LoginScreen.id, (route) => false);
                 },

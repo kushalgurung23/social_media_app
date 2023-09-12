@@ -183,7 +183,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                       labelText:
                                           AppLocalizations.of(context).password,
                                       obscureText: data.passwordVisibility,
-                                      iconButton: Padding(
+                                      suffixIcon: Padding(
                                         padding: EdgeInsets.only(
                                             right: SizeConfig.defaultSize * .5),
                                         child: IconButton(
@@ -229,7 +229,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                           .enterPasswordAgain,
                                       obscureText:
                                           data.secondPasswordVisibility,
-                                      iconButton: Padding(
+                                      suffixIcon: Padding(
                                         padding: EdgeInsets.only(
                                             right: SizeConfig.defaultSize * .5),
                                         child: IconButton(

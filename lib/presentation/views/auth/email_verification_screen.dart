@@ -10,9 +10,11 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
-  final String recipientEmailAddress;
+  final String? emailAddress;
+  final String? password;
 
-  const EmailVerificationScreen({Key? key, required this.recipientEmailAddress})
+  const EmailVerificationScreen(
+      {Key? key, required this.emailAddress, required this.password})
       : super(key: key);
 
   @override
@@ -35,7 +37,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   color: const Color(0xFF8897A7),
                   size: SizeConfig.defaultSize * 2.7),
               onPressed: () {
-                Navigator.of(context).pop();
+                data.goBackFromEmailVerificationScreen(
+                    context: context,
+                    sixDigitCodeTextController: sixDigitCodeTextController);
               },
             ),
             title: AppLocalizations.of(context).emailVerification,
@@ -57,7 +61,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                           top: SizeConfig.defaultSize,
                           bottom: SizeConfig.defaultSize * 2),
                       child: Text(
-                          '${AppLocalizations.of(context).enter6DigitCodeEmail}: ${widget.recipientEmailAddress}',
+                          '${AppLocalizations.of(context).enter6DigitCodeEmail}: ${widget.emailAddress ?? ''}',
                           textAlign: TextAlign.left,
                           style: TextStyle(
                               color: Colors.black,
@@ -78,9 +82,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         obscureText: false,
                         validator: (value) {
                           return data.validateSixDigitCode(
-                              value: value,
-                              recipientEmailAddress:
-                                  widget.recipientEmailAddress);
+                            value: value,
+                          );
                         },
                         isEnabled: true,
                         isReadOnly: false,
@@ -110,8 +113,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                                     context: context,
                                     sixDigitTextController:
                                         sixDigitCodeTextController,
-                                    recipientEmailAddress:
-                                        widget.recipientEmailAddress);
+                                    password: widget.password.toString(),
+                                    emailAddress:
+                                        widget.emailAddress.toString());
                               }
                             },
                             text: AppLocalizations.of(context).verifyButton,
@@ -119,6 +123,28 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                             buttonColor: const Color(0xFFA08875),
                             borderColor: const Color(0xFFC5966F),
                             fontFamily: kHelveticaRegular),
+                      ),
+                    ),
+                    Center(
+                      child: Padding(
+                        padding:
+                            EdgeInsets.only(top: SizeConfig.defaultSize * 3),
+                        child: InkWell(
+                          child: Text(
+                            // translate
+                            'Resend verification code',
+                            style: TextStyle(
+                                color: const Color(0xFFA08875),
+                                fontFamily: kHelveticaMedium,
+                                decoration: TextDecoration.underline,
+                                fontSize: SizeConfig.defaultSize * 1.5),
+                          ),
+                          onTap: () {
+                            data.resendVerificationToken(
+                                context: context,
+                                emailAddress: widget.emailAddress.toString());
+                          },
+                        ),
                       ),
                     )
                   ],

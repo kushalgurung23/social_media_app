@@ -1,3 +1,4 @@
+import 'package:c_talent/presentation/views/auth/forgot_password_email_screen.dart';
 import 'package:c_talent/presentation/views/auth/registration_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 labelText:
                                     AppLocalizations.of(context).password,
                                 obscureText: data.hidePasswordVisibility,
-                                iconButton: Padding(
+                                suffixIcon: Padding(
                                   padding: EdgeInsets.only(
                                       right: SizeConfig.defaultSize * .5),
                                   child: IconButton(
@@ -159,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (isValid) {
                                   await data.userLogin(
                                       context: context,
-                                      email: data.userNameController.text,
+                                      identifier: data.userNameController.text,
                                       password: data.passwordController.text);
                                 }
                               },
@@ -202,12 +203,29 @@ class _LoginScreenState extends State<LoginScreen> {
                                     fontSize: SizeConfig.defaultSize * 1.5),
                               ),
                               onTap: () {
-                                Navigator.of(context)
-                                    .pushNamed(RegistrationScreen.id);
+                                data.goToRegisterScreen(context: context);
                               },
                             ),
                           )
                         ],
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.only(top: SizeConfig.defaultSize * 3),
+                        child: InkWell(
+                          child: Text(
+                            // translate
+                            'Forgot Password',
+                            style: TextStyle(
+                                color: const Color(0xFFA08875),
+                                fontFamily: kHelveticaMedium,
+                                decoration: TextDecoration.underline,
+                                fontSize: SizeConfig.defaultSize * 1.5),
+                          ),
+                          onTap: () {
+                            data.goToForgotPasswordScreen(context: context);
+                          },
+                        ),
                       ),
                       SizedBox(
                         height: SizeConfig.defaultSize * 4,

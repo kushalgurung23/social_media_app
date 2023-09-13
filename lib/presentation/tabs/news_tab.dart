@@ -4,7 +4,6 @@ import 'package:c_talent/data/models/all_news_posts.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/presentation/views/news_posts/new_post_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
 import 'package:c_talent/presentation/components/news/news_post_list.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';

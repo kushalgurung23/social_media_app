@@ -1,4 +1,5 @@
 import 'package:c_talent/data/service/user_secure_storage.dart';
+import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/login_screen_provider.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -52,6 +53,9 @@ class DrawerProvider extends ChangeNotifier {
         .setBottomIndex(index: 0, context: context);
     Provider.of<MainScreenProvider>(context, listen: false)
         .removeUserLoginDetails();
+    // THIS WILL ALLOW USER TO REFRESH ACCESS TOKEN WHEN THEY RE-LOGIN
+    Provider.of<AuthProvider>(context, listen: false)
+        .setCanRefreshToken(canRefreshingToken: true);
 
     final fln = FlutterLocalNotificationsPlugin();
     fln.cancelAll();
@@ -63,13 +67,19 @@ class DrawerProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> logOut({required BuildContext context}) async {
-    EasyLoading.show(
-        status: AppLocalizations.of(context).loggingOut, dismissOnTap: false);
+  Future<void> logOut(
+      {required BuildContext context, bool isShowLoggingOut = false}) async {
+    print("Is Show Logging Out is $isShowLoggingOut");
+    if (isShowLoggingOut == true) {
+      EasyLoading.show(
+          status: AppLocalizations.of(context).loggingOut, dismissOnTap: false);
+    }
     Provider.of<LoginScreenProvider>(context, listen: false)
         .toggleKeepUserLoggedIn(newValue: false);
     setNavigationOnly(navigationItems: NavigationItems.home);
     await removeCredentials(context: context);
-    EasyLoading.dismiss();
+    if (isShowLoggingOut == true) {
+      EasyLoading.dismiss();
+    }
   }
 }

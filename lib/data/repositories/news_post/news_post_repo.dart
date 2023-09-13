@@ -33,4 +33,22 @@ class NewsPostRepo {
       rethrow;
     }
   }
+
+  static Future createNewPostWithoutImage(
+      {required String title,
+      required String content,
+      required String accessJWT}) async {
+    final Uri uri = Uri.http(kAPIURL, 'posts');
+    try {
+      var request = http.MultipartRequest('POST', uri);
+      request.headers['Authorization'] = "Bearer $accessJWT";
+      request.headers['Content-Type'] = "multipart/form-data";
+      request.fields["title"] = title;
+      request.fields["content"] = content;
+      var response = await request.send();
+      return response;
+    } on Exception {
+      rethrow;
+    }
+  }
 }

@@ -5,12 +5,11 @@ import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_news_posts.dart';
 import 'package:c_talent/data/models/news_post_likes.dart';
 import 'package:c_talent/data/models/single_news_comments.dart';
-import 'package:c_talent/data/repositories/auth/json_web_token_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_comment_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_likes_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_post_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_save_repo.dart';
-import 'package:c_talent/data/service/user_secure_storage.dart';
+import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
 import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
@@ -20,7 +19,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
 
 class NewsAdProvider extends ChangeNotifier {
   GlobalKey<FormState> postContentKey = GlobalKey<FormState>();
@@ -30,9 +28,12 @@ class NewsAdProvider extends ChangeNotifier {
 
   late final MainScreenProvider mainScreenProvider;
   late final BottomNavProvider bottomNavProvider;
+  late AuthProvider authProvider;
 
   NewsAdProvider(
-      {required this.mainScreenProvider, required this.bottomNavProvider}) {
+      {required this.mainScreenProvider,
+      required this.bottomNavProvider,
+      required this.authProvider}) {
     postContentController = TextEditingController();
     postTitleController = TextEditingController();
   }
@@ -99,11 +100,17 @@ class NewsAdProvider extends ChangeNotifier {
         }
       } else if (response.statusCode == 401 || response.statusCode == 403) {
         if (context.mounted) {
-          EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-              dismissOnTap: false, duration: const Duration(seconds: 4));
-          Provider.of<DrawerProvider>(context, listen: false)
-              .removeCredentials(context: context);
-          return;
+          bool isTokenRefreshed =
+              await Provider.of<AuthProvider>(context, listen: false)
+                  .refreshAccessToken(context: context);
+
+          // If token is refreshed, re-call the method
+          if (isTokenRefreshed == true && context.mounted) {
+            return loadInitialNewsPosts(
+                context: context, allNewsPostController: allNewsPostController);
+          } else {
+            return;
+          }
         }
       } else {
         if (context.mounted) {
@@ -154,11 +161,17 @@ class NewsAdProvider extends ChangeNotifier {
       return true;
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-        Provider.of<DrawerProvider>(context, listen: false)
-            .removeCredentials(context: context);
-        return;
+        bool isTokenRefreshed =
+            await Provider.of<AuthProvider>(context, listen: false)
+                .refreshAccessToken(context: context);
+
+        // If token is refreshed, re-call the method
+        if (isTokenRefreshed == true && context.mounted) {
+          return loadMoreNewsPosts(
+              context: context, allNewsPostController: allNewsPostController);
+        } else {
+          return;
+        }
       }
     } else {
       return false;
@@ -194,16 +207,26 @@ class NewsAdProvider extends ChangeNotifier {
       }
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-        Provider.of<DrawerProvider>(context, listen: false)
-            .removeCredentials(context: context);
-        return;
+        bool isTokenRefreshed =
+            await Provider.of<AuthProvider>(context, listen: false)
+                .refreshAccessToken(context: context);
+
+        // If token is refreshed, re-call the method
+        if (isTokenRefreshed == true && context.mounted) {
+          return loadInitialNewsComments(
+              allNewsCommentStreamController: allNewsCommentStreamController,
+              newsPost: newsPost,
+              context: context);
+        } else {
+          return;
+        }
       }
     } else {
       // translate
-      EasyLoading.showInfo("Sorry, comments could not load.",
-          dismissOnTap: true, duration: const Duration(seconds: 4));
+      EasyLoading.showInfo(
+          "Sorry, comments could not load. Please try again later.",
+          dismissOnTap: true,
+          duration: const Duration(seconds: 4));
     }
   }
 
@@ -248,16 +271,26 @@ class NewsAdProvider extends ChangeNotifier {
       notifyListeners();
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-        Provider.of<DrawerProvider>(context, listen: false)
-            .removeCredentials(context: context);
-        return;
+        bool isTokenRefreshed =
+            await Provider.of<AuthProvider>(context, listen: false)
+                .refreshAccessToken(context: context);
+
+        // If token is refreshed, re-call the method
+        if (isTokenRefreshed == true && context.mounted) {
+          return loadMoreNewsComments(
+              context: context,
+              allNewsCommentStreamController: allNewsCommentStreamController,
+              newsPost: newsPost);
+        } else {
+          return;
+        }
       }
     } else {
       // translate
-      EasyLoading.showInfo("Sorry, comments could not load.",
-          dismissOnTap: true, duration: const Duration(seconds: 4));
+      EasyLoading.showInfo(
+          "Sorry, comments could not load. Please try again later.",
+          dismissOnTap: true,
+          duration: const Duration(seconds: 4));
     }
   }
 
@@ -315,12 +348,26 @@ class NewsAdProvider extends ChangeNotifier {
       }
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-        Provider.of<DrawerProvider>(context, listen: false)
-            .removeCredentials(context: context);
-        return;
+        bool isTokenRefreshed =
+            await Provider.of<AuthProvider>(context, listen: false)
+                .refreshAccessToken(context: context);
+
+        // If token is refreshed, re-call the method
+        if (isTokenRefreshed == true && context.mounted) {
+          return loadInitialNewsLikes(
+              allNewsLikeStreamController: allNewsLikeStreamController,
+              newsPostId: newsPostId,
+              context: context);
+        } else {
+          return;
+        }
       }
+    } else {
+      // translate
+      EasyLoading.showInfo(
+          "Sorry, news likes could not load. Please try again later.",
+          dismissOnTap: true,
+          duration: const Duration(seconds: 4));
     }
   }
 
@@ -362,12 +409,26 @@ class NewsAdProvider extends ChangeNotifier {
       notifyListeners();
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       if (context.mounted) {
-        EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
-        Provider.of<DrawerProvider>(context, listen: false)
-            .removeCredentials(context: context);
-        return;
+        bool isTokenRefreshed =
+            await Provider.of<AuthProvider>(context, listen: false)
+                .refreshAccessToken(context: context);
+
+        // If token is refreshed, re-call the method
+        if (isTokenRefreshed == true && context.mounted) {
+          return loadMoreNewsLikes(
+              context: context,
+              allNewsLikesStreamController: allNewsLikesStreamController,
+              newsPostId: newsPostId);
+        } else {
+          return;
+        }
       }
+    } else {
+      // translate
+      EasyLoading.showInfo(
+          "Sorry, more news likes could not load. Please try again later.",
+          dismissOnTap: true,
+          duration: const Duration(seconds: 4));
     }
   }
 
@@ -388,46 +449,67 @@ class NewsAdProvider extends ChangeNotifier {
 
   Future<void> toggleNewsPostSave(
       {required NewsPost newsPost, required BuildContext context}) async {
-    if (toggleSaveOnProcess == true) {
-      // Please wait
-      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
-          dismissOnTap: false, duration: const Duration(seconds: 1));
-      return;
-    } else {
-      toggleSaveOnProcess = true;
-      int? currentSaveStatus = newsPost.isSaved;
-      if (currentSaveStatus == 1) {
-        newsPost.isSaved = 0;
-      } else {
-        newsPost.isSaved = 1;
-      }
-      notifyListeners();
-      Response response = await NewsSaveRepo.toggleNewsPostSave(
-          jwt: mainScreenProvider.currentAccessToken.toString(),
-          bodyData: jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
+    int? currentSaveStatus = newsPost.isSaved;
 
-      if (response.statusCode == 200 && context.mounted) {
-        toggleSaveOnProcess = false;
+    // THIS METHOD IS CALLED WHEN TOGGLE SAVE FAILS TO KEEP ORIGINAL DATA
+    void onToggleSaveFailed() {
+      // if error occurs, keep current save status
+      newsPost.isSaved = currentSaveStatus;
+      toggleSaveOnProcess = false;
+      notifyListeners();
+    }
+
+    try {
+      if (toggleSaveOnProcess == true) {
+        // Please wait
+        EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
+            dismissOnTap: false, duration: const Duration(seconds: 1));
+        return;
+      } else {
+        toggleSaveOnProcess = true;
+        if (currentSaveStatus == 1) {
+          newsPost.isSaved = 0;
+        } else {
+          newsPost.isSaved = 1;
+        }
         notifyListeners();
-      } else if (response.statusCode == 400 ||
-          response.statusCode == 404 &&
-              (jsonDecode(response.body))["status"] == 'Error') {
-        // if error occurs, keep current save status
-        newsPost.isSaved = currentSaveStatus;
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          EasyLoading.showInfo((jsonDecode(response.body))["msg"],
+        Response response = await NewsSaveRepo.toggleNewsPostSave(
+            jwt: mainScreenProvider.currentAccessToken.toString(),
+            bodyData:
+                jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
+
+        if (response.statusCode == 200 && context.mounted) {
+          toggleSaveOnProcess = false;
+          notifyListeners();
+        } else if (response.statusCode == 401 || response.statusCode == 403) {
+          onToggleSaveFailed();
+
+          bool isTokenRefreshed =
+              await Provider.of<AuthProvider>(context, listen: false)
+                  .refreshAccessToken(context: context);
+
+          // If token is refreshed, re-call the method
+          if (isTokenRefreshed == true && context.mounted) {
+            return toggleNewsPostSave(newsPost: newsPost, context: context);
+          } else {
+            return;
+          }
+        } else if ((jsonDecode(response.body))["status"] == 'Error') {
+          onToggleSaveFailed();
+          if (context.mounted) {
+            EasyLoading.showInfo((jsonDecode(response.body))["msg"],
+                dismissOnTap: false, duration: const Duration(seconds: 4));
+          }
+        } else {
+          onToggleSaveFailed();
+          EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
               dismissOnTap: false, duration: const Duration(seconds: 4));
         }
-      } else {
-        // if error occurs, keep current save status
-        newsPost.isSaved = currentSaveStatus;
-        toggleSaveOnProcess = false;
-        notifyListeners();
-        EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
       }
+    } catch (e) {
+      onToggleSaveFailed();
+      EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
+          dismissOnTap: false, duration: const Duration(seconds: 4));
     }
   }
 
@@ -435,100 +517,93 @@ class NewsAdProvider extends ChangeNotifier {
 
   Future<void> toggleNewsPostLike(
       {required NewsPost newsPost, required BuildContext context}) async {
-    if (toggleLikeOnProcess == true) {
-      // Please wait
-      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
-          dismissOnTap: false, duration: const Duration(seconds: 1));
-      return;
-    } else {
-      toggleLikeOnProcess = true;
-      int? currentLikeStatus = newsPost.isLiked;
-      if (currentLikeStatus == 1) {
-        newsPost.isLiked = 0;
-      } else {
-        newsPost.isLiked = 1;
-      }
+    int? currentLikeStatus = newsPost.isLiked;
+
+    // THIS METHOD IS CALLED WHEN TOGGLE LIKE FAILS TO KEEP ORIGINAL DATA
+    void onToggleLikeFailed() {
+      // if error occurs, keep current like status
+      newsPost.isLiked = currentLikeStatus;
+      toggleLikeOnProcess = false;
       notifyListeners();
-      Response response = await NewsLikesRepo.toggleNewsPostLike(
-          jwt: mainScreenProvider.currentAccessToken.toString(),
-          bodyData: jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
-      print(response.statusCode);
-      // SUCCESSFUL
-      if (response.statusCode == 200 && context.mounted) {
-        // SHOW PROFILE IMAGE AVATAR
-        if (newsPost.isLiked == 1) {
-          newsPost.likes?.insert(
-              0,
-              Like(
-                  likedBy: By(
-                      id: int.tryParse(
-                          mainScreenProvider.currentUserId.toString()),
-                      profilePicture:
-                          mainScreenProvider.currentProfilePicture)));
-          if (newsPost.likesCount != null) {
-            newsPost.likesCount = newsPost.likesCount! + 1;
-          }
-        }
-        // REMOVE PROFILE IMAGE AVATAR
-        else {
-          newsPost.likes?.removeWhere((element) =>
-              element.likedBy?.id ==
-              int.tryParse(mainScreenProvider.currentUserId.toString()));
-          if (newsPost.likesCount != null) {
-            newsPost.likesCount = newsPost.likesCount! - 1;
-          }
-        }
-        toggleLikeOnProcess = false;
-        notifyListeners();
-      }
+    }
 
-      // ACCESS TOKEN EXPIRED
-      else if (response.statusCode == 401 || response.statusCode == 403) {
-        newsPost.isLiked = currentLikeStatus;
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        final newAccessTokenResponse =
-            await JsonWebTokenRepo.generateNewAccessToken();
+    try {
+      if (toggleLikeOnProcess == true) {
+        // Please wait
+        EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
+            dismissOnTap: false, duration: const Duration(seconds: 1));
+        return;
+      } else {
+        toggleLikeOnProcess = true;
 
-        if (newAccessTokenResponse.statusCode == 200 &&
-            jsonDecode(newAccessTokenResponse.body)['status'] == 'Success') {
-          String newAccessToken =
-              jsonDecode(newAccessTokenResponse.body)['accessToken'];
-          print("CHELSEA $newAccessToken");
-          mainScreenProvider.setNewAccessToken(newAccessToken: newAccessToken);
-          bool isKeepLoggedIn =
-              await UserSecureStorage.getSecuredIsLoggedInStatus() ?? false;
-          if (isKeepLoggedIn) {
-            await UserSecureStorage.setNewAccessToken(
-                newAccessToken: newAccessToken);
-          }
-          notifyListeners();
+        if (currentLikeStatus == 1) {
+          newsPost.isLiked = 0;
         } else {
-          if (context.mounted) {
-            EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
-                dismissOnTap: false, duration: const Duration(seconds: 4));
-            Provider.of<DrawerProvider>(context, listen: false)
-                .removeCredentials(context: context);
+          newsPost.isLiked = 1;
+        }
+        notifyListeners();
+        Response response = await NewsLikesRepo.toggleNewsPostLike(
+            jwt: mainScreenProvider.currentAccessToken.toString(),
+            bodyData:
+                jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
+        // SUCCESSFUL
+        if (response.statusCode == 200 && context.mounted) {
+          // SHOW PROFILE IMAGE AVATAR
+          if (newsPost.isLiked == 1) {
+            newsPost.likes?.insert(
+                0,
+                Like(
+                    likedBy: By(
+                        id: int.tryParse(
+                            mainScreenProvider.currentUserId.toString()),
+                        profilePicture:
+                            mainScreenProvider.currentProfilePicture)));
+            if (newsPost.likesCount != null) {
+              newsPost.likesCount = newsPost.likesCount! + 1;
+            }
+          }
+          // REMOVE PROFILE IMAGE AVATAR
+          else {
+            newsPost.likes?.removeWhere((element) =>
+                element.likedBy?.id ==
+                int.tryParse(mainScreenProvider.currentUserId.toString()));
+            if (newsPost.likesCount != null) {
+              newsPost.likesCount = newsPost.likesCount! - 1;
+            }
+          }
+          toggleLikeOnProcess = false;
+          notifyListeners();
+        }
+
+        // ACCESS TOKEN EXPIRED
+        else if (response.statusCode == 401 || response.statusCode == 403) {
+          onToggleLikeFailed();
+
+          bool isTokenRefreshed =
+              await Provider.of<AuthProvider>(context, listen: false)
+                  .refreshAccessToken(context: context);
+          // if token is refreshed, re-call the method
+          if (isTokenRefreshed == true && context.mounted) {
+            return toggleNewsPostLike(newsPost: newsPost, context: context);
+          } else {
             return;
           }
-        }
-      } else if ((jsonDecode(response.body))["status"] == 'Error') {
-        // if error occurs, keep current save status
-        newsPost.isLiked = currentLikeStatus;
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        if (context.mounted) {
-          EasyLoading.showInfo((jsonDecode(response.body))["msg"],
+        } else if ((jsonDecode(response.body))["status"] == 'Error') {
+          onToggleLikeFailed();
+          if (context.mounted) {
+            EasyLoading.showInfo((jsonDecode(response.body))["msg"],
+                dismissOnTap: false, duration: const Duration(seconds: 4));
+          }
+        } else {
+          onToggleLikeFailed();
+          EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
               dismissOnTap: false, duration: const Duration(seconds: 4));
         }
-      } else {
-        // if error occurs, keep current save status
-        newsPost.isLiked = currentLikeStatus;
-        toggleLikeOnProcess = false;
-        notifyListeners();
-        EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
       }
+    } catch (e) {
+      onToggleLikeFailed();
+      EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
+          dismissOnTap: false, duration: const Duration(seconds: 4));
     }
   }
 
@@ -538,58 +613,77 @@ class NewsAdProvider extends ChangeNotifier {
       {required NewsPost newsPost,
       required TextEditingController commentTextController,
       required BuildContext context}) async {
-    if (toggleCommentOnProcess == true) {
-      // Please wait
-      EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
-          dismissOnTap: false, duration: const Duration(seconds: 1));
-      return;
-    } else {
-      toggleCommentOnProcess = true;
-      final currentLocalDateTime = DateTime.now();
-
-      addNewCommentToObject(
-          newsComments: newsPost.comments,
-          currentLocalDateTime: currentLocalDateTime,
-          commentTextController: commentTextController);
+    // WHEN ACTION FAILS, THIS METHOD WILL BE CALLED TO SET DEFAULT VALUE
+    void onCommentFailed() {
       if (newsPost.commentCount != null) {
-        newsPost.commentCount = newsPost.commentCount! + 1;
+        newsPost.commentCount = newsPost.commentCount! - 1;
       }
+      // if error occurs, remove new comment
+      newsPost.comments?.removeAt(0);
+      toggleCommentOnProcess = false;
       notifyListeners();
-      Response response = await NewsCommentRepo.writeNewsComment(
-          jwt: mainScreenProvider.currentAccessToken.toString(),
-          bodyData: jsonEncode({
-            "post_id": int.parse(newsPost.id.toString()),
-            "comment": commentTextController.text,
-            "created_at_utc": currentLocalDateTime.toUtc().toString(),
-            "updated_at_utc": currentLocalDateTime.toUtc().toString()
-          }));
-      if (response.statusCode == 200 && context.mounted) {
-        commentTextController.clear();
-        toggleCommentOnProcess = false;
-        notifyListeners();
-      } else if (response.statusCode == 400 ||
-          response.statusCode == 404 &&
-              (jsonDecode(response.body))["status"] == 'Error') {
-        if (newsPost.commentCount != null) {
-          newsPost.commentCount = newsPost.commentCount! - 1;
-        }
-        // if error occurs, remove new comment
-        newsPost.comments?.removeAt(0);
-        toggleCommentOnProcess = false;
-        notifyListeners();
-        EasyLoading.showInfo((jsonDecode(response.body))["msg"],
-            dismissOnTap: false, duration: const Duration(seconds: 4));
+    }
+
+    try {
+      if (toggleCommentOnProcess == true) {
+        // Please wait
+        EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
+            dismissOnTap: false, duration: const Duration(seconds: 1));
+        return;
       } else {
+        toggleCommentOnProcess = true;
+        final currentLocalDateTime = DateTime.now();
+
+        addNewCommentToObject(
+            newsComments: newsPost.comments,
+            currentLocalDateTime: currentLocalDateTime,
+            commentTextController: commentTextController);
         if (newsPost.commentCount != null) {
-          newsPost.commentCount = newsPost.commentCount! - 1;
+          newsPost.commentCount = newsPost.commentCount! + 1;
         }
-        // if error occurs, remove new comment
-        newsPost.comments?.removeAt(0);
-        toggleCommentOnProcess = false;
         notifyListeners();
-        EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
-            dismissOnTap: false, duration: const Duration(seconds: 4));
+        Response response = await NewsCommentRepo.writeNewsComment(
+            jwt: mainScreenProvider.currentAccessToken.toString(),
+            bodyData: jsonEncode({
+              "post_id": int.parse(newsPost.id.toString()),
+              "comment": commentTextController.text,
+              "created_at_utc": currentLocalDateTime.toUtc().toString(),
+              "updated_at_utc": currentLocalDateTime.toUtc().toString()
+            }));
+        if (response.statusCode == 200 && context.mounted) {
+          commentTextController.clear();
+          toggleCommentOnProcess = false;
+          notifyListeners();
+        }
+        // ACCESS TOKEN EXPIRED
+        else if (response.statusCode == 401 || response.statusCode == 403) {
+          onCommentFailed();
+          bool isTokenRefreshed =
+              await Provider.of<AuthProvider>(context, listen: false)
+                  .refreshAccessToken(context: context);
+          // if token is refreshed, re-call the method
+          if (isTokenRefreshed == true && context.mounted) {
+            return writeNewsPostComment(
+                newsPost: newsPost,
+                commentTextController: commentTextController,
+                context: context);
+          } else {
+            return;
+          }
+        } else if ((jsonDecode(response.body))["status"] == 'Error') {
+          onCommentFailed();
+          EasyLoading.showInfo((jsonDecode(response.body))["msg"],
+              dismissOnTap: false, duration: const Duration(seconds: 4));
+        } else {
+          onCommentFailed();
+          EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
+              dismissOnTap: false, duration: const Duration(seconds: 4));
+        }
       }
+    } catch (e) {
+      onCommentFailed();
+      EasyLoading.showInfo("${AppLocalizations.of(context).tryAgainLater}: $e",
+          dismissOnTap: false, duration: const Duration(seconds: 4));
     }
   }
 
@@ -764,15 +858,19 @@ class NewsAdProvider extends ChangeNotifier {
               duration: const Duration(seconds: 4), dismissOnTap: true);
           if (context.mounted) Navigator.of(context).pop();
         } else if (response.statusCode == 401 || response.statusCode == 403) {
-          resetNewsPostReportOption();
-          // translate
-          EasyLoading.showInfo("Please login again.",
-              dismissOnTap: false, duration: const Duration(seconds: 4));
           if (context.mounted) {
-            await Provider.of<DrawerProvider>(context, listen: false)
-                .logOut(context: context);
+            bool isTokenRefreshed =
+                await Provider.of<AuthProvider>(context, listen: false)
+                    .refreshAccessToken(context: context);
+            // if token is refreshed, re-call the method
+            if (isTokenRefreshed == true && context.mounted) {
+              return reportNewsPost(
+                  postId: postId, context: context, newsPostFrom: newsPostFrom);
+            } else {
+              resetNewsPostReportOption();
+              return;
+            }
           }
-          return;
         } else {
           // translate
           EasyLoading.showInfo("Error, please try again later.",
@@ -786,6 +884,12 @@ class NewsAdProvider extends ChangeNotifier {
           dismissOnTap: false, duration: const Duration(seconds: 4));
       return;
     }
+  }
+
+  Future<void> createANewPost(
+      {required TextEditingController titleTextController,
+      required TextEditingController contentTextController}) async {
+    EasyLoading.show(status: "Uploading..", dismissOnTap: false);
   }
 
   @override

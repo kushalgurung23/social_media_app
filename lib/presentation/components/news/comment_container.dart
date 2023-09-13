@@ -12,7 +12,6 @@ class CommentContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(comment.createdAt);
     return comment.commentBy == null
         ? const SizedBox()
         : Padding(

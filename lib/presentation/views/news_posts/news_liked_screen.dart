@@ -115,22 +115,7 @@ class _NewsLikedScreenState extends State<NewsLikedScreen> {
                         return likedBy == null
                             ? const SizedBox()
                             : GestureDetector(
-                                onTap: () {
-                                  // if (likedByUserId !=
-                                  //     int.parse(
-                                  //         data.mainScreenProvider.userId!)) {
-                                  //   Navigator.push(
-                                  //       context,
-                                  //       MaterialPageRoute(
-                                  //           builder: (context) =>
-                                  //               OtherUserProfileScreen(
-                                  //                 otherUserId: likedByUserId,
-                                  //               )));
-                                  // } else {
-                                  //   Navigator.pushNamed(
-                                  //       context, MyProfileScreen.id);
-                                  // }
-                                },
+                                onTap: () {},
                                 child: Container(
                                   color: Colors.transparent,
                                   margin: index == 0
@@ -244,31 +229,7 @@ class _NewsLikedScreenState extends State<NewsLikedScreen> {
                                                   SizeConfig.defaultSize * 3.5,
                                               width:
                                                   SizeConfig.defaultSize * 10,
-                                              onPress: () async {
-                                                // await Provider.of<ProfileProvider>(
-                                                //         context,
-                                                //         listen: false)
-                                                //     .toggleUserFollow(
-                                                //   userFollowSource: UserFollowSource
-                                                //       .newsLikedScreen,
-                                                //   newsPostId:
-                                                //       widget.postId.toString(),
-                                                //   userFollowId: data
-                                                //               .mainScreenProvider
-                                                //               .followingIdList
-                                                //               .contains(
-                                                //                   likedByUserId) &&
-                                                //           likedByUser.userFollower !=
-                                                //               null
-                                                //       ? userFollowData?.id.toString()
-                                                //       : null,
-                                                //   otherUserDeviceToken:
-                                                //       likedByUser.deviceToken,
-                                                //   otherUserId: likedByUserId,
-                                                //   context: context,
-                                                //   setLikeSaveCommentFollow: false,
-                                                // );
-                                              },
+                                              onPress: () async {},
                                               text: likedBy.isFollowed == 1
                                                   ? AppLocalizations.of(context)
                                                       .following

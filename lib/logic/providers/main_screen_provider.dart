@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/data/service/user_secure_storage.dart';
+import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
 import 'package:c_talent/main.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
@@ -56,6 +57,12 @@ class MainScreenProvider extends ChangeNotifier {
       // if user is already logged in
       bool isLogin =
           await UserSecureStorage.getSecuredIsLoggedInStatus() ?? false;
+      if (navigatorKey.currentContext != null) {
+        // THIS WILL ALLOW USER TO REFRESH ACCESS TOKEN WHEN THEY RE-LOGIN
+        // Refresh access token allowed once after re-login.
+        Provider.of<AuthProvider>(navigatorKey.currentContext!, listen: false)
+            .setCanRefreshToken(canRefreshingToken: true);
+      }
       if (isLogin) {
         currentUserId = await UserSecureStorage.getSecuredUserId() ?? '';
         currentAccessToken =
@@ -64,6 +71,7 @@ class MainScreenProvider extends ChangeNotifier {
         currentProfilePicture =
             await UserSecureStorage.getSecuredProfilePicture();
         currentUsername = await UserSecureStorage.getSecuredUsername();
+
         // the following two sharedPreferences are set to false, because if it is true notification badge won't be popped
         if (navigatorKey.currentContext != null) {
           print(await UserSecureStorage.getSecuredAccessToken());

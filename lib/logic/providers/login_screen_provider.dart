@@ -3,6 +3,7 @@ import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/data/models/login_success.dart';
 import 'package:c_talent/data/repositories/auth/login_repo.dart';
 import 'package:c_talent/data/service/user_secure_storage.dart';
+import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/views/auth/email_verification_screen.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreenProvider extends ChangeNotifier {
   late TextEditingController userNameController, passwordController;
@@ -97,12 +99,16 @@ class LoginScreenProvider extends ChangeNotifier {
               duration: const Duration(seconds: 3), dismissOnTap: true);
           return;
         }
-        await saveUserCredentials(
-            profilePicture: loginSuccess.user?.profilePicture,
-            userId: loginSuccess.user!.id.toString(),
-            username: loginSuccess.user!.username.toString(),
-            refreshToken: loginSuccess.refreshToken.toString(),
-            accessToken: loginSuccess.accessToken.toString());
+
+        if (context.mounted) {
+          await saveUserCredentials(
+              profilePicture: loginSuccess.user?.profilePicture,
+              userId: loginSuccess.user!.id.toString(),
+              username: loginSuccess.user!.username.toString(),
+              refreshToken: loginSuccess.refreshToken.toString(),
+              accessToken: loginSuccess.accessToken.toString(),
+              context: context);
+        }
         EasyLoading.dismiss();
         if (context.mounted) {
           Navigator.pushNamedAndRemoveUntil(
@@ -145,7 +151,8 @@ class LoginScreenProvider extends ChangeNotifier {
       required String username,
       required String refreshToken,
       required String accessToken,
-      required String? profilePicture}) async {
+      required String? profilePicture,
+      required BuildContext context}) async {
     mainScreenProvider.saveUserLoginDetails(
         currentProfilePicture: profilePicture,
         currentUserId: userId,
@@ -154,8 +161,10 @@ class LoginScreenProvider extends ChangeNotifier {
         isKeepUserLoggedIn: isKeepUserLoggedIn);
     clearLoginInput();
     hidePassword();
+    // THIS WILL ALLOW USER TO REFRESH ACCESS TOKEN WHEN THEY RE-LOGIN
+    Provider.of<AuthProvider>(context, listen: false)
+        .setCanRefreshToken(canRefreshingToken: true);
     if (isKeepUserLoggedIn) {
-      print("THE REF TOKEN IS $refreshToken");
       await UserSecureStorage.secureAndSaveUserDetails(
           profilePicture: profilePicture,
           userId: userId,

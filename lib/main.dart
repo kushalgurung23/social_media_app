@@ -1,5 +1,4 @@
 import 'dart:io' show Platform;
-import 'dart:ui' as ui;
 import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/registration_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -96,10 +95,15 @@ class _MyAppState extends State<MyApp> {
             create: (context) => LoginScreenProvider(
                 mainScreenProvider:
                     Provider.of<MainScreenProvider>(context, listen: false))),
-        ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ChangeNotifierProvider(
+            create: (context) => AuthProvider(
+                mainScreenProvider:
+                    Provider.of<MainScreenProvider>(context, listen: false))),
         ChangeNotifierProvider(create: (context) => BottomNavProvider()),
         ChangeNotifierProvider(
             create: (context) => NewsAdProvider(
+                  authProvider:
+                      Provider.of<AuthProvider>(context, listen: false),
                   mainScreenProvider:
                       Provider.of<MainScreenProvider>(context, listen: false),
                   bottomNavProvider:

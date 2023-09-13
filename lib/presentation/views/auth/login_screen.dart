@@ -1,15 +1,13 @@
-import 'package:c_talent/presentation/views/auth/forgot_password_email_screen.dart';
-import 'package:c_talent/presentation/views/auth/registration_screen.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/logic/providers/login_screen_provider.dart';
 import 'package:c_talent/presentation/components/all/custom_checkbox.dart';
 import 'package:c_talent/presentation/components/all/custom_text_form_field.dart';
 import 'package:c_talent/presentation/components/all/rectangular_button.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = '/login_screen';

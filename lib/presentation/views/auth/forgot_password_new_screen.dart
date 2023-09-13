@@ -149,7 +149,7 @@ class _ForgotPasswordNewScreenState extends State<ForgotPasswordNewScreen> {
                           final isValid =
                               resetPasswordNewKey.currentState!.validate();
                           if (isValid) {
-                            data.resetNewPassword(
+                            data.resetNewPasswordfromFPScreen(
                                 context: context,
                                 emailAddress: widget.emailAddress,
                                 confirmPasswordTextController:

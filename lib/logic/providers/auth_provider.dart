@@ -1,5 +1,9 @@
 import 'dart:convert';
 import 'package:c_talent/data/repositories/auth/forgot_password_repo.dart';
+import 'package:c_talent/data/repositories/auth/json_web_token_repo.dart';
+import 'package:c_talent/data/service/user_secure_storage.dart';
+import 'package:c_talent/logic/providers/drawer_provider.dart';
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/presentation/views/auth/forgot_password_new_screen.dart';
 import 'package:c_talent/presentation/views/auth/forgot_password_verify_code_screen.dart';
 import 'package:c_talent/presentation/views/auth/login_screen.dart';
@@ -7,8 +11,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 
 class AuthProvider extends ChangeNotifier {
+  late MainScreenProvider mainScreenProvider;
+
+  AuthProvider({required this.mainScreenProvider});
   // FP = ForgotPassword
   void goBackFromFPEmailScreen(
       {required BuildContext context,
@@ -72,6 +80,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // FP = Forgot Password
   Future<void> verifyFPResetCode(
       {required BuildContext context,
       required String emailAddress,
@@ -186,7 +195,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> resetNewPassword(
+  Future<void> resetNewPasswordfromFPScreen(
       {required BuildContext context,
       required String emailAddress,
       required TextEditingController confirmPasswordTextController}) async {
@@ -226,6 +235,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // Hide new and confirm password in forgot password new screen
   void makeFPNewScreenFieldsObscure() {
     isHideNewPassword = true;
     isHideConfirmNewPassword = true;
@@ -240,5 +250,62 @@ class AuthProvider extends ChangeNotifier {
     newPasswordTextController.clear();
     confirmPasswordTextController.clear();
     Navigator.of(context).pop();
+  }
+
+  bool _canRefreshToken = true;
+  bool get canRefreshToken => _canRefreshToken;
+
+  void setCanRefreshToken({required bool canRefreshingToken}) {
+    _canRefreshToken = canRefreshingToken;
+  }
+
+  Future<bool> refreshAccessToken({required BuildContext context}) async {
+    // IF USER TRIES TO REFRESH THE TOKEN AGAIN, THEY WILL BE LOGGED OUT
+    if (canRefreshToken == false) {
+      EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+          dismissOnTap: true, duration: const Duration(seconds: 4));
+      Provider.of<DrawerProvider>(context, listen: false)
+          .logOut(context: context);
+      return false;
+    }
+    // REFRESH ACCESS TOKEN
+    bool isTokenRefresh = await generateAndSetNewAccessToken();
+    if (isTokenRefresh == false && context.mounted) {
+      EasyLoading.showInfo(AppLocalizations.of(context).pleaseLogin,
+          dismissOnTap: true, duration: const Duration(seconds: 4));
+      Provider.of<DrawerProvider>(context, listen: false)
+          .logOut(context: context);
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  Future<bool> generateAndSetNewAccessToken() async {
+    if (canRefreshToken == false) {
+      return false;
+    }
+    // once refreshToken is called, it cannot be called again unless reopened the app or logged in again by logging out.
+    setCanRefreshToken(canRefreshingToken: false);
+    final newAccessTokenResponse =
+        await JsonWebTokenRepo.generateNewAccessToken();
+
+    if (newAccessTokenResponse.statusCode == 200 &&
+        jsonDecode(newAccessTokenResponse.body)['status'] == 'Success') {
+      String newAccessToken =
+          jsonDecode(newAccessTokenResponse.body)['accessToken'];
+      print("FROM REFRESH ACCESS TOKEN+ $newAccessToken");
+      mainScreenProvider.setNewAccessToken(newAccessToken: newAccessToken);
+      bool isKeepLoggedIn =
+          await UserSecureStorage.getSecuredIsLoggedInStatus() ?? false;
+      if (isKeepLoggedIn) {
+        await UserSecureStorage.setNewAccessToken(
+            newAccessToken: newAccessToken);
+      }
+      notifyListeners();
+      return true;
+    } else {
+      return false;
+    }
   }
 }

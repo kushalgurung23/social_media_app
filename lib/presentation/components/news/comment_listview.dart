@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/data/models/all_news_posts.dart';
-import 'package:c_talent/data/models/single_news_comments.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/presentation/components/news/comment_container.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';

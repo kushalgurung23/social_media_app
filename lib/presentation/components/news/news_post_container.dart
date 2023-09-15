@@ -8,7 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
-import 'package:c_talent/presentation/components/all/post_top_body.dart';
+import 'package:c_talent/presentation/components/news/post_top_body.dart';
 import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import '../../views/news_posts/news_description_screen.dart';

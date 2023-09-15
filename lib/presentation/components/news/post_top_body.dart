@@ -1,5 +1,6 @@
 import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_news_posts.dart';
+import 'package:c_talent/presentation/components/news/post_staggered_grid_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:c_talent/data/constant/connection_url.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
-import 'package:c_talent/presentation/components/all/post_options.dart';
-import 'package:c_talent/presentation/components/all/post_staggered_grid_view.dart';
+import 'package:c_talent/presentation/components/news/post_options.dart';
 import 'package:c_talent/presentation/components/news/show_report_news_post_container.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

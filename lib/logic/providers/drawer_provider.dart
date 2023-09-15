@@ -69,7 +69,6 @@ class DrawerProvider extends ChangeNotifier {
 
   Future<void> logOut(
       {required BuildContext context, bool isShowLoggingOut = false}) async {
-    print("Is Show Logging Out is $isShowLoggingOut");
     if (isShowLoggingOut == true) {
       EasyLoading.show(
           status: AppLocalizations.of(context).loggingOut, dismissOnTap: false);

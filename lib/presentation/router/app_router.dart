@@ -1,5 +1,6 @@
 import 'package:c_talent/presentation/views/auth/forgot_password_email_screen.dart';
 import 'package:c_talent/presentation/views/auth/registration_screen.dart';
+import 'package:c_talent/presentation/views/chat/chatroom_screen.dart';
 import 'package:c_talent/presentation/views/news_posts/new_post_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/language_screen.dart';
@@ -31,12 +32,12 @@ Route? onGenerateRoute(RouteSettings routeSettings) {
     case PrivacyPolicyScreen.id:
       return MaterialPageRoute(
           builder: (context) => const PrivacyPolicyScreen());
-
     case NewPostScreen.id:
       return MaterialPageRoute(builder: (context) => const NewPostScreen());
-
     case LanguageScreen.id:
       return MaterialPageRoute(builder: (context) => const LanguageScreen());
+    case ChatroomScreen.id:
+      return MaterialPageRoute(builder: (context) => const ChatroomScreen());
     default:
       return null;
   }

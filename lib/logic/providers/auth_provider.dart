@@ -294,7 +294,6 @@ class AuthProvider extends ChangeNotifier {
         jsonDecode(newAccessTokenResponse.body)['status'] == 'Success') {
       String newAccessToken =
           jsonDecode(newAccessTokenResponse.body)['accessToken'];
-      print("FROM REFRESH ACCESS TOKEN+ $newAccessToken");
       mainScreenProvider.setNewAccessToken(newAccessToken: newAccessToken);
       bool isKeepLoggedIn =
           await UserSecureStorage.getSecuredIsLoggedInStatus() ?? false;

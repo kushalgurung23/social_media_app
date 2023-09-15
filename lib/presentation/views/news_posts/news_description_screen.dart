@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_news_posts.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
-import 'package:c_talent/presentation/components/all/post_top_body.dart';
+import 'package:c_talent/presentation/components/news/post_top_body.dart';
 import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
 import 'package:c_talent/presentation/components/all/top_app_bar.dart';
 import 'package:c_talent/presentation/components/news/comment_listview.dart';

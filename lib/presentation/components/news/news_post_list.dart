@@ -86,7 +86,7 @@ class _NewsPostListState extends State<NewsPostList>
                                 physics: const NeverScrollableScrollPhysics(),
                                 addAutomaticKeepAlives: true,
                                 itemCount: snapshot.data!.posts!.length >=
-                                        data.pageSize
+                                        data.newsPostPageSize
                                     ? snapshot.data!.posts!.length + 1
                                     : snapshot.data!.posts!.length,
                                 itemBuilder: (context, index) {
@@ -106,7 +106,7 @@ class _NewsPostListState extends State<NewsPostList>
                                       padding: EdgeInsets.symmetric(
                                           vertical: SizeConfig.defaultSize * 3),
                                       child: Center(
-                                          child: data.hasMore
+                                          child: data.newsPostHasMore
                                               ? const CircularProgressIndicator(
                                                   color: Color(0xFFA08875))
                                               : Text(

@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 // ignore: depend_on_referenced_packages
 import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_news_posts.dart';
+import 'package:c_talent/data/models/created_news_post.dart';
 import 'package:c_talent/data/models/news_post_likes.dart';
 import 'package:c_talent/data/models/single_news_comments.dart';
 import 'package:c_talent/data/repositories/news_post/news_comment_repo.dart';
@@ -21,11 +23,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class NewsAdProvider extends ChangeNotifier {
-  GlobalKey<FormState> postContentKey = GlobalKey<FormState>();
-  // New news post controllers
-  late TextEditingController postTitleController;
-  late TextEditingController postContentController;
-
   late final MainScreenProvider mainScreenProvider;
   late final BottomNavProvider bottomNavProvider;
   late AuthProvider authProvider;
@@ -33,10 +30,7 @@ class NewsAdProvider extends ChangeNotifier {
   NewsAdProvider(
       {required this.mainScreenProvider,
       required this.bottomNavProvider,
-      required this.authProvider}) {
-    postContentController = TextEditingController();
-    postTitleController = TextEditingController();
-  }
+      required this.authProvider});
 
   String getLike({required int likeCount, required BuildContext context}) {
     if (likeCount == 0) {
@@ -71,17 +65,16 @@ class NewsAdProvider extends ChangeNotifier {
   }
 
   // Load news post
-
   AllNewsPosts? _allNewsPosts;
   AllNewsPosts? get allNewsPosts => _allNewsPosts;
 
   // page and pageSize is used for pagination
-  int page = 1;
-  int pageSize = 10;
+  int newsPostPageNumber = 1;
+  int newsPostPageSize = 10;
   // hasMore will be true until we have more data to fetch in the API
-  bool hasMore = true;
+  bool newsPostHasMore = true;
   // It will be true once we try to fetch more news post data.
-  bool isLoading = false;
+  bool newsPostIsLoading = false;
 
   // This method will be called to gets news posts, when user is logged in
   Future<void> loadInitialNewsPosts(
@@ -90,8 +83,8 @@ class NewsAdProvider extends ChangeNotifier {
     try {
       Response response = await NewsPostRepo.getAllNewsPosts(
           accessToken: mainScreenProvider.currentAccessToken.toString(),
-          page: page.toString(),
-          pageSize: pageSize.toString());
+          page: newsPostPageNumber.toString(),
+          pageSize: newsPostPageSize.toString());
       if (response.statusCode == 200) {
         _allNewsPosts = allNewsPostsFromJson(response.body);
         if (_allNewsPosts != null) {
@@ -131,26 +124,26 @@ class NewsAdProvider extends ChangeNotifier {
   Future loadMoreNewsPosts(
       {required BuildContext context,
       required StreamController<AllNewsPosts> allNewsPostController}) async {
-    page++;
+    newsPostPageNumber++;
     // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (isLoading) {
+    if (newsPostIsLoading) {
       return;
     }
-    isLoading = true;
+    newsPostIsLoading = true;
     Response response = await NewsPostRepo.getAllNewsPosts(
         accessToken: mainScreenProvider.currentAccessToken.toString(),
-        page: page.toString(),
-        pageSize: pageSize.toString());
+        page: newsPostPageNumber.toString(),
+        pageSize: newsPostPageSize.toString());
     if (response.statusCode == 200) {
       final newNewsPosts = allNewsPostsFromJson(response.body);
 
       // isLoading = false indicates that the loading is complete
-      isLoading = false;
+      newsPostIsLoading = false;
 
       if (newNewsPosts.posts == null) return;
       // If the newly added data is less than our default pageSize, it means we won't have further more data. Hence hasMore = false
-      if (newNewsPosts.posts!.length < pageSize) {
-        hasMore = false;
+      if (newNewsPosts.posts!.length < newsPostPageSize) {
+        newsPostHasMore = false;
       }
 
       for (int i = 0; i < newNewsPosts.posts!.length; i++) {
@@ -309,9 +302,9 @@ class NewsAdProvider extends ChangeNotifier {
   Future refreshNewsPosts(
       {required BuildContext context,
       required StreamController<AllNewsPosts> allNewsPostController}) async {
-    isLoading = false;
-    hasMore = true;
-    page = 1;
+    newsPostIsLoading = false;
+    newsPostHasMore = true;
+    newsPostPageNumber = 1;
     if (_allNewsPosts != null) {
       _allNewsPosts!.posts!.clear();
       allNewsPostController.sink.add(_allNewsPosts!);
@@ -703,22 +696,6 @@ class NewsAdProvider extends ChangeNotifier {
                 username: mainScreenProvider.currentUsername)));
   }
 
-  // New post
-  goBackFromNewNewsPostScreen({required BuildContext context}) {
-    if (imageFileList != null || imageFileList!.isNotEmpty) {
-      imageFileList!.clear();
-    }
-
-    if (postContentController.text != '') {
-      postContentController.text = '';
-    }
-    if (postTitleController.text != '') {
-      postTitleController.text = '';
-    }
-    notifyListeners();
-    Navigator.pop(context);
-  }
-
   // New news post validation
   String? validatePostTitle(
       {required String value, required BuildContext context}) {
@@ -736,24 +713,6 @@ class NewsAdProvider extends ChangeNotifier {
     } else {
       return null;
     }
-  }
-
-  // Multiple picture selection
-  final ImagePicker imagePicker = ImagePicker();
-  List<XFile>? imageFileList = [];
-
-  void selectMultiImages() async {
-    // ignore: unnecessary_nullable_for_final_variable_declarations
-    final List<XFile>? selectedImages = await imagePicker.pickMultiImage();
-    if (selectedImages != null && selectedImages.isNotEmpty) {
-      imageFileList!.addAll(selectedImages);
-    }
-    notifyListeners();
-  }
-
-  void removeSelectedImage({required int index}) {
-    imageFileList!.removeAt(index);
-    notifyListeners();
   }
 
   // news post report list
@@ -886,16 +845,143 @@ class NewsAdProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> createANewPost(
-      {required TextEditingController titleTextController,
-      required TextEditingController contentTextController}) async {
-    EasyLoading.show(status: "Uploading..", dismissOnTap: false);
+  // CREATE NEW POST //
+  final ImagePicker imagePicker = ImagePicker();
+  List<XFile>? imageFileList = [];
+
+  void selectMultiImages() async {
+    // ignore: unnecessary_nullable_for_final_variable_declarations
+    final List<XFile>? selectedImages = await imagePicker.pickMultiImage();
+    if (selectedImages != null && selectedImages.isNotEmpty) {
+      imageFileList!.addAll(selectedImages);
+    }
+    notifyListeners();
   }
 
-  @override
-  void dispose() {
-    postContentController.dispose();
-    postTitleController.dispose();
-    super.dispose();
+  void removeSelectedImage({required int index}) {
+    imageFileList!.removeAt(index);
+    notifyListeners();
+  }
+
+  Future<void> createANewPost(
+      {required TextEditingController titleTextController,
+      required TextEditingController contentTextController,
+      required BuildContext context}) async {
+    try {
+      EasyLoading.show(status: "Uploading..", dismissOnTap: false);
+      Response createResponse;
+      if (imageFileList == null || imageFileList!.isEmpty) {
+        createResponse = await createNewsPostWithoutImage(
+            context: context,
+            titleTextController: titleTextController,
+            contentTextController: contentTextController);
+      } else {
+        createResponse = await createNewsPostWithImages(
+            context: context,
+            titleTextController: titleTextController,
+            contentTextController: contentTextController);
+      }
+      if (createResponse.statusCode == 201) {
+        final createdNewsPost = createdNewsPostFromJson(createResponse.body);
+        if (createdNewsPost.post != null) {
+          _allNewsPosts?.posts?.insert(0, createdNewsPost.post!);
+          // to prevent same post from displaying twice
+          if (newsPostHasMore == true &&
+              _allNewsPosts?.posts != null &&
+              _allNewsPosts!.posts!.length > newsPostPageSize) {
+            _allNewsPosts!.posts!.removeLast();
+          }
+        }
+        clearNewPostData(
+            titleTextController: titleTextController,
+            contentTextController: contentTextController);
+        // translate
+        EasyLoading.showSuccess("Created successfully!",
+            duration: const Duration(seconds: 2), dismissOnTap: true);
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      }
+      // ACCESS TOKEN EXPIRED
+      else if (createResponse.statusCode == 401 ||
+          createResponse.statusCode == 403) {
+        if (context.mounted) {
+          bool isTokenRefreshed =
+              await Provider.of<AuthProvider>(context, listen: false)
+                  .refreshAccessToken(context: context);
+          // if token is refreshed, re-call the method
+          if (isTokenRefreshed == true && context.mounted) {
+            return createANewPost(
+                titleTextController: titleTextController,
+                contentTextController: contentTextController,
+                context: context);
+          } else {
+            clearNewPostData(
+                titleTextController: titleTextController,
+                contentTextController: contentTextController);
+            return;
+          }
+        }
+      } else if ((jsonDecode(createResponse.body))["status"] == 'Error') {
+        EasyLoading.showInfo((jsonDecode(createResponse.body))["msg"],
+            dismissOnTap: true, duration: const Duration(seconds: 4));
+      } else {
+        if (context.mounted) {
+          EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
+              dismissOnTap: true, duration: const Duration(seconds: 3));
+        }
+      }
+    } catch (err) {
+      EasyLoading.showInfo(
+          "An error occured while trying to create a new post. Error: $err",
+          dismissOnTap: true,
+          duration: const Duration(seconds: 5));
+    }
+  }
+
+  Future<Response> createNewsPostWithoutImage(
+      {required BuildContext context,
+      required TextEditingController titleTextController,
+      required TextEditingController contentTextController}) async {
+    final streamedResponse = await NewsPostRepo.createNewPostWithoutImage(
+        title: titleTextController.text,
+        content: contentTextController.text,
+        accessJWT: mainScreenProvider.currentAccessToken.toString());
+    Response createResponse = await Response.fromStream(streamedResponse);
+    return createResponse;
+  }
+
+  Future<Response> createNewsPostWithImages(
+      {required BuildContext context,
+      required TextEditingController titleTextController,
+      required TextEditingController contentTextController}) async {
+    final List<File> compressedPostImages = await mainScreenProvider
+        .compressAllImage(imageFileList: imageFileList!);
+    final streamedResponse = await NewsPostRepo.createNewPostWithImage(
+        imageList: compressedPostImages,
+        title: titleTextController.text,
+        content: contentTextController.text,
+        accessJWT: mainScreenProvider.currentAccessToken.toString());
+    Response createResponse = await Response.fromStream(streamedResponse);
+    return createResponse;
+  }
+
+  void clearNewPostData(
+      {required TextEditingController titleTextController,
+      required TextEditingController contentTextController}) {
+    titleTextController.clear();
+    contentTextController.clear();
+    imageFileList?.clear();
+    notifyListeners();
+  }
+
+  void goBackFromNewPostScreen(
+      {required BuildContext context,
+      required TextEditingController titleTextController,
+      required TextEditingController contentTextController}) {
+    clearNewPostData(
+        titleTextController: titleTextController,
+        contentTextController: contentTextController);
+    Navigator.of(context).pop();
   }
 }

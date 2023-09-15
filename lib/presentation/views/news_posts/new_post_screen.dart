@@ -4,17 +4,25 @@ import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/presentation/components/all/adjustable_text_form_field.dart';
 import 'package:c_talent/presentation/components/all/rectangular_button.dart';
-import 'package:c_talent/presentation/components/all/selected_multiple_images.dart';
+import 'package:c_talent/presentation/components/news/selected_multiple_images.dart';
 import 'package:c_talent/presentation/components/all/top_app_bar.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class NewPostScreen extends StatelessWidget {
+class NewPostScreen extends StatefulWidget {
   static const String id = '/new_post_screen';
 
   const NewPostScreen({Key? key}) : super(key: key);
 
+  @override
+  State<NewPostScreen> createState() => _NewPostScreenState();
+}
+
+class _NewPostScreenState extends State<NewPostScreen> {
+  GlobalKey<FormState> newPostContentKey = GlobalKey<FormState>();
+  TextEditingController titleTextController = TextEditingController();
+  TextEditingController contentTextController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Consumer<NewsAdProvider>(builder: (context, data, child) {
@@ -27,13 +35,16 @@ class NewPostScreen extends StatelessWidget {
                 color: const Color(0xFF8897A7),
                 size: SizeConfig.defaultSize * 2.7),
             onPressed: () {
-              data.goBackFromNewNewsPostScreen(context: context);
+              data.goBackFromNewPostScreen(
+                  titleTextController: titleTextController,
+                  contentTextController: contentTextController,
+                  context: context);
             },
           ),
           title: AppLocalizations.of(context).newPost,
         ),
         body: Form(
-          key: data.postContentKey,
+          key: newPostContentKey,
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -49,7 +60,7 @@ class NewPostScreen extends StatelessWidget {
                         return data.validatePostTitle(
                             value: value, context: context);
                       },
-                      textEditingController: data.postTitleController,
+                      textEditingController: titleTextController,
                       isEnable: true,
                       isReadOnly: false,
                       usePrefix: false,
@@ -71,7 +82,7 @@ class NewPostScreen extends StatelessWidget {
                       minLines: 12,
                       maxLines: 12,
                       textInputType: TextInputType.text,
-                      textEditingController: data.postContentController,
+                      textEditingController: contentTextController,
                       isEnable: true,
                       isReadOnly: false,
                       usePrefix: false,
@@ -90,8 +101,7 @@ class NewPostScreen extends StatelessWidget {
                             SizeConfig.defaultSize * 2,
                             0),
                         child: SelectedMultipleImages(
-                            imageFileList: data.imageFileList,
-                            type: 'news_post'),
+                            imageFileList: data.imageFileList),
                       ),
                 Padding(
                   padding: EdgeInsets.symmetric(
@@ -127,8 +137,13 @@ class NewPostScreen extends StatelessWidget {
                           height: SizeConfig.defaultSize * 5,
                           onPress: () async {
                             final isValid =
-                                data.postContentKey.currentState!.validate();
-                            if (isValid) {}
+                                newPostContentKey.currentState!.validate();
+                            if (isValid) {
+                              data.createANewPost(
+                                  titleTextController: titleTextController,
+                                  contentTextController: contentTextController,
+                                  context: context);
+                            }
                           },
                           text: AppLocalizations.of(context).post.toUpperCase(),
                           textColor: Colors.white,
@@ -151,5 +166,12 @@ class NewPostScreen extends StatelessWidget {
         ),
       );
     });
+  }
+
+  @override
+  void dispose() {
+    titleTextController.dispose();
+    contentTextController.dispose();
+    super.dispose();
   }
 }

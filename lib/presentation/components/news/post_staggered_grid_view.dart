@@ -1,4 +1,5 @@
 import 'package:c_talent/data/models/all_news_posts.dart';
+import 'package:c_talent/presentation/views/news_posts/all_post_images.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -19,14 +20,13 @@ class PostStaggeredGridView extends StatelessWidget {
         : postImage!.length == 1
             ? GestureDetector(
                 onTap: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => AllPostImages(
-                  //               index: 0,
-                  //               isFromProfile: false,
-                  //               postImages: postImage,
-                  //             )));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AllPostImages(
+                                index: 0,
+                                postImages: postImage,
+                              )));
                 },
                 child: CachedNetworkImage(
                   imageUrl: kIMAGEURL + postImage![0]!.url.toString(),
@@ -83,14 +83,13 @@ class PostStaggeredGridView extends StatelessWidget {
                   childrenDelegate: SliverChildBuilderDelegate(
                       (context, index) => GestureDetector(
                             onTap: () {
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) => AllPostImages(
-                              //               index: index,
-                              //               isFromProfile: false,
-                              //               postImages: postImage,
-                              //             )));
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AllPostImages(
+                                            index: index,
+                                            postImages: postImage,
+                                          )));
                             },
                             child: postImage!.length > 5 && index == 4
                                 ? Stack(

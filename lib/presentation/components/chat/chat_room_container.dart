@@ -13,9 +13,11 @@ class ChatroomContainer extends StatefulWidget {
   final ChatMessage currentChatMessage;
   final ConversationUser sender;
   final ConversationUser receiver;
+  final VoidCallback onTap;
 
   const ChatroomContainer(
       {super.key,
+      required this.onTap,
       required this.index,
       required this.amISender,
       required this.currentChatMessage,
@@ -31,7 +33,7 @@ class _ChatroomContainerState extends State<ChatroomContainer> {
   Widget build(BuildContext context) {
     return Consumer<ChatMessageProvider>(builder: (context, data, child) {
       return GestureDetector(
-        onTap: () async {},
+        onTap: widget.onTap,
         child: Container(
           margin: widget.index == 0
               ? EdgeInsets.only(

@@ -1,19 +1,20 @@
+import 'dart:async';
+import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:c_talent/logic/providers/auth_provider.dart';
-import 'package:c_talent/logic/providers/login_screen_provider.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
+import 'package:c_talent/logic/providers/login_screen_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/presentation/views/auth/login_screen.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/home_screen.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/language_screen.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/privacy_policy_screen.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/terms_and_conditions_screen.dart';
-import 'package:c_talent/presentation/views/auth/login_screen.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:provider/provider.dart';
 
 class DrawerProvider extends ChangeNotifier {
   late MainScreenProvider mainScreenProvider;

@@ -35,7 +35,7 @@ dependencies:
   carousel_slider: ^4.1.1 # slide images
   smooth_page_indicator: ^1.0.0+2 # for dot indication while sliding images
   url_launcher: ^6.1.5 # for launching url 
-  socket_io_client: ^2.0.2 # for chatting
+  socket_io_client: ^2.0.3+1 # for chatting
   firebase_dynamic_links: ^5.3.3 # navigating to shared post 
   share_plus: ^4.0.10+1 # for sharing post
   badges: ^2.0.3 # for notification badge

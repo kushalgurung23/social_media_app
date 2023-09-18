@@ -110,11 +110,13 @@ class ConversationUser {
   int? id;
   String? username;
   String? profilePicture;
+  List<DeviceToken>? deviceTokens;
 
   ConversationUser({
     this.id,
     this.username,
     this.profilePicture,
+    this.deviceTokens,
   });
 
   factory ConversationUser.fromJson(Map<String, dynamic> json) =>
@@ -122,5 +124,24 @@ class ConversationUser {
         id: json["id"],
         username: json["username"],
         profilePicture: json["profile_picture"],
+        deviceTokens: json["device_tokens"] == null
+            ? []
+            : List<DeviceToken>.from(
+                json["device_tokens"]!.map((x) => DeviceToken.fromJson(x))),
+      );
+}
+
+class DeviceToken {
+  int? id;
+  String? deviceToken;
+
+  DeviceToken({
+    this.id,
+    this.deviceToken,
+  });
+
+  factory DeviceToken.fromJson(Map<String, dynamic> json) => DeviceToken(
+        id: json["id"],
+        deviceToken: json["device_token"],
       );
 }

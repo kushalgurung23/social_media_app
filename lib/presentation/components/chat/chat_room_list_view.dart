@@ -4,6 +4,7 @@ import 'package:c_talent/data/models/all_conversations.dart';
 import 'package:c_talent/logic/providers/chat_message_provider.dart';
 import 'package:c_talent/presentation/components/chat/chat_room_container.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
+import 'package:c_talent/presentation/views/chat/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -120,6 +121,21 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                           receiver == null
                                       ? const SizedBox()
                                       : ChatroomContainer(
+                                          onTap:
+                                              () =>
+                                                  Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                          builder:
+                                                              (context) =>
+                                                                  ChatScreen(
+                                                                    conversationId:
+                                                                        allConversations[index]
+                                                                            .id
+                                                                            .toString(),
+                                                                    otherUser: amISender
+                                                                        ? receiver
+                                                                        : sender,
+                                                                  ))),
                                           index: index,
                                           amISender: amISender,
                                           currentChatMessage:

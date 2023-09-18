@@ -18,4 +18,22 @@ class ChatConversationRepo {
       rethrow;
     }
   }
+
+  static Future<http.Response> getOneChatConversation(
+      {required String accessToken,
+      required String page,
+      required String pageSize,
+      required String conversationId}) async {
+    try {
+      var url = "${kAPIURL}chats/$conversationId?page=$page&limit=$pageSize";
+
+      var response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $accessToken'},
+      );
+      return response;
+    } on Exception {
+      rethrow;
+    }
+  }
 }

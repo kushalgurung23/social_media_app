@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:c_talent/data/models/all_news_posts.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
+import 'package:c_talent/logic/providers/socketio_provider.dart';
 import 'package:c_talent/presentation/views/news_posts/new_post_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
@@ -29,7 +30,10 @@ class _NewsTabState extends State<NewsTab> {
   @override
   void initState() {
     super.initState();
-
+    final SocketIoProvider socketIoProvider =
+        Provider.of<SocketIoProvider>(context, listen: false);
+    socketIoProvider.initialSocketConnection();
+    socketIoProvider.handleSocketEvents(context: context);
     final newsAdProvider = Provider.of<NewsAdProvider>(context, listen: false);
 
     // this will load initial news posts in the news posts tab

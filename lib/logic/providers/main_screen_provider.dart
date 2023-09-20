@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:c_talent/data/constant/color_constant.dart';
 import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:c_talent/logic/providers/auth_provider.dart';
@@ -210,11 +211,14 @@ class MainScreenProvider extends ChangeNotifier {
   }
 
   Future<List<File>> compressAllImage(
-      {required List<XFile> imageFileList}) async {
+      {required List<XFile?> imageFileList}) async {
     List<File> compressedPostImages = [];
     // Compressing each image
     for (int i = 0; i < imageFileList.length; i++) {
-      final imageFile = File(imageFileList[i].path);
+      if (imageFileList[i] == null) {
+        continue;
+      }
+      final imageFile = File(imageFileList[i]!.path);
 
       final compressedImage = await compressImage(imageFile);
       if (compressedImage != null) {
@@ -222,5 +226,95 @@ class MainScreenProvider extends ChangeNotifier {
       }
     }
     return compressedPostImages;
+  }
+
+  void showCustomAlertDialog(
+      {required BuildContext context,
+      required String title,
+      required String description,
+      required String okButtonText,
+      required VoidCallback onOkClick,
+      required bool isOneButton,
+      required String? cancelButtonText,
+      Color backgroundColor = kPrimaryColor,
+      required VoidCallback? onCancelClick}) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, StateSetter setState) {
+          return WillPopScope(
+              onWillPop: () async => false,
+              child: AlertDialog(
+                contentPadding: EdgeInsets.symmetric(
+                    horizontal: SizeConfig.defaultSize * 2,
+                    vertical: SizeConfig.defaultSize * 2),
+                titlePadding: EdgeInsets.symmetric(
+                    horizontal: SizeConfig.defaultSize * 2,
+                    vertical: SizeConfig.defaultSize * 2),
+                title: Text(
+                  title,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                      fontFamily: kHelveticaMedium,
+                      fontSize: SizeConfig.defaultSize * 1.8),
+                ),
+                content: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          description,
+                          textAlign: TextAlign.justify,
+                          style: TextStyle(
+                              fontFamily: kHelveticaRegular,
+                              fontSize: SizeConfig.defaultSize * 1.8),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  isOneButton == true
+                      ? const SizedBox()
+                      : TextButton(
+                          onPressed: onCancelClick,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: SizeConfig.defaultSize,
+                                vertical: SizeConfig.defaultSize * 0.5),
+                            child: Text(
+                              cancelButtonText.toString(),
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: SizeConfig.defaultSize * 1.8,
+                                  fontFamily: kHelveticaRegular),
+                            ),
+                          ),
+                        ),
+                  ElevatedButton(
+                      onPressed: onOkClick,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: backgroundColor,
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: SizeConfig.defaultSize,
+                            vertical: SizeConfig.defaultSize * 0.5),
+                        child: Text(
+                          okButtonText,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: SizeConfig.defaultSize * 1.8,
+                              fontFamily: kHelveticaRegular),
+                        ),
+                      )),
+                ],
+              ));
+        });
+      },
+    );
   }
 }

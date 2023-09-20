@@ -15,21 +15,24 @@ import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
 import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/logic/providers/permission_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class NewsAdProvider extends ChangeNotifier {
   late final MainScreenProvider mainScreenProvider;
-  late final BottomNavProvider bottomNavProvider;
+  late PermissionProvider permissionProvider;
   late AuthProvider authProvider;
 
   NewsAdProvider(
       {required this.mainScreenProvider,
-      required this.bottomNavProvider,
+      required this.permissionProvider,
       required this.authProvider});
 
   String getLike({required int likeCount, required BuildContext context}) {
@@ -847,15 +850,28 @@ class NewsAdProvider extends ChangeNotifier {
 
   // CREATE NEW POST //
   final ImagePicker imagePicker = ImagePicker();
-  List<XFile>? imageFileList = [];
+  List<XFile?>? imageFileList = [];
 
-  void selectMultiImages() async {
-    // ignore: unnecessary_nullable_for_final_variable_declarations
-    final List<XFile>? selectedImages = await imagePicker.pickMultiImage();
-    if (selectedImages != null && selectedImages.isNotEmpty) {
-      imageFileList!.addAll(selectedImages);
+  Future<void> selectMultiImages({required BuildContext context}) async {
+    try {
+      bool hasPermission = await permissionProvider.checkPermission(
+          context: context,
+          denyTitle: permissionProvider.androidStoragePermissionDenyTitle,
+          denyDescription:
+              permissionProvider.androidStoragePermissionDenyDescription,
+          permission: Permission.storage);
+      if (!hasPermission) {
+        return;
+      }
+      final List<XFile?> selectedImages = await imagePicker.pickMultiImage();
+      if (selectedImages.isNotEmpty) {
+        imageFileList!.addAll(selectedImages);
+      }
+      notifyListeners();
+    } on PlatformException {
+      permissionProvider.onImagePickerPermissionPlatformException(
+          context: context);
     }
-    notifyListeners();
   }
 
   void removeSelectedImage({required int index}) {

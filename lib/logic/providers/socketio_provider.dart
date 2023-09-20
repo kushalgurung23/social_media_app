@@ -13,7 +13,7 @@ class SocketIoProvider extends ChangeNotifier {
   // socket connection
   void initialSocketConnection() {
     socket = i_o.io(
-        kAPIURL,
+        kSocketIOUrl,
         i_o.OptionBuilder()
             .setTransports(['websocket'])
             .enableReconnection()
@@ -135,6 +135,7 @@ class SocketIoProvider extends ChangeNotifier {
       required String? conversationId,
       required BuildContext context}) {
     try {
+      print("DEVICE TOKENS $otherUserDeviceToken");
       socket.emit('sendMessage', {
         'sender': mainScreenProvider.currentUserId.toString(),
         'receiver': receiverUserId,

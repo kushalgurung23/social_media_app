@@ -47,6 +47,7 @@ dependencies:
   flutter_image_compress: ^2.0.4 # compress image
   path_provider: ^2.0.15 # gets temporary directory while compressing images
   flutter_secure_storage: ^8.0.0 # encrypt data before saving in mobile memory
+  device_info_plus: ^9.0.3 # get device info like sdk version
   
 dev_dependencies:
   flutter_test:

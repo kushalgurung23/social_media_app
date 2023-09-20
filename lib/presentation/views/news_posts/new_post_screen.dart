@@ -112,7 +112,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     children: [
                       InkWell(
                         onTap: () {
-                          data.selectMultiImages();
+                          data.selectMultiImages(context: context);
                         },
                         child: Container(
                           decoration: BoxDecoration(

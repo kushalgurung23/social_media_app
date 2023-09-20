@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/chat_message_provider.dart';
+import 'package:c_talent/logic/providers/permission_provider.dart';
 import 'package:c_talent/logic/providers/registration_provider.dart';
 import 'package:c_talent/logic/providers/socketio_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -102,6 +103,11 @@ class _MyAppState extends State<MyApp> {
                 mainScreenProvider:
                     Provider.of<MainScreenProvider>(context, listen: false))),
         ChangeNotifierProvider(
+            create: (context) => PermissionProvider(
+                  mainScreenProvider:
+                      Provider.of<MainScreenProvider>(context, listen: false),
+                )),
+        ChangeNotifierProvider(
             create: (context) => SocketIoProvider(
                 mainScreenProvider:
                     Provider.of<MainScreenProvider>(context, listen: false))),
@@ -112,8 +118,8 @@ class _MyAppState extends State<MyApp> {
                       Provider.of<AuthProvider>(context, listen: false),
                   mainScreenProvider:
                       Provider.of<MainScreenProvider>(context, listen: false),
-                  bottomNavProvider:
-                      Provider.of<BottomNavProvider>(context, listen: false),
+                  permissionProvider:
+                      Provider.of<PermissionProvider>(context, listen: false),
                 )),
         ChangeNotifierProvider(
             create: (context) => DrawerProvider(

@@ -8,6 +8,7 @@ import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 
 class ChatScreenListView extends StatefulWidget {
   final StreamController<AllChatMessages?> oneChatMessageStreamController;

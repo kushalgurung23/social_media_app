@@ -1,5 +1,6 @@
 import 'package:c_talent/data/constant/connection_url.dart';
 import 'package:c_talent/data/models/all_conversations.dart';
+import 'package:c_talent/data/models/socket_message.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -127,6 +128,10 @@ class SocketIoProvider extends ChangeNotifier {
     socket.onDisconnect((data) => null);
   }
 
+  List<SocketMessage> _socketMessageList = [];
+
+  List<SocketMessage> get socketMessageList => List.from(_socketMessageList);
+
   // Sending message to user
   void sendMessage(
       {required String receiverUserId,
@@ -140,6 +145,7 @@ class SocketIoProvider extends ChangeNotifier {
         'sender': mainScreenProvider.currentUserId.toString(),
         'receiver': receiverUserId,
         'text': message,
+        'has_receiver_seen': false,
         'conversation_id': conversationId,
         'access_token': mainScreenProvider.currentAccessToken.toString(),
         'sent_at_utc': DateTime.now().toUtc().toString()

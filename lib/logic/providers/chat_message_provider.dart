@@ -264,6 +264,20 @@ class ChatMessageProvider extends ChangeNotifier {
     }
   }
 
+  void addNewChatMessageFromSocketIO({required ChatMessage newChatMessage}) {
+    if (_allChatMessages != null &&
+        _allChatMessages?.chatMessages != null &&
+        _allChatMessages!.chatMessages!.contains(newChatMessage)) {
+      print("BEFORE ${_allChatMessages!.chatMessages!.length}");
+      _allChatMessages!.chatMessages!.add(newChatMessage);
+      notifyListeners();
+      print("AFTER ${_allChatMessages!.chatMessages!.length}");
+      print("aDDED");
+    } else {
+      print('not added');
+    }
+  }
+
   Future refreshAllChatMessages(
       {required StreamController<AllChatMessages?>
           oneChatMessageStreamController,

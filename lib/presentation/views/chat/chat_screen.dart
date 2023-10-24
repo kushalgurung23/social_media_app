@@ -14,11 +14,14 @@ import 'package:rxdart/subjects.dart';
 
 class ChatScreen extends StatefulWidget {
   final String conversationId;
-  final ConversationUser otherUser;
+  final ConversationUser? otherUser, meUser;
 
-  const ChatScreen(
-      {Key? key, required this.conversationId, required this.otherUser})
-      : super(key: key);
+  const ChatScreen({
+    Key? key,
+    required this.conversationId,
+    required this.otherUser,
+    required this.meUser,
+  }) : super(key: key);
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -54,12 +57,15 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
               titleOnTap: () {},
-              title: widget.otherUser.username,
+              // translate
+              title: widget.otherUser?.username ?? 'Chat',
             ),
             body: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ChatScreenListView(
+                    meUser: widget.meUser,
+                    otherUser: widget.otherUser,
                     oneChatMessageStreamController:
                         oneChatMessageStreamController),
                 Padding(
@@ -89,14 +95,15 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                       ),
                       suffixOnPress: () {
-                        if (chatTextController.text.trim().isNotEmpty) {
+                        if (chatTextController.text.trim().isNotEmpty &&
+                            widget.otherUser != null) {
                           data.socketIoProvider.sendMessage(
                               otherUserDeviceToken:
-                                  widget.otherUser.deviceTokens,
+                                  widget.otherUser?.deviceTokens,
                               context: context,
                               conversationId: widget.conversationId.toString(),
                               message: chatTextController.text,
-                              receiverUserId: widget.otherUser.id.toString());
+                              receiverUserId: widget.otherUser!.id.toString());
                         }
                       },
                       borderRadius: SizeConfig.defaultSize * 1.5),

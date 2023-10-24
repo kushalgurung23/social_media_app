@@ -12,8 +12,12 @@ import 'package:socket_io_client/socket_io_client.dart';
 
 class ChatScreenListView extends StatefulWidget {
   final StreamController<AllChatMessages?> oneChatMessageStreamController;
+  final ConversationUser? meUser, otherUser;
   const ChatScreenListView(
-      {Key? key, required this.oneChatMessageStreamController})
+      {Key? key,
+      required this.oneChatMessageStreamController,
+      required this.meUser,
+      required this.otherUser})
       : super(key: key);
 
   @override
@@ -27,6 +31,7 @@ class _ChatScreenListViewState extends State<ChatScreenListView> {
     return Consumer<ChatMessageProvider>(builder: (context, data, child) {
       return StreamBuilder<AllChatMessages?>(
           stream: widget.oneChatMessageStreamController.stream,
+          initialData: data.allChatMessages,
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
@@ -137,25 +142,24 @@ class _ChatScreenListViewState extends State<ChatScreenListView> {
                                               children: [
                                                 amISender
                                                     ? SizedBox(
-                                                        width: SizeConfig
-                                                                .defaultSize *
+                                                        width: SizeConfig.defaultSize *
                                                             7)
                                                     : Padding(
                                                         padding: EdgeInsets.only(
                                                             right: SizeConfig
                                                                 .defaultSize),
                                                         child: amISender == false &&
-                                                                receiver.profilePicture !=
+                                                                widget.otherUser?.profilePicture !=
                                                                     null
                                                             ? CircleAvatar(
-                                                                backgroundImage:
-                                                                    NetworkImage(kIMAGEURL +
-                                                                        receiver
-                                                                            .profilePicture
-                                                                            .toString()),
-                                                                radius: SizeConfig
-                                                                        .defaultSize *
-                                                                    1.5)
+                                                                backgroundImage: NetworkImage(kIMAGEURL +
+                                                                    widget
+                                                                        .otherUser!
+                                                                        .profilePicture
+                                                                        .toString()),
+                                                                radius:
+                                                                    SizeConfig.defaultSize *
+                                                                        1.5)
                                                             : CircleAvatar(
                                                                 backgroundImage:
                                                                     const AssetImage("assets/images/default_profile.jpg"),
@@ -214,22 +218,22 @@ class _ChatScreenListViewState extends State<ChatScreenListView> {
                                                             left: SizeConfig
                                                                 .defaultSize),
                                                         child: amISender == true &&
-                                                                sender.profilePicture !=
+                                                                widget.meUser?.profilePicture !=
                                                                     null
                                                             ? CircleAvatar(
-                                                                backgroundImage:
-                                                                    NetworkImage(kIMAGEURL +
-                                                                        sender.profilePicture
-                                                                            .toString()),
-                                                                radius: SizeConfig.defaultSize *
+                                                                backgroundImage: NetworkImage(kIMAGEURL +
+                                                                    widget
+                                                                        .meUser!
+                                                                        .profilePicture
+                                                                        .toString()),
+                                                                radius: SizeConfig
+                                                                        .defaultSize *
                                                                     1.5)
                                                             : CircleAvatar(
                                                                 backgroundImage:
                                                                     const AssetImage(
                                                                         "assets/images/default_profile.jpg"),
-                                                                radius: SizeConfig
-                                                                        .defaultSize *
-                                                                    1.5))
+                                                                radius: SizeConfig.defaultSize * 1.5))
                                                     : SizedBox(width: SizeConfig.defaultSize * 7)
                                               ],
                                             ),

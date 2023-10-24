@@ -64,6 +64,9 @@ class Conversation {
       );
 }
 
+ChatMessage chatMessageFromJson(String str) =>
+    ChatMessage.fromJson(json.decode(str));
+
 class ChatMessage {
   int? id;
   String? text;
@@ -104,6 +107,29 @@ class ChatMessage {
                 .toLocal(),
         hasReceiverSeen: json["has_receiver_seen"],
       );
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ChatMessage &&
+        id == other.id &&
+        text == other.text &&
+        sender == other.sender &&
+        receiver == other.receiver &&
+        createdAt == other.createdAt &&
+        updatedAt == other.updatedAt &&
+        hasReceiverSeen == other.hasReceiverSeen;
+  }
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      text.hashCode ^
+      sender.hashCode ^
+      receiver.hashCode ^
+      createdAt.hashCode ^
+      updatedAt.hashCode ^
+      hasReceiverSeen.hashCode;
 }
 
 class ConversationUser {
@@ -129,6 +155,18 @@ class ConversationUser {
             : List<DeviceToken>.from(
                 json["device_tokens"]!.map((x) => DeviceToken.fromJson(x))),
       );
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ConversationUser &&
+        id == other.id &&
+        username == other.username &&
+        profilePicture == other.profilePicture;
+  }
+
+  @override
+  int get hashCode => id.hashCode ^ username.hashCode ^ profilePicture.hashCode;
 }
 
 class DeviceToken {

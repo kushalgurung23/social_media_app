@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:c_talent/data/constant/connection_url.dart';
 import 'package:c_talent/data/models/all_conversations.dart';
 import 'package:c_talent/data/models/socket_message.dart';
+import 'package:c_talent/logic/providers/chat_message_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as i_o;
 
 class SocketIoProvider extends ChangeNotifier {
@@ -29,6 +33,8 @@ class SocketIoProvider extends ChangeNotifier {
   }
 
   void handleSocketEvents({required BuildContext context}) {
+    final chatMessageProvider =
+        Provider.of<ChatMessageProvider>(context, listen: false);
     socket.onConnect((data) {
       // Add socket user in socketio
       socket.emit("addUser", mainScreenProvider.currentUserId);
@@ -39,13 +45,11 @@ class SocketIoProvider extends ChangeNotifier {
       // Message sent by current user
       socket.on("getMessageForSender", (message) {
         print("GET MESSAGE FOR SENDER");
-        // int i = 0;
-        // try {
-        //   if (i != 0) {
-        //     return;
 
-        //   }
-        //   i++;
+        final newChatMessage = chatMessageFromJson(jsonEncode(message['chat']));
+        chatMessageProvider.addNewChatMessageFromSocketIO(
+            newChatMessage: newChatMessage);
+
         //     SocketMessage socketMessage = SocketMessage(
         //         senderId: message['senderId'],
         //         receiverUserId: message['receiverUserId'],
@@ -67,6 +71,7 @@ class SocketIoProvider extends ChangeNotifier {
       // Message received by current user
       socket.on("getMessageForReceiver", (message) async {
         print("get message for receiver");
+        print(message['status']);
         // try {
         //   SocketMessage socketMessage = SocketMessage(
         //       senderId: message['senderId'],
@@ -127,10 +132,6 @@ class SocketIoProvider extends ChangeNotifier {
     socket.onConnectError((data) => throw Exception('Connection Error: $data'));
     socket.onDisconnect((data) => null);
   }
-
-  List<SocketMessage> _socketMessageList = [];
-
-  List<SocketMessage> get socketMessageList => List.from(_socketMessageList);
 
   // Sending message to user
   void sendMessage(

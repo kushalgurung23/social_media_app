@@ -121,21 +121,24 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                           receiver == null
                                       ? const SizedBox()
                                       : ChatroomContainer(
-                                          onTap:
-                                              () =>
-                                                  Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                          builder:
-                                                              (context) =>
-                                                                  ChatScreen(
-                                                                    conversationId:
-                                                                        allConversations[index]
-                                                                            .id
-                                                                            .toString(),
-                                                                    otherUser: amISender
-                                                                        ? receiver
-                                                                        : sender,
-                                                                  ))),
+                                          onTap: () => Navigator.of(context)
+                                              .push(MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ChatScreen(
+                                                        meUser:
+                                                            amISender == true
+                                                                ? sender
+                                                                : receiver,
+                                                        otherUser:
+                                                            amISender == true
+                                                                ? receiver
+                                                                : sender,
+                                                        conversationId:
+                                                            allConversations[
+                                                                    index]
+                                                                .id
+                                                                .toString(),
+                                                      ))),
                                           index: index,
                                           amISender: amISender,
                                           currentChatMessage:

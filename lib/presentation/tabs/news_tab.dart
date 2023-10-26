@@ -114,9 +114,6 @@ class _NewsTabState extends State<NewsTab> {
   void dispose() {
     scrollController.dispose();
     allNewsPostStreamController.close();
-    if (context.mounted) {
-      Provider.of<SocketIoProvider>(context, listen: false).socket?.dispose();
-    }
     super.dispose();
   }
 }

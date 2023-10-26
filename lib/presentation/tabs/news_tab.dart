@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:c_talent/data/models/all_news_posts.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
 import 'package:c_talent/logic/providers/socketio_provider.dart';
@@ -115,6 +114,9 @@ class _NewsTabState extends State<NewsTab> {
   void dispose() {
     scrollController.dispose();
     allNewsPostStreamController.close();
+    if (context.mounted) {
+      Provider.of<SocketIoProvider>(context, listen: false).socket?.dispose();
+    }
     super.dispose();
   }
 }

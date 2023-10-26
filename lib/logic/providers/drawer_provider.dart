@@ -5,6 +5,7 @@ import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
 import 'package:c_talent/logic/providers/login_screen_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/logic/providers/socketio_provider.dart';
 import 'package:c_talent/presentation/views/auth/login_screen.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/home_screen.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/language_screen.dart';
@@ -74,9 +75,18 @@ class DrawerProvider extends ChangeNotifier {
       EasyLoading.show(
           status: AppLocalizations.of(context).loggingOut, dismissOnTap: false);
     }
+    // LOG OUT OF SOCKET IO
+    if (context.mounted) {
+      Provider.of<SocketIoProvider>(context, listen: false).socket?.dispose();
+    }
+    // UNMARK CHECKBOX
     Provider.of<LoginScreenProvider>(context, listen: false)
         .toggleKeepUserLoggedIn(newValue: false);
+
+    // SET HOME TAB
     setNavigationOnly(navigationItems: NavigationItems.home);
+
+    // REMOVE SAVED CREDENTIALS
     await removeCredentials(context: context);
     if (isShowLoggingOut == true) {
       EasyLoading.dismiss();

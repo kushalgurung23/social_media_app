@@ -2,16 +2,14 @@ import 'dart:convert';
 
 import 'package:c_talent/data/constant/connection_url.dart';
 import 'package:c_talent/data/models/all_conversations.dart';
-import 'package:c_talent/data/models/socket_message.dart';
 import 'package:c_talent/logic/providers/chat_message_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as i_o;
 
 class SocketIoProvider extends ChangeNotifier {
-  late i_o.Socket socket;
+  i_o.Socket? socket;
   late MainScreenProvider mainScreenProvider;
 
   SocketIoProvider({required this.mainScreenProvider});
@@ -27,27 +25,32 @@ class SocketIoProvider extends ChangeNotifier {
             .disableMultiplex()
             .build());
 
-    if (socket.connected == false) {
-      socket.connect();
+    if (socket != null && socket!.connected == false) {
+      socket!.connect();
     }
   }
 
   void handleSocketEvents({required BuildContext context}) {
+    if (socket == null) {
+      return;
+    }
     final chatMessageProvider =
         Provider.of<ChatMessageProvider>(context, listen: false);
-    socket.onConnect((data) {
+    socket!.onConnect((data) {
       // Add socket user in socketio
-      socket.emit("addUser", mainScreenProvider.currentUserId);
+      print("LOGGED IN CURRENT USER ID ${mainScreenProvider.currentUserId}");
+      socket!.emit("addUser", mainScreenProvider.currentUserId);
 
       // Online users
-      socket.on("getUsers", (data) => {});
+      socket!.on("getUsers", (data) => {});
 
       // Message sent by current user
-      socket.on("getMessageForSender", (message) {
+      socket!.on("getMessageForSender", (message) {
         print("GET MESSAGE FOR SENDER");
 
         final newChatMessage = chatMessageFromJson(jsonEncode(message['chat']));
         chatMessageProvider.addNewChatMessageFromSocketIO(
+            conversationId: message['conversation_id'].toString(),
             newChatMessage: newChatMessage);
 
         //     SocketMessage socketMessage = SocketMessage(
@@ -69,9 +72,14 @@ class SocketIoProvider extends ChangeNotifier {
       });
 
       // Message received by current user
-      socket.on("getMessageForReceiver", (message) async {
+      socket!.on("getMessageForReceiver", (message) async {
         print("get message for receiver");
-        print(message['status']);
+
+        final newChatMessage = chatMessageFromJson(jsonEncode(message['chat']));
+        chatMessageProvider.addNewChatMessageFromSocketIO(
+            conversationId: message['conversation_id'].toString(),
+            newChatMessage: newChatMessage);
+
         // try {
         //   SocketMessage socketMessage = SocketMessage(
         //       senderId: message['senderId'],
@@ -129,28 +137,34 @@ class SocketIoProvider extends ChangeNotifier {
         // }
       });
     });
-    socket.onConnectError((data) => throw Exception('Connection Error: $data'));
-    socket.onDisconnect((data) => null);
+    socket!
+        .onConnectError((data) => throw Exception('Connection Error: $data'));
+    socket!.onDisconnect((data) => null);
   }
 
   // Sending message to user
   void sendMessage(
       {required String receiverUserId,
-      required String message,
+      required TextEditingController messageTextController,
       required List<DeviceToken>? otherUserDeviceToken,
       required String? conversationId,
       required BuildContext context}) {
     try {
+      if (socket == null) {
+        return;
+      }
       print("DEVICE TOKENS $otherUserDeviceToken");
-      socket.emit('sendMessage', {
+      socket!.emit('sendMessage', {
         'sender': mainScreenProvider.currentUserId.toString(),
         'receiver': receiverUserId,
-        'text': message,
+        'text': messageTextController.text,
         'has_receiver_seen': false,
         'conversation_id': conversationId,
         'access_token': mainScreenProvider.currentAccessToken.toString(),
         'sent_at_utc': DateTime.now().toUtc().toString()
       });
+
+      messageTextController.clear();
       // final chatMessageProvider =
       //     Provider.of<ChatMessageProvider>(context, listen: false);
       // Conversation? allConversation = chatMessageProvider.allConversation;

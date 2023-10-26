@@ -64,6 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ChatScreenListView(
+                    conversationId: widget.conversationId,
                     meUser: widget.meUser,
                     otherUser: widget.otherUser,
                     oneChatMessageStreamController:
@@ -102,7 +103,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   widget.otherUser?.deviceTokens,
                               context: context,
                               conversationId: widget.conversationId.toString(),
-                              message: chatTextController.text,
+                              messageTextController: chatTextController,
                               receiverUserId: widget.otherUser!.id.toString());
                         }
                       },

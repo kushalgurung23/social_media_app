@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 import 'package:c_talent/data/models/all_chat_messages.dart';
 import 'package:c_talent/logic/providers/socketio_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -11,6 +13,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:collection/collection.dart';
 
 class ChatMessageProvider extends ChangeNotifier {
   late MainScreenProvider mainScreenProvider;
@@ -177,7 +180,9 @@ class ChatMessageProvider extends ChangeNotifier {
           oneMessageChatStreamController.sink.add(_allChatMessages!);
           notifyListeners();
         }
-      } else if (response.statusCode == 401 || response.statusCode == 403) {
+      }
+      // IF TOKEN IS EXPIRED
+      else if (response.statusCode == 401 || response.statusCode == 403) {
         if (context.mounted) {
           bool isTokenRefreshed =
               await Provider.of<AuthProvider>(context, listen: false)
@@ -264,17 +269,70 @@ class ChatMessageProvider extends ChangeNotifier {
     }
   }
 
-  void addNewChatMessageFromSocketIO({required ChatMessage newChatMessage}) {
+  void addNewChatMessageFromSocketIO(
+      {required ChatMessage newChatMessage, required String conversationId}) {
     if (_allChatMessages != null &&
         _allChatMessages?.chatMessages != null &&
-        _allChatMessages!.chatMessages!.contains(newChatMessage)) {
-      print("BEFORE ${_allChatMessages!.chatMessages!.length}");
-      _allChatMessages!.chatMessages!.add(newChatMessage);
+        !_allChatMessages!.chatMessages!.contains(newChatMessage)) {
+      // THE DETAILS THAT WE RECEIVE FROM SOCKET IO AFTER SENDING MESSAGE ARE:
+      // WE DO NOT RECEIVE OTHER DETAILS LIKE USERNAME, DEVICE TOKENS OF USERS
+      //{
+      //   status: 'Success',
+      //   conversation_id: '5',
+      //   chat: {
+      //     id: 74,
+      //     text: '34',
+      //     sender: { id: 11 },
+      //     receiver: { id: 44 },
+      //     created_at: '2023-10-26 02:05:31.190551Z',
+      //     updated_at: '2023-10-26 02:05:31.190551Z',
+      //     has_receiver_seen: 0
+      //   }
+      // }
+
+      // ADD NEW TEXT
+      _allChatMessages!.chatMessages!.insert(0, newChatMessage);
+
+      // to prevent same txt from displaying twice, remove the top chat after adding new
+      if (chatHasMore == true &&
+          _allChatMessages?.chatMessages != null &&
+          _allChatMessages!.chatMessages!.length > chatPageSize) {
+        _allChatMessages!.chatMessages!.removeLast();
+      }
+
+      // TO DISPLAY LATEST MESSAGE IN THE CONVERSATION CONTAINER IN ALL CONVERSATIONS SCREEN.
+      if (_allConversations != null &&
+          _allConversations!.conversations != null) {
+        final existingConversation = _allConversations!.conversations!
+            .firstWhereOrNull(
+                (element) => element.id.toString() == conversationId);
+        existingConversation?.updatedAt = newChatMessage.updatedAt;
+        existingConversation?.chatMessage?.id = newChatMessage.id;
+        existingConversation?.chatMessage?.text = newChatMessage.text;
+        existingConversation?.chatMessage?.updatedAt = newChatMessage.updatedAt;
+
+        // ONLY SWAP SENDER AND RECEIVER OF CONVERSATION CONTAINER:
+        // IF CURRENT USER HAS SENT THE NEW MESSAGE AND WAS RECEIVER BEFORE SENDING THE LAST TEXT (OR VICE VERSA), THEN ONLY WE WILL SWAP NEW TEXT's SENDER AND RECEIVER IN CONVERSATION CONTAINER
+        final existingConversationSender =
+            existingConversation?.chatMessage?.sender;
+        final existingConversationReceiver =
+            existingConversation?.chatMessage?.receiver;
+        if (existingConversationReceiver?.id == newChatMessage.sender?.id &&
+            existingConversationSender?.id == newChatMessage.receiver?.id) {
+          existingConversation?.chatMessage?.sender =
+              existingConversationReceiver;
+          existingConversation?.chatMessage?.receiver =
+              existingConversationSender;
+          print("SWAP SENDER AND RECEIVER");
+        } else {
+          print("SENDER AND RECEIVER ARE SAME NO NEED TO SWAP");
+        }
+        print(
+            "SENDER ${existingConversation?.chatMessage?.sender?.username} ${existingConversation?.chatMessage?.sender?.id} x "
+            "RECEIVER ${existingConversation?.chatMessage?.receiver?.username} ${existingConversation?.chatMessage?.receiver?.id}");
+      }
+
       notifyListeners();
-      print("AFTER ${_allChatMessages!.chatMessages!.length}");
-      print("aDDED");
-    } else {
-      print('not added');
     }
   }
 
@@ -286,6 +344,7 @@ class ChatMessageProvider extends ChangeNotifier {
     chatIsLoading = false;
     chatHasMore = true;
     chatPageNumber = 1;
+    chatPageSize = 10;
     if (_allChatMessages != null) {
       _allChatMessages!.chatMessages!.clear();
       oneChatMessageStreamController.sink.add(_allChatMessages);

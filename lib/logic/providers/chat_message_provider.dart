@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:c_talent/data/models/all_chat_messages.dart';
+import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/socketio_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:c_talent/data/models/all_conversations.dart';
@@ -61,6 +62,8 @@ class ChatMessageProvider extends ChangeNotifier {
                 context: context,
                 allConversationsController: allConversationsController);
           } else {
+            await Provider.of<DrawerProvider>(context, listen: false)
+                .logOut(context: context);
             return;
           }
         }
@@ -125,6 +128,8 @@ class ChatMessageProvider extends ChangeNotifier {
               context: context,
               allConversationsController: allConversationsController);
         } else {
+          await Provider.of<DrawerProvider>(context, listen: false)
+              .logOut(context: context);
           return;
         }
       }
@@ -195,6 +200,8 @@ class ChatMessageProvider extends ChangeNotifier {
                 context: context,
                 conversationId: conversationId);
           } else {
+            await Provider.of<DrawerProvider>(context, listen: false)
+                .logOut(context: context);
             return;
           }
         }
@@ -261,6 +268,8 @@ class ChatMessageProvider extends ChangeNotifier {
               context: context,
               conversationId: conversationId);
         } else {
+          await Provider.of<DrawerProvider>(context, listen: false)
+              .logOut(context: context);
           return;
         }
       }

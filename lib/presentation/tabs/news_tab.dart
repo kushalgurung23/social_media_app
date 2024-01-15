@@ -36,7 +36,7 @@ class _NewsTabState extends State<NewsTab> {
     final newsAdProvider = Provider.of<NewsAdProvider>(context, listen: false);
 
     // this will load initial news posts in the news posts tab
-    newsAdProvider.refreshNewsPosts(
+    newsAdProvider.loadInitialNewsPosts(
         context: context, allNewsPostController: allNewsPostStreamController);
 
     // this will load more data when we reach the end of news posts

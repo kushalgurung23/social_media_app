@@ -3,6 +3,7 @@ import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/chat_message_provider.dart';
 import 'package:c_talent/logic/providers/permission_provider.dart';
 import 'package:c_talent/logic/providers/registration_provider.dart';
+import 'package:c_talent/logic/providers/services_provider.dart';
 import 'package:c_talent/logic/providers/socketio_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -133,6 +134,10 @@ class _MyAppState extends State<MyApp> {
                   mainScreenProvider:
                       Provider.of<MainScreenProvider>(context, listen: false),
                 )),
+        ChangeNotifierProvider(
+            create: (context) => ServicesProvider(
+                mainScreenProvider:
+                    Provider.of<MainScreenProvider>(context, listen: false)))
       ],
       child: MaterialApp(
         builder: EasyLoading.init(),

@@ -12,7 +12,6 @@ import 'package:c_talent/data/repositories/news_post/news_likes_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_post_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_save_repo.dart';
 import 'package:c_talent/logic/providers/auth_provider.dart';
-import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
 import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/logic/providers/permission_provider.dart';
@@ -105,6 +104,8 @@ class NewsAdProvider extends ChangeNotifier {
             return loadInitialNewsPosts(
                 context: context, allNewsPostController: allNewsPostController);
           } else {
+            await Provider.of<DrawerProvider>(context, listen: false)
+                .logOut(context: context);
             return;
           }
         }
@@ -148,10 +149,7 @@ class NewsAdProvider extends ChangeNotifier {
       if (newNewsPosts.posts!.length < newsPostPageSize) {
         newsPostHasMore = false;
       }
-
-      for (int i = 0; i < newNewsPosts.posts!.length; i++) {
-        _allNewsPosts!.posts!.add(newNewsPosts.posts![i]);
-      }
+      _allNewsPosts!.posts = [..._allNewsPosts!.posts!, ...newNewsPosts.posts!];
       allNewsPostController.sink.add(_allNewsPosts!);
       notifyListeners();
       return true;
@@ -166,6 +164,8 @@ class NewsAdProvider extends ChangeNotifier {
           return loadMoreNewsPosts(
               context: context, allNewsPostController: allNewsPostController);
         } else {
+          await Provider.of<DrawerProvider>(context, listen: false)
+              .logOut(context: context);
           return;
         }
       }
@@ -214,6 +214,8 @@ class NewsAdProvider extends ChangeNotifier {
               newsPost: newsPost,
               context: context);
         } else {
+          await Provider.of<DrawerProvider>(context, listen: false)
+              .logOut(context: context);
           return;
         }
       }
@@ -278,6 +280,8 @@ class NewsAdProvider extends ChangeNotifier {
               allNewsCommentStreamController: allNewsCommentStreamController,
               newsPost: newsPost);
         } else {
+          await Provider.of<DrawerProvider>(context, listen: false)
+              .logOut(context: context);
           return;
         }
       }
@@ -310,11 +314,10 @@ class NewsAdProvider extends ChangeNotifier {
     newsPostPageNumber = 1;
     if (_allNewsPosts != null) {
       _allNewsPosts!.posts!.clear();
-      allNewsPostController.sink.add(_allNewsPosts!);
     }
+    notifyListeners();
     await loadInitialNewsPosts(
         context: context, allNewsPostController: allNewsPostController);
-    notifyListeners();
   }
 
   // NEWS POST LIKES
@@ -355,6 +358,8 @@ class NewsAdProvider extends ChangeNotifier {
               newsPostId: newsPostId,
               context: context);
         } else {
+          await Provider.of<DrawerProvider>(context, listen: false)
+              .logOut(context: context);
           return;
         }
       }
@@ -416,6 +421,8 @@ class NewsAdProvider extends ChangeNotifier {
               allNewsLikesStreamController: allNewsLikesStreamController,
               newsPostId: newsPostId);
         } else {
+          await Provider.of<DrawerProvider>(context, listen: false)
+              .logOut(context: context);
           return;
         }
       }
@@ -488,6 +495,8 @@ class NewsAdProvider extends ChangeNotifier {
           if (isTokenRefreshed == true && context.mounted) {
             return toggleNewsPostSave(newsPost: newsPost, context: context);
           } else {
+            await Provider.of<DrawerProvider>(context, listen: false)
+                .logOut(context: context);
             return;
           }
         } else if ((jsonDecode(response.body))["status"] == 'Error') {
@@ -582,6 +591,8 @@ class NewsAdProvider extends ChangeNotifier {
           if (isTokenRefreshed == true && context.mounted) {
             return toggleNewsPostLike(newsPost: newsPost, context: context);
           } else {
+            await Provider.of<DrawerProvider>(context, listen: false)
+                .logOut(context: context);
             return;
           }
         } else if ((jsonDecode(response.body))["status"] == 'Error') {
@@ -664,6 +675,8 @@ class NewsAdProvider extends ChangeNotifier {
                 commentTextController: commentTextController,
                 context: context);
           } else {
+            await Provider.of<DrawerProvider>(context, listen: false)
+                .logOut(context: context);
             return;
           }
         } else if ((jsonDecode(response.body))["status"] == 'Error') {
@@ -830,6 +843,8 @@ class NewsAdProvider extends ChangeNotifier {
                   postId: postId, context: context, newsPostFrom: newsPostFrom);
             } else {
               resetNewsPostReportOption();
+              await Provider.of<DrawerProvider>(context, listen: false)
+                  .logOut(context: context);
               return;
             }
           }
@@ -935,6 +950,8 @@ class NewsAdProvider extends ChangeNotifier {
             clearNewPostData(
                 titleTextController: titleTextController,
                 contentTextController: contentTextController);
+            await Provider.of<DrawerProvider>(context, listen: false)
+                .logOut(context: context);
             return;
           }
         }

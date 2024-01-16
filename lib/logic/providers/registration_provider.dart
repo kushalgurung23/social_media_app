@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:c_talent/data/repositories/auth/register_repo.dart';
+import 'package:c_talent/logic/providers/auth_provider.dart';
+import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/login_screen_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/presentation/views/auth/email_verification_screen.dart';
@@ -8,6 +11,10 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
+
+import '../../data/models/all_services.dart';
+import '../../data/repositories/services/services_repo.dart';
 
 class RegistrationProvider extends ChangeNotifier {
   late MainScreenProvider mainScreenProvider;

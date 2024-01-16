@@ -7,3 +7,5 @@ enum NavigationItems {
 }
 
 enum NewsPostFrom { newsPostList, newsPostDescription }
+
+enum ServiceToggleType { allService, recommendService }

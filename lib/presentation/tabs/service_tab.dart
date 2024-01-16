@@ -23,9 +23,19 @@ class _InterestClassTabState extends State<InterestClassTab>
 
   @override
   void initState() {
-    Provider.of<ServicesProvider>(context, listen: false)
-        .loadInitialServices(context: context);
+    loadAllServices();
     super.initState();
+  }
+
+  Future<void> loadAllServices() async {
+    await Future.wait([
+      // RECOMMENDED SERVICES
+      Provider.of<ServicesProvider>(context, listen: false)
+          .loadRecommendedServices(context: context),
+      // ALL SERVICES
+      Provider.of<ServicesProvider>(context, listen: false)
+          .loadInitialServices(context: context)
+    ]);
   }
 
   @override

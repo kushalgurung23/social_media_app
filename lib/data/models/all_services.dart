@@ -47,7 +47,7 @@ class AllServices {
 }
 
 class ServicePost {
-  final OneService? service;
+  OneService? service;
 
   ServicePost({
     this.service,
@@ -70,7 +70,7 @@ class OneService {
   final String? title;
   final String? website;
   final String? category;
-  final int? isSaved;
+  int? isSaved;
   final String? location;
   final DateTime? createdAt;
   final String? mainImage;

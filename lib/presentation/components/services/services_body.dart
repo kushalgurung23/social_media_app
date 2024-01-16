@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:c_talent/data/models/all_services.dart';
 import 'package:c_talent/logic/providers/services_provider.dart';
+import 'package:c_talent/presentation/components/services/recommended_services.dart';
 import 'package:c_talent/presentation/components/services/services_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -75,7 +76,8 @@ class _ServicesBodyState extends State<ServicesBody> {
                   return Column(children: [
                     Flexible(
                       child: RefreshIndicator(
-                        onRefresh: () => data.refreshServices(context: context),
+                        onRefresh: () =>
+                            data.refreshAllServices(context: context),
                         child: SingleChildScrollView(
                             controller: scrollController,
                             physics: const AlwaysScrollableScrollPhysics(
@@ -96,7 +98,7 @@ class _ServicesBodyState extends State<ServicesBody> {
                                 ),
                                 SizedBox(height: SizeConfig.defaultSize * 2),
                                 // Recommend class list
-                                // const RecommendClassList(),
+                                const RecommendedServices(),
                                 SizedBox(height: SizeConfig.defaultSize * 3),
                                 // All course section
                                 Padding(

@@ -1,5 +1,7 @@
+import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_services.dart';
 import 'package:c_talent/logic/providers/services_provider.dart';
+import 'package:c_talent/presentation/views/services/service_description_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter/material.dart';
@@ -152,33 +154,15 @@ class ServicesContainer extends StatelessWidget {
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: () {
-                                  // data.toggleInterestClassSave(
-                                  //     savedInterestClassId: source ==
-                                  //             InterestClassSourceType
-                                  //                 .bookmark
-                                  //         ? (data.mainScreenProvider
-                                  //                     .savedInterestClassIdList
-                                  //                     .contains(
-                                  //                         courseData!
-                                  //                             .id) &&
-                                  //                 interestClassBookmarkId !=
-                                  //                     null
-                                  //             ? interestClassBookmarkId
-                                  //                 .toString()
-                                  //             : null)
-                                  //         : (data.mainScreenProvider
-                                  //                 .savedInterestClassIdList
-                                  //                 .contains(
-                                  //                     courseData!.id)
-                                  //             ? interestClassCoursSaveData
-                                  //                 ?.id
-                                  //                 .toString()
-                                  //             : null),
-                                  //     source: source,
-                                  //     context: context,
-                                  //     interestClassCourseId:
-                                  //         courseData.id.toString());
+                                onTap: () async {
+                                  if (service.service == null) {
+                                    return;
+                                  }
+                                  await data.toggleServiceSave(
+                                      serviceToggleType:
+                                          ServiceToggleType.allService,
+                                      context: context,
+                                      oneService: service.service!);
                                 },
                                 child: Container(
                                     decoration: BoxDecoration(
@@ -191,13 +175,9 @@ class ServicesContainer extends StatelessWidget {
                                     width: SizeConfig.defaultSize * 4.5,
                                     child: Icon(
                                       Icons.bookmark,
-                                      color:
-                                          // data.mainScreenProvider
-                                          //         .savedInterestClassIdList
-                                          //         .contains(courseData.id)
-                                          //     ? const Color(0xFFA08875)
-                                          //     : const Color(0xFFD1D3D5),
-                                          const Color(0xFFD1D3D5),
+                                      color: service.service?.isSaved == 1
+                                          ? const Color(0xFFA08875)
+                                          : const Color(0xFFD1D3D5),
                                       size: SizeConfig.defaultSize * 3,
                                     )),
                               ),
@@ -217,33 +197,11 @@ class ServicesContainer extends StatelessWidget {
                                       fontSize: SizeConfig.defaultSize * 1.3,
                                       keepBoxShadow: true,
                                       onPress: () {
-                                        // source ==
-                                        //         InterestClassSourceType
-                                        //             .bookmark
-                                        //     ? Navigator.push(
-                                        //         context,
-                                        //         MaterialPageRoute(
-                                        //             builder: (context) =>
-                                        //                 BookmarkInterestClassDetailScreen(
-                                        //                   savedInterestClassId:
-                                        //                       interestClassBookmarkId,
-                                        //                   source: source,
-                                        //                   interestClassId:
-                                        //                       courseData!
-                                        //                           .id
-                                        //                           .toString(),
-                                        //                 )))
-                                        //     : Navigator.push(
-                                        //         context,
-                                        //         MaterialPageRoute(
-                                        //             builder: (context) =>
-                                        //                 InterestCourseDetailScreen(
-                                        //                   source: source,
-                                        //                   interestClassId:
-                                        //                       courseData!
-                                        //                           .id
-                                        //                           .toString(),
-                                        //                 )));
+                                        data.goToServicesDescriptionScreen(
+                                            serviceToggleType:
+                                                ServiceToggleType.allService,
+                                            context: context,
+                                            service: service.service);
                                       },
                                       offset: const Offset(0, 1),
                                       blurRadius: 3,

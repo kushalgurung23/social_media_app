@@ -1,4 +1,5 @@
 import 'package:c_talent/logic/providers/services_provider.dart';
+import 'package:c_talent/presentation/components/services/search_service_body.dart';
 import 'package:c_talent/presentation/components/services/services_body.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/tabs/service_appbar.dart';
@@ -19,7 +20,6 @@ class InterestClassTab extends StatefulWidget {
 class _InterestClassTabState extends State<InterestClassTab>
     with AutomaticKeepAliveClientMixin {
   final scrollController = ScrollController();
-  TextEditingController searchTxtController = TextEditingController();
 
   @override
   void initState() {
@@ -55,7 +55,7 @@ class _InterestClassTabState extends State<InterestClassTab>
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      searchTxtController.text != ''
+                      data.searchTxtController.text != ''
                           ? const SizedBox()
                           : Container(
                               margin: EdgeInsets.only(
@@ -89,8 +89,11 @@ class _InterestClassTabState extends State<InterestClassTab>
                         child: SizedBox(
                           height: SizeConfig.defaultSize * 5.0,
                           child: RoundedTextFormField(
-                            onChanged: (value) => {},
-                            textEditingController: searchTxtController,
+                            onChanged: (value) => data.searchNewServices(
+                              query: value,
+                              context: context,
+                            ),
+                            textEditingController: data.searchTxtController,
                             textInputType: TextInputType.text,
                             isEnable: true,
                             isReadOnly: false,
@@ -121,7 +124,10 @@ class _InterestClassTabState extends State<InterestClassTab>
               //     ? const Flexible(child: AllInterestClasses())
               //     // when user searches on search field
               //     : const Flexible(child: SearchInterestClasses()),
-              const Flexible(child: ServicesBody())
+              Flexible(
+                  child: data.searchTxtController.text != ''
+                      ? const SearchServicesBody()
+                      : const ServicesBody())
             ],
           );
         }));
@@ -133,7 +139,6 @@ class _InterestClassTabState extends State<InterestClassTab>
   @override
   void dispose() {
     scrollController.dispose();
-    searchTxtController.dispose();
     super.dispose();
   }
 }

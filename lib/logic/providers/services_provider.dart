@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:c_talent/logic/providers/bookmark_services_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:c_talent/data/models/all_services.dart';
 import 'package:c_talent/data/repositories/services/services_repo.dart';
@@ -88,7 +89,7 @@ class ServicesProvider extends ChangeNotifier {
     servicesIsLoading = true;
     Response response = await ServicesRepo.getAllServices(
         accessToken: mainScreenProvider.currentAccessToken.toString(),
-        page: servicesPageSize.toString(),
+        page: servicesPageNumber.toString(),
         pageSize: servicesPageSize.toString(),
         isRecommendedServices: false);
     if (response.statusCode == 200) {
@@ -206,7 +207,7 @@ class ServicesProvider extends ChangeNotifier {
     recmdServicesIsLoading = true;
     Response response = await ServicesRepo.getAllServices(
         accessToken: mainScreenProvider.currentAccessToken.toString(),
-        page: recmdServicesPageSize.toString(),
+        page: recmdServicesPageNumber.toString(),
         pageSize: recmdServicesPageSize.toString(),
         isRecommendedServices: true);
     if (response.statusCode == 200) {
@@ -333,7 +334,9 @@ class ServicesProvider extends ChangeNotifier {
         if (response.statusCode == 200 && context.mounted) {
           // IF toggled save in ALL Services, we should also changed isSaved state in RECOMMENDED services
           onToggleSaveSuccess(
-              oneService: oneService, serviceToggleType: serviceToggleType);
+              oneService: oneService,
+              serviceToggleType: serviceToggleType,
+              context: context);
         } else if (response.statusCode == 401 || response.statusCode == 403) {
           onToggleSaveFailed();
 
@@ -375,7 +378,9 @@ class ServicesProvider extends ChangeNotifier {
 
   void onToggleSaveSuccess(
       {required ServiceToggleType serviceToggleType,
-      required OneService oneService}) {
+      required OneService oneService,
+      required BuildContext context}) {
+    // IF TOGGLING IS DONE FROM ALL SERVICES
     if (serviceToggleType == ServiceToggleType.allService &&
         _recommendedServices?.services != null) {
       ServicePost? toBeUpdatedService = _recommendedServices!.services!
@@ -394,8 +399,196 @@ class ServicesProvider extends ChangeNotifier {
       if (toBeUpdatedService != null && toBeUpdatedService.service != null) {
         toBeUpdatedService.service!.isSaved = oneService.isSaved;
       }
+    } else if (serviceToggleType == ServiceToggleType.bookmarkService) {
+      // REMOVE UNSAVED BOOKMARK SERVICE FROM BOOKMARK SERVICE SCREEN
+      Provider.of<BookmarkServicesProvider>(context, listen: false)
+          .onBookmarkServiceToggleSuccess(oneService: oneService);
+      // CHANGING STATE IN ALL SERVICES
+      ServicePost? toBeUpdatedAllServices = _allServices!.services!
+          .firstWhereOrNull(
+              (foundService) => foundService.service?.id == oneService.id);
+      if (toBeUpdatedAllServices != null &&
+          toBeUpdatedAllServices.service != null) {
+        toBeUpdatedAllServices.service!.isSaved = oneService.isSaved;
+      }
+      // CHANGING STATE IN RECOMMENDED SERVICES
+      ServicePost? toBeUpdatedRecommendedService =
+          _recommendedServices!.services!.firstWhereOrNull(
+              (foundService) => foundService.service?.id == oneService.id);
+      if (toBeUpdatedRecommendedService != null &&
+          toBeUpdatedRecommendedService.service != null) {
+        toBeUpdatedRecommendedService.service!.isSaved = oneService.isSaved;
+      }
     }
     toggleSaveOnProcess = false;
+    notifyListeners();
+  }
+
+  // Search services
+  TextEditingController searchTxtController = TextEditingController();
+  // page and pageSize is used for pagination
+  int searchPage = 1;
+  int searchPageSize = 10;
+  // hasMore will be true until we have more data to fetch in the API
+  bool searchHasMore = true;
+  // It will be true once we try to fetch more news post data.
+  bool isSearchLoading = false;
+
+  AllServices? _searchServices;
+  AllServices? get searchServices => _searchServices;
+
+  StreamController<AllServices?> searchStreamController =
+      BehaviorSubject<AllServices?>();
+
+  // bool noRecord = false;
+
+  Future searchNewServices(
+          {required String query, required BuildContext context}) async =>
+      debounce(() async {
+        // translate
+        EasyLoading.show(status: 'Searching..', dismissOnTap: true);
+        isSearchLoading = true;
+        // value of search page will be initialized back to 1, because it can be incremented while loading more search data
+        searchPage = 1;
+
+        // searchHasMore should be true in the beginning while searching for new keyword. It might have been changed to false, when there were no more data for previous keyword.
+        if (searchHasMore == false) {
+          searchHasMore = true;
+        }
+
+        // If there is no keyword in the search field, we won't call the server
+        if (searchTxtController.text.trim() == '' && query.trim() == '') {
+          EasyLoading.dismiss();
+          notifyListeners();
+          return;
+        }
+        notifyListeners();
+        Response response = await ServicesRepo.searchServices(
+            page: searchPage.toString(),
+            pageSize: searchPageSize.toString(),
+            accessToken: mainScreenProvider.currentAccessToken.toString(),
+            searchKeyword: query.trim(),
+            servicesFilterType: ServicesFilterType.search,
+            filterValue: null);
+        if (response.statusCode == 200) {
+          _searchServices = allServicesFromJson(response.body);
+          searchStreamController.sink.add(_searchServices);
+          isSearchLoading = false;
+          notifyListeners();
+          EasyLoading.dismiss();
+        } else if (response.statusCode == 401 || response.statusCode == 403) {
+          isSearchLoading = false;
+          if (context.mounted) {
+            EasyLoading.dismiss();
+            bool isTokenRefreshed =
+                await Provider.of<AuthProvider>(context, listen: false)
+                    .refreshAccessToken(context: context);
+            // If token is refreshed, re-call the method
+            if (isTokenRefreshed == true && context.mounted) {
+              return searchNewServices(context: context, query: query);
+            } else {
+              await Provider.of<DrawerProvider>(context, listen: false)
+                  .logOut(context: context);
+              return;
+            }
+          }
+        } else {
+          isSearchLoading = false;
+          if (context.mounted) {
+            EasyLoading.showInfo(AppLocalizations.of(context).tryAgainLater,
+                dismissOnTap: false, duration: const Duration(seconds: 4));
+          }
+          return;
+        }
+      });
+
+  // Loading more services when user reach maximum pageSize item of a page in listview
+  Future loadMoreSearchResults({required BuildContext context}) async {
+    if (searchHasMore == false) {
+      return;
+    }
+    searchPage++;
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
+    if (isSearchLoading) {
+      return;
+    }
+    isSearchLoading = true;
+    Response response = await ServicesRepo.searchServices(
+        page: searchPage.toString(),
+        pageSize: searchPageSize.toString(),
+        searchKeyword: searchTxtController.text.trim(),
+        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        servicesFilterType: ServicesFilterType.search,
+        filterValue: null);
+    if (response.statusCode == 200) {
+      final newSearchResults = allServicesFromJson(response.body);
+
+      if (newSearchResults.services == null) return;
+
+      // If the newly added data is less than our default pageSize, it means we won't have further more data. Hence hasMore = false
+      if (newSearchResults.services!.length < searchPageSize) {
+        searchHasMore = false;
+      }
+
+      _searchServices!.services = [
+        ..._searchServices!.services!,
+        ...newSearchResults.services!
+      ];
+
+      searchStreamController.sink.add(_searchServices!);
+      // isLoading = false indicates that the loading is complete
+      isSearchLoading = false;
+      notifyListeners();
+      return true;
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
+      isSearchLoading = false;
+      if (context.mounted) {
+        bool isTokenRefreshed =
+            await Provider.of<AuthProvider>(context, listen: false)
+                .refreshAccessToken(context: context);
+
+        // If token is refreshed, re-call the method
+        if (isTokenRefreshed == true && context.mounted) {
+          return loadMoreSearchResults(context: context);
+        } else {
+          await Provider.of<DrawerProvider>(context, listen: false)
+              .logOut(context: context);
+          return;
+        }
+      }
+    } else {
+      isSearchLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Timer? debouncer;
+  void debounce(
+    VoidCallback callback, {
+    Duration duration = const Duration(milliseconds: 800),
+  }) {
+    // To make sure only one request is going to the server per 0.8 second
+    if (debouncer != null) {
+      debouncer!.cancel();
+    }
+    debouncer = Timer(duration, callback);
+  }
+
+  bool? isRefreshingSearch;
+  Future refreshSearchedServices({required BuildContext context}) async {
+    isRefreshingSearch = true;
+    notifyListeners();
+    isSearchLoading = false;
+    searchHasMore = true;
+    searchPage = 1;
+    if (_searchServices?.services != null) {
+      _searchServices!.services!.clear();
+    }
+
+    await searchNewServices(
+        query: searchTxtController.text.trim(), context: context);
+    isRefreshingSearch = false;
     notifyListeners();
   }
 
@@ -403,6 +596,8 @@ class ServicesProvider extends ChangeNotifier {
   void dispose() {
     allServicesStreamController.close();
     recommendedServStrmContrller.close();
+    searchStreamController.close();
+    searchTxtController.dispose();
     super.dispose();
   }
 }

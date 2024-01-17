@@ -1,3 +1,4 @@
+import 'package:c_talent/presentation/views/services/bookmark_services_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:c_talent/presentation/components/all/top_app_bar.dart';
@@ -21,8 +22,7 @@ AppBar interestAppBar({required BuildContext context}) {
                     height: SizeConfig.defaultSize * 2.1,
                     width: SizeConfig.defaultSize * 2.6),
                 onPressed: () {
-                  // Navigator.pushNamed(
-                  //     context, BookmarkInterestClassesScreen.id);
+                  Navigator.pushNamed(context, BookmarkServicesScreen.id);
                 },
               ));
         }),

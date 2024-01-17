@@ -1,14 +1,12 @@
 import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_services.dart';
 import 'package:c_talent/logic/providers/services_provider.dart';
-import 'package:c_talent/presentation/views/services/service_description_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:pinch_zoom_image_last/pinch_zoom_image_last.dart';
 import 'package:provider/provider.dart';
-
 import '../../../data/constant/connection_url.dart';
 import '../../../data/constant/font_constant.dart';
 import '../../helper/size_configuration.dart';
@@ -16,7 +14,10 @@ import '../all/rectangular_button.dart';
 
 class ServicesContainer extends StatelessWidget {
   final ServicePost service;
-  const ServicesContainer({Key? key, required this.service}) : super(key: key);
+  final ServiceToggleType serviceToggleType;
+  const ServicesContainer(
+      {Key? key, required this.service, required this.serviceToggleType})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -159,8 +160,7 @@ class ServicesContainer extends StatelessWidget {
                                     return;
                                   }
                                   await data.toggleServiceSave(
-                                      serviceToggleType:
-                                          ServiceToggleType.allService,
+                                      serviceToggleType: serviceToggleType,
                                       context: context,
                                       oneService: service.service!);
                                 },
@@ -199,7 +199,7 @@ class ServicesContainer extends StatelessWidget {
                                       onPress: () {
                                         data.goToServicesDescriptionScreen(
                                             serviceToggleType:
-                                                ServiceToggleType.allService,
+                                                serviceToggleType,
                                             context: context,
                                             service: service.service);
                                       },

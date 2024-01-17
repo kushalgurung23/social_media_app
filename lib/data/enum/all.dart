@@ -8,4 +8,12 @@ enum NavigationItems {
 
 enum NewsPostFrom { newsPostList, newsPostDescription }
 
-enum ServiceToggleType { allService, recommendService }
+// WHETHER WE TOGGLED SERVICES POSTS SAVE FROM
+enum ServiceToggleType {
+  allService,
+  recommendService,
+  bookmarkService,
+  searchedServices
+}
+
+enum ServicesFilterType { search, category }

@@ -151,6 +151,25 @@ class OneService {
             ? []
             : List<dynamic>.from(serviceImages!.map((x) => x.toJson())),
       };
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is OneService &&
+        id == other.id &&
+        title == other.title &&
+        phoneNumber == other.phoneNumber &&
+        createdAt == other.createdAt &&
+        updatedAt == other.updatedAt;
+  }
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      title.hashCode ^
+      phoneNumber.hashCode ^
+      createdAt.hashCode ^
+      updatedAt.hashCode;
 }
 
 class ServiceImage {

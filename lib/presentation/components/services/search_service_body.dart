@@ -12,13 +12,13 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../data/constant/font_constant.dart';
 import '../../helper/size_configuration.dart';
 
-class ServicesBody extends StatefulWidget {
-  const ServicesBody({Key? key}) : super(key: key);
+class SearchServicesBody extends StatefulWidget {
+  const SearchServicesBody({Key? key}) : super(key: key);
   @override
-  State<ServicesBody> createState() => _ServicesBodyState();
+  State<SearchServicesBody> createState() => _SearchServicesBodyState();
 }
 
-class _ServicesBodyState extends State<ServicesBody> {
+class _SearchServicesBodyState extends State<SearchServicesBody> {
   final scrollController = ScrollController();
   @override
   void initState() {
@@ -26,22 +26,22 @@ class _ServicesBodyState extends State<ServicesBody> {
     scrollController.addListener(() {
       if (scrollController.position.maxScrollExtent ==
           scrollController.offset) {
-        loadMoreServices();
+        loadMoreSearchServices();
       }
     });
     super.initState();
   }
 
-  void loadMoreServices() async {
+  void loadMoreSearchServices() async {
     await Provider.of<ServicesProvider>(context, listen: false)
-        .loadMoreServices(context: context);
+        .loadMoreSearchResults(context: context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ServicesProvider>(builder: (context, data, child) {
       return StreamBuilder<AllServices?>(
-          stream: data.allServicesStreamController.stream,
+          stream: data.searchStreamController.stream,
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
@@ -75,7 +75,8 @@ class _ServicesBodyState extends State<ServicesBody> {
                   );
                 } else {
                   return RefreshIndicator(
-                    onRefresh: () => data.refreshAllServices(context: context),
+                    onRefresh: () =>
+                        data.refreshSearchedServices(context: context),
                     child: SingleChildScrollView(
                         controller: scrollController,
                         physics: const AlwaysScrollableScrollPhysics(
@@ -83,21 +84,6 @@ class _ServicesBodyState extends State<ServicesBody> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Recommend section
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: SizeConfig.defaultSize * 2),
-                              child: Text(
-                                AppLocalizations.of(context).recommend,
-                                style: TextStyle(
-                                    fontFamily: kHelveticaMedium,
-                                    fontSize: SizeConfig.defaultSize * 1.8),
-                              ),
-                            ),
-                            SizedBox(height: SizeConfig.defaultSize * 2),
-                            // Recommend class list
-                            const RecommendedServices(),
-                            SizedBox(height: SizeConfig.defaultSize * 3),
                             // All course section
                             Padding(
                               padding: EdgeInsets.symmetric(
@@ -106,7 +92,8 @@ class _ServicesBodyState extends State<ServicesBody> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    AppLocalizations.of(context).allCourse,
+                                    // translate
+                                    'All Services',
                                     style: TextStyle(
                                         fontFamily: kHelveticaMedium,
                                         fontSize: SizeConfig.defaultSize * 1.8),
@@ -120,8 +107,10 @@ class _ServicesBodyState extends State<ServicesBody> {
                                                   SizeConfig.defaultSize * 3),
                                           child: Center(
                                             child: Text(
-                                              // translate
-                                              data.servicesIsLoading == true
+                                              // translation
+                                              data.isSearchLoading == true ||
+                                                      data.isRefreshingSearch ==
+                                                          true
                                                   ? 'Loading'
                                                   : 'Services not available',
                                               style: TextStyle(
@@ -155,7 +144,7 @@ class _ServicesBodyState extends State<ServicesBody> {
                                                   service: servicesData,
                                                   serviceToggleType:
                                                       ServiceToggleType
-                                                          .allService,
+                                                          .searchedServices,
                                                 );
                                               } else {
                                                 return Padding(
@@ -164,8 +153,7 @@ class _ServicesBodyState extends State<ServicesBody> {
                                                               .defaultSize *
                                                           3),
                                                   child: Center(
-                                                      child: data
-                                                              .servicesHasMore
+                                                      child: data.searchHasMore
                                                           ? const CircularProgressIndicator(
                                                               color: Color(
                                                                   0xFFA08875))

@@ -81,7 +81,7 @@ class BookmarkServicesProvider extends ChangeNotifier {
     bookmarkedServicesIsLoading = true;
     Response response = await ServicesRepo.getSavedServices(
         accessToken: mainScreenProvider.currentAccessToken.toString(),
-        page: bookmarkedServicesPageSize.toString(),
+        page: bookmarkedServicesPageNumber.toString(),
         pageSize: bookmarkedServicesPageSize.toString());
     if (response.statusCode == 200) {
       final newSavedPosts = allServicesFromJson(response.body);
@@ -118,6 +118,36 @@ class BookmarkServicesProvider extends ChangeNotifier {
     } else {
       return false;
     }
+  }
+
+  Future<void> refreshBookmarkServices({required BuildContext context}) async {
+    bookmarkedServicesIsLoading = false;
+    bookmarkedServicesHasMore = true;
+    bookmarkedServicesPageNumber = 1;
+    if (_bookmarkedServices?.services != null) {
+      _bookmarkedServices!.services!.clear();
+    }
+    notifyListeners();
+    await loadBookmarkedServices(context: context);
+  }
+
+  void onBookmarkServiceToggleSuccess({required OneService oneService}) {
+    if (_bookmarkedServices?.services == null) {
+      return;
+    }
+    // IF USER HAS TOGGLED TO FALSE, THEN BACK TO TRUE INSIDE THE BOOKMARK SERVICES
+    if (oneService.isSaved == 1) {
+      ServicePost updatedServicePost = ServicePost(service: oneService);
+      if (!_bookmarkedServices!.services!.contains(updatedServicePost)) {
+        _bookmarkedServices!.services!.insert(0, updatedServicePost);
+      }
+    }
+    // IF USER HAS UNSAVED THE SERVICE
+    else {
+      _bookmarkedServices!.services!
+          .removeWhere((service) => service.service?.id == oneService.id);
+    }
+    notifyListeners();
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:c_talent/presentation/views/auth/forgot_password_email_screen.da
 import 'package:c_talent/presentation/views/auth/registration_screen.dart';
 import 'package:c_talent/presentation/views/chat/chatroom_screen.dart';
 import 'package:c_talent/presentation/views/news_posts/new_post_screen.dart';
+import 'package:c_talent/presentation/views/services/bookmark_services_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/language_screen.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/home_screen.dart';
@@ -38,6 +39,9 @@ Route? onGenerateRoute(RouteSettings routeSettings) {
       return MaterialPageRoute(builder: (context) => const LanguageScreen());
     case ChatroomScreen.id:
       return MaterialPageRoute(builder: (context) => const ChatroomScreen());
+    case BookmarkServicesScreen.id:
+      return MaterialPageRoute(
+          builder: (context) => const BookmarkServicesScreen());
     default:
       return null;
   }

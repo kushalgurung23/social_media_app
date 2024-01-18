@@ -1,14 +1,10 @@
-import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_services.dart';
 import 'package:c_talent/logic/providers/services_provider.dart';
 import 'package:c_talent/presentation/components/services/recommended_service_container.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pinch_zoom_image_last/pinch_zoom_image_last.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
-import '../../../data/constant/connection_url.dart';
 import '../../../data/constant/font_constant.dart';
 import '../../helper/size_configuration.dart';
 
@@ -23,10 +19,6 @@ class _RecommendedServicesState extends State<RecommendedServices> {
   final scrollController = ScrollController();
   @override
   void initState() {
-    // Loading recommend class
-    Provider.of<ServicesProvider>(context, listen: false)
-        .loadRecommendedServices(context: context);
-
     // this will load more data when we reach the end of paper share
     scrollController.addListener(() {
       if (scrollController.position.maxScrollExtent ==
@@ -109,7 +101,7 @@ class _RecommendedServicesState extends State<RecommendedServices> {
                             height: SizeConfig.defaultSize * 22.5,
                             child: Center(
                               child: Text(
-                                AppLocalizations.of(context).noRecommendClass,
+                                snapshot.data!.services!.length.toString(),
                                 style: TextStyle(
                                     fontFamily: kHelveticaRegular,
                                     fontSize: SizeConfig.defaultSize * 1.5),

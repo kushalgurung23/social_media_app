@@ -74,111 +74,97 @@ class _SearchServicesBodyState extends State<SearchServicesBody> {
                     ),
                   );
                 } else {
-                  return RefreshIndicator(
-                    onRefresh: () =>
-                        data.refreshSearchedServices(context: context),
-                    child: SingleChildScrollView(
-                        controller: scrollController,
-                        physics: const AlwaysScrollableScrollPhysics(
-                            parent: BouncingScrollPhysics()),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // All course section
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: SizeConfig.defaultSize * 2),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    // translate
-                                    'All Services',
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: SizeConfig.defaultSize * 1.5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(
+                              bottom: SizeConfig.defaultSize * 1),
+                          child: Text(
+                            // translate
+                            'All Services',
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                                fontFamily: kHelveticaMedium,
+                                fontSize: SizeConfig.defaultSize * 1.8),
+                          ),
+                        ),
+                        snapshot.data?.services == null ||
+                                snapshot.data!.services!.isEmpty
+                            ? Flexible(
+                                child: Center(
+                                  child: Text(
+                                    data.isSearchLoading == true ||
+                                            data.isRefreshingSearch == true
+                                        ? AppLocalizations.of(context).loading
+                                        // translate
+                                        : 'Services not found',
+                                    textAlign: TextAlign.center,
                                     style: TextStyle(
-                                        fontFamily: kHelveticaMedium,
-                                        fontSize: SizeConfig.defaultSize * 1.8),
+                                        fontFamily: kHelveticaRegular,
+                                        fontSize: SizeConfig.defaultSize * 1.5),
                                   ),
-                                  SizedBox(height: SizeConfig.defaultSize * 3),
-                                  snapshot.data?.services == null ||
-                                          snapshot.data!.services!.isEmpty
-                                      ? Padding(
+                                ),
+                              )
+                            : Flexible(
+                                child: RefreshIndicator(
+                                  onRefresh: () => data.refreshSearchedServices(
+                                      context: context),
+                                  child: ListView.builder(
+                                    controller: scrollController,
+                                    // primary: false,
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(
+                                            parent: BouncingScrollPhysics()),
+                                    // shrinkWrap: true,
+                                    itemCount:
+                                        snapshot.data!.services!.length >= 10
+                                            ? snapshot.data!.services!.length +
+                                                1
+                                            : snapshot.data!.services!.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      if (index <
+                                          snapshot.data!.services!.length) {
+                                        final servicesData =
+                                            snapshot.data!.services![index];
+                                        return ServicesContainer(
+                                          service: servicesData,
+                                          serviceToggleType: ServiceToggleType
+                                              .searchedServices,
+                                        );
+                                      } else {
+                                        return Padding(
                                           padding: EdgeInsets.symmetric(
                                               vertical:
                                                   SizeConfig.defaultSize * 3),
                                           child: Center(
-                                            child: Text(
-                                              // translation
-                                              data.isSearchLoading == true ||
-                                                      data.isRefreshingSearch ==
-                                                          true
-                                                  ? 'Loading'
-                                                  : 'Services not available',
-                                              style: TextStyle(
-                                                  fontFamily: kHelveticaRegular,
-                                                  fontSize:
-                                                      SizeConfig.defaultSize *
-                                                          1.5),
-                                            ),
-                                          ),
-                                        )
-                                      : SizedBox(
-                                          child: ListView.builder(
-                                            primary: false,
-                                            shrinkWrap: true,
-                                            itemCount: snapshot.data!.services!
-                                                        .length >=
-                                                    10
-                                                ? snapshot.data!.services!
-                                                        .length +
-                                                    1
-                                                : snapshot
-                                                    .data!.services!.length,
-                                            itemBuilder: (BuildContext context,
-                                                int index) {
-                                              if (index <
-                                                  snapshot
-                                                      .data!.services!.length) {
-                                                final servicesData = snapshot
-                                                    .data!.services![index];
-                                                return ServicesContainer(
-                                                  service: servicesData,
-                                                  serviceToggleType:
-                                                      ServiceToggleType
-                                                          .searchedServices,
-                                                );
-                                              } else {
-                                                return Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                      vertical: SizeConfig
-                                                              .defaultSize *
-                                                          3),
-                                                  child: Center(
-                                                      child: data.searchHasMore
-                                                          ? const CircularProgressIndicator(
-                                                              color: Color(
-                                                                  0xFFA08875))
-                                                          : Text(
-                                                              AppLocalizations.of(
-                                                                      context)
-                                                                  .caughtUp,
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      kHelveticaMedium,
-                                                                  fontSize:
-                                                                      SizeConfig
-                                                                              .defaultSize *
-                                                                          1.5),
-                                                            )),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                ],
+                                              child: data.searchHasMore
+                                                  ? const CircularProgressIndicator(
+                                                      color: Color(0xFFA08875))
+                                                  : Text(
+                                                      AppLocalizations.of(
+                                                              context)
+                                                          .caughtUp,
+                                                      style: TextStyle(
+                                                          fontFamily:
+                                                              kHelveticaMedium,
+                                                          fontSize: SizeConfig
+                                                                  .defaultSize *
+                                                              1.5),
+                                                    )),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
                               ),
-                            )
-                          ],
-                        )),
+                      ],
+                    ),
                   );
                 }
             }

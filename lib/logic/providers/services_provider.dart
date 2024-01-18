@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:c_talent/data/models/all_service_categories.dart';
 import 'package:c_talent/logic/providers/bookmark_services_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:c_talent/data/models/all_services.dart';
@@ -39,6 +40,7 @@ class ServicesProvider extends ChangeNotifier {
   // This method will be called to get services
   Future<void> loadInitialServices({required BuildContext context}) async {
     try {
+      print('initial service called');
       Response response = await ServicesRepo.getAllServices(
           accessToken: mainScreenProvider.currentAccessToken.toString(),
           page: servicesPageNumber.toString(),
@@ -82,6 +84,7 @@ class ServicesProvider extends ChangeNotifier {
   // Loading more services when user reach maximum pageSize item of a page in listview
   Future loadMoreServices({required BuildContext context}) async {
     servicesPageNumber++;
+    print('more service called $servicesPageNumber');
     // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
     if (servicesIsLoading) {
       return;
@@ -130,6 +133,7 @@ class ServicesProvider extends ChangeNotifier {
   }
 
   Future refreshServices({required BuildContext context}) async {
+    print('refresh service called');
     servicesIsLoading = false;
     servicesHasMore = true;
     servicesPageNumber = 1;
@@ -137,7 +141,7 @@ class ServicesProvider extends ChangeNotifier {
       _allServices!.services!.clear();
     }
     notifyListeners();
-    await Future.wait([loadInitialServices(context: context)]);
+    await loadInitialServices(context: context);
   }
 
   AllServices? _recommendedServices;
@@ -157,6 +161,7 @@ class ServicesProvider extends ChangeNotifier {
   // This method will be called to get services
   Future<void> loadRecommendedServices({required BuildContext context}) async {
     try {
+      print('recommend service called');
       Response response = await ServicesRepo.getAllServices(
           accessToken: mainScreenProvider.currentAccessToken.toString(),
           page: recmdServicesPageNumber.toString(),
@@ -200,6 +205,7 @@ class ServicesProvider extends ChangeNotifier {
   // Loading more services when user reach maximum pageSize item of a page in listview
   Future loadMoreRecommendedServices({required BuildContext context}) async {
     recmdServicesPageNumber++;
+    print('recommend more service called $recmdServicesPageNumber');
     // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
     if (recmdServicesIsLoading) {
       return;
@@ -248,6 +254,7 @@ class ServicesProvider extends ChangeNotifier {
   }
 
   Future refreshRecommendedServices({required BuildContext context}) async {
+    print('refresh recommend called');
     recmdServicesIsLoading = false;
     recmdServicesHasMore = true;
     recmdServicesPageNumber = 1;
@@ -255,13 +262,14 @@ class ServicesProvider extends ChangeNotifier {
       _recommendedServices!.services!.clear();
     }
     notifyListeners();
-    await Future.wait([loadRecommendedServices(context: context)]);
+    await loadRecommendedServices(context: context);
   }
 
   Future<void> refreshAllServices({required BuildContext context}) async {
     await Future.wait([
       refreshServices(context: context),
-      refreshRecommendedServices(context: context)
+      refreshRecommendedServices(context: context),
+      loadServiceCategories(context: context)
     ]);
   }
 
@@ -399,10 +407,13 @@ class ServicesProvider extends ChangeNotifier {
       if (toBeUpdatedService != null && toBeUpdatedService.service != null) {
         toBeUpdatedService.service!.isSaved = oneService.isSaved;
       }
-    } else if (serviceToggleType == ServiceToggleType.bookmarkService) {
-      // REMOVE UNSAVED BOOKMARK SERVICE FROM BOOKMARK SERVICE SCREEN
-      Provider.of<BookmarkServicesProvider>(context, listen: false)
-          .onBookmarkServiceToggleSuccess(oneService: oneService);
+    } else if (serviceToggleType == ServiceToggleType.bookmarkService ||
+        serviceToggleType == ServiceToggleType.searchedServices) {
+      if (serviceToggleType == ServiceToggleType.bookmarkService) {
+        // REMOVE UNSAVED BOOKMARK SERVICE FROM BOOKMARK SERVICE SCREEN
+        Provider.of<BookmarkServicesProvider>(context, listen: false)
+            .onBookmarkServiceToggleSuccess(oneService: oneService);
+      }
       // CHANGING STATE IN ALL SERVICES
       ServicePost? toBeUpdatedAllServices = _allServices!.services!
           .firstWhereOrNull(
@@ -443,7 +454,9 @@ class ServicesProvider extends ChangeNotifier {
   // bool noRecord = false;
 
   Future searchNewServices(
-          {required String query, required BuildContext context}) async =>
+          {required String query,
+          required BuildContext context,
+          required int debounceMilliSecond}) async =>
       debounce(() async {
         // translate
         EasyLoading.show(status: 'Searching..', dismissOnTap: true);
@@ -470,6 +483,12 @@ class ServicesProvider extends ChangeNotifier {
             searchKeyword: query.trim(),
             servicesFilterType: ServicesFilterType.search,
             filterValue: null);
+        // AFTER REFRESHING, isRefreshingSearch value will be set to false
+        // WHEN TRUE, IT IS USED TO DISPLAY LOADING TEXT WIDGET
+        if (isRefreshingSearch == true) {
+          isRefreshingSearch = false;
+        }
+
         if (response.statusCode == 200) {
           _searchServices = allServicesFromJson(response.body);
           searchStreamController.sink.add(_searchServices);
@@ -485,7 +504,10 @@ class ServicesProvider extends ChangeNotifier {
                     .refreshAccessToken(context: context);
             // If token is refreshed, re-call the method
             if (isTokenRefreshed == true && context.mounted) {
-              return searchNewServices(context: context, query: query);
+              return searchNewServices(
+                  context: context,
+                  query: query,
+                  debounceMilliSecond: debounceMilliSecond);
             } else {
               await Provider.of<DrawerProvider>(context, listen: false)
                   .logOut(context: context);
@@ -500,7 +522,7 @@ class ServicesProvider extends ChangeNotifier {
           }
           return;
         }
-      });
+      }, duration: Duration(milliseconds: debounceMilliSecond));
 
   // Loading more services when user reach maximum pageSize item of a page in listview
   Future loadMoreSearchResults({required BuildContext context}) async {
@@ -575,7 +597,7 @@ class ServicesProvider extends ChangeNotifier {
     debouncer = Timer(duration, callback);
   }
 
-  bool? isRefreshingSearch;
+  bool isRefreshingSearch = false;
   Future refreshSearchedServices({required BuildContext context}) async {
     isRefreshingSearch = true;
     notifyListeners();
@@ -587,9 +609,82 @@ class ServicesProvider extends ChangeNotifier {
     }
 
     await searchNewServices(
-        query: searchTxtController.text.trim(), context: context);
+        query: searchTxtController.text.trim(),
+        context: context,
+        debounceMilliSecond: 0);
     isRefreshingSearch = false;
     notifyListeners();
+  }
+
+  // FILTER BASED ON CATEGORY
+  AllServiceCategories? _allServiceCategories;
+  AllServiceCategories? get allServiceCategories => _allServiceCategories;
+
+  bool isCategoriesLoading = false;
+  String? selectedCategory;
+  bool isCategoriesFiltering = false;
+
+  void setFilterCategoryType(String? newValue) {
+    print('is it working');
+    print(newValue);
+    if (newValue == null) {
+      return;
+    }
+    selectedCategory = newValue.toString();
+    print(selectedCategory.toString() + " is new value");
+    notifyListeners();
+  }
+
+  void resetCategory({required BuildContext context}) {
+    print('reset');
+    selectedCategory = null;
+    notifyListeners();
+    Navigator.of(context).pop();
+  }
+
+  Future<void> filterServiceCategory({required BuildContext context}) async {
+    print('object');
+  }
+
+  Future loadServiceCategories({required BuildContext context}) async {
+    if (isCategoriesLoading) {
+      return;
+    }
+    isCategoriesLoading = true;
+    Response response = await ServicesRepo.getServicesCategories(
+        accessToken: mainScreenProvider.currentAccessToken.toString());
+    if (response.statusCode == 200) {
+      final servicesCategories = allServiceCategoriesFromJson(response.body);
+
+      if (servicesCategories.categories == null) return;
+
+      _allServiceCategories = servicesCategories;
+
+      // isCategoriesLoading = false indicates that the loading is complete
+      isCategoriesLoading = false;
+      notifyListeners();
+      return true;
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
+      isCategoriesLoading = false;
+      if (context.mounted) {
+        bool isTokenRefreshed =
+            await Provider.of<AuthProvider>(context, listen: false)
+                .refreshAccessToken(context: context);
+
+        // If token is refreshed, re-call the method
+        if (isTokenRefreshed == true && context.mounted) {
+          return loadServiceCategories(context: context);
+        } else {
+          await Provider.of<DrawerProvider>(context, listen: false)
+              .logOut(context: context);
+          return;
+        }
+      }
+    } else {
+      isCategoriesLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 
   @override

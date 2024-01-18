@@ -73,6 +73,20 @@ class ServicesRepo {
         url += "category=$filterValue&";
       }
       url += "page=$page&limit=$pageSize";
+      print(url);
+      http.Response response = await http.get(Uri.parse(url),
+          headers: {'Authorization': 'Bearer $accessToken'});
+      return response;
+    } catch (err) {
+      rethrow;
+    }
+  }
+
+  static Future<http.Response> getServicesCategories(
+      {required String accessToken}) async {
+    try {
+      String url = "${kAPIURL}services/categories";
+
       http.Response response = await http.get(Uri.parse(url),
           headers: {'Authorization': 'Bearer $accessToken'});
       return response;

@@ -1,9 +1,11 @@
 import 'package:c_talent/logic/providers/services_provider.dart';
+import 'package:c_talent/presentation/components/all/custom_bottom_modal.dart';
 import 'package:c_talent/presentation/components/services/search_service_body.dart';
 import 'package:c_talent/presentation/components/services/services_body.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/tabs/service_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -34,7 +36,10 @@ class _InterestClassTabState extends State<InterestClassTab>
           .loadRecommendedServices(context: context),
       // ALL SERVICES
       Provider.of<ServicesProvider>(context, listen: false)
-          .loadInitialServices(context: context)
+          .loadInitialServices(context: context),
+      // SERVICES CATEGORIES
+      Provider.of<ServicesProvider>(context, listen: false)
+          .loadServiceCategories(context: context)
     ]);
   }
 
@@ -71,8 +76,34 @@ class _InterestClassTabState extends State<InterestClassTab>
                                   )),
                               child: TextButton(
                                 onPressed: () {
-                                  // showInterestClassFilerContainer(
-                                  //     context: context);
+                                  if (data.allServiceCategories?.categories ==
+                                      null) {
+                                    // translate
+                                    EasyLoading.showInfo(
+                                        'Please refresh the page to reload category options',
+                                        duration: const Duration(seconds: 4),
+                                        dismissOnTap: true);
+                                  } else {
+                                    showCustomModalBottom(
+                                        context: context,
+                                        listItems: data
+                                            .allServiceCategories!.categories!
+                                            .map((category) =>
+                                                category.title.toString())
+                                            .toList(),
+                                        value: data.selectedCategory,
+                                        onChanged: (modalContext, value) {
+                                          data.setFilterCategoryType(value);
+                                        },
+                                        onPress: (modalContext) {
+                                          data.filterServiceCategory(
+                                              context: modalContext);
+                                        },
+                                        onReset: (modalContext) {
+                                          data.resetCategory(
+                                              context: modalContext);
+                                        });
+                                  }
                                 },
                                 child: Center(
                                     child: SvgPicture.asset(
@@ -90,9 +121,9 @@ class _InterestClassTabState extends State<InterestClassTab>
                           height: SizeConfig.defaultSize * 5.0,
                           child: RoundedTextFormField(
                             onChanged: (value) => data.searchNewServices(
-                              query: value,
-                              context: context,
-                            ),
+                                query: value,
+                                context: context,
+                                debounceMilliSecond: 800),
                             textEditingController: data.searchTxtController,
                             textInputType: TextInputType.text,
                             isEnable: true,

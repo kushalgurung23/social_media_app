@@ -22,9 +22,8 @@ class CustomDropdownButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(
-          left: SizeConfig.defaultSize,
-          top: SizeConfig.defaultSize,
-          bottom: SizeConfig.defaultSize),
+        left: SizeConfig.defaultSize,
+      ),
       child: Center(
         child: DropdownButton(
             underline: const SizedBox(),
@@ -35,8 +34,10 @@ class CustomDropdownButton extends StatelessWidget {
                   fontFamily: kHelveticaRegular,
                   fontSize: SizeConfig.defaultSize * 1.7),
             ),
-            icon:
-                const Icon(Icons.keyboard_arrow_down, color: Color(0xFF8897A7)),
+            icon: const Icon(
+              Icons.keyboard_arrow_down,
+              color: Color(0xFF8897A7),
+            ),
             iconSize: iconSize,
             isExpanded: true,
             style: TextStyle(

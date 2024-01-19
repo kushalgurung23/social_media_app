@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/bookmark_services_provider.dart';
 import 'package:c_talent/logic/providers/chat_message_provider.dart';
+import 'package:c_talent/logic/providers/notification_and_promotion_provider.dart';
 import 'package:c_talent/logic/providers/permission_provider.dart';
 import 'package:c_talent/logic/providers/registration_provider.dart';
 import 'package:c_talent/logic/providers/services_provider.dart';
@@ -141,6 +142,10 @@ class _MyAppState extends State<MyApp> {
                     Provider.of<MainScreenProvider>(context, listen: false))),
         ChangeNotifierProvider(
             create: (context) => BookmarkServicesProvider(
+                mainScreenProvider:
+                    Provider.of<MainScreenProvider>(context, listen: false))),
+        ChangeNotifierProvider(
+            create: (context) => NotificationAndPromotionProvider(
                 mainScreenProvider:
                     Provider.of<MainScreenProvider>(context, listen: false)))
       ],

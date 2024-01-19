@@ -13,6 +13,8 @@ showReportNewsPostContainer(
     required String newsPostId,
     required NewsPostFrom newsPostFrom}) {
   return showModalBottomSheet(
+    enableDrag: false,
+    isDismissible: false,
     shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
       top: Radius.circular(20),
@@ -187,7 +189,8 @@ showReportNewsPostContainer(
                                     horizontal: SizeConfig.defaultSize * 1.5),
                                 height: SizeConfig.defaultSize * 4.2,
                                 onPress: () {
-                                  data.resetNewsPostReportOption();
+                                  data.resetNewsPostReportOption(
+                                      context: context);
                                 },
                                 text: AppLocalizations.of(context).reset,
                                 textColor: Colors.white,

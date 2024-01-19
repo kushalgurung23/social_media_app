@@ -145,7 +145,7 @@ class ServicesContainer extends StatelessWidget {
                             padding: EdgeInsets.only(
                                 bottom: SizeConfig.defaultSize * 1.5),
                             child: Text(
-                              "${AppLocalizations.of(context).price}: ${service.service!.price.toString()}",
+                              "${AppLocalizations.of(context).price}: ${service.service!.price ?? '-'}",
                               style: TextStyle(
                                   color: const Color(0xFF8897A7),
                                   fontSize: SizeConfig.defaultSize * 1.3,

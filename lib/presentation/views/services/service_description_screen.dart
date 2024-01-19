@@ -224,7 +224,7 @@ class _ServiceDescriptionScreenState extends State<ServiceDescriptionScreen> {
                                                                   .defaultSize *
                                                               0.8),
                                                       Text(
-                                                        '${AppLocalizations.of(context).price}: ${widget.service.price}',
+                                                        '${AppLocalizations.of(context).price}: ${widget.service.price ?? '-'}',
                                                         style: TextStyle(
                                                             color: const Color(
                                                                 0xFF8897A7),

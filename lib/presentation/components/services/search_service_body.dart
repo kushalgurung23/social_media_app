@@ -13,7 +13,9 @@ import '../../../data/constant/font_constant.dart';
 import '../../helper/size_configuration.dart';
 
 class SearchServicesBody extends StatefulWidget {
-  const SearchServicesBody({Key? key}) : super(key: key);
+  final ServicesFilterType servicesFilterType;
+  const SearchServicesBody({Key? key, required this.servicesFilterType})
+      : super(key: key);
   @override
   State<SearchServicesBody> createState() => _SearchServicesBodyState();
 }
@@ -34,7 +36,8 @@ class _SearchServicesBodyState extends State<SearchServicesBody> {
 
   void loadMoreSearchServices() async {
     await Provider.of<ServicesProvider>(context, listen: false)
-        .loadMoreSearchResults(context: context);
+        .loadMoreSearchResults(
+            context: context, servicesFilterType: widget.servicesFilterType);
   }
 
   @override
@@ -113,7 +116,9 @@ class _SearchServicesBodyState extends State<SearchServicesBody> {
                             : Flexible(
                                 child: RefreshIndicator(
                                   onRefresh: () => data.refreshSearchedServices(
-                                      context: context),
+                                      context: context,
+                                      servicesFilterType:
+                                          widget.servicesFilterType),
                                   child: ListView.builder(
                                     controller: scrollController,
                                     // primary: false,
@@ -135,7 +140,7 @@ class _SearchServicesBodyState extends State<SearchServicesBody> {
                                         return ServicesContainer(
                                           service: servicesData,
                                           serviceToggleType: ServiceToggleType
-                                              .searchedServices,
+                                              .searchedAndFilteredServices,
                                         );
                                       } else {
                                         return Padding(

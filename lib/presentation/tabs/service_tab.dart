@@ -1,5 +1,7 @@
+import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/logic/providers/services_provider.dart';
 import 'package:c_talent/presentation/components/all/custom_bottom_modal.dart';
+import 'package:c_talent/presentation/components/all/custom_bottom_modal_body.dart';
 import 'package:c_talent/presentation/components/services/search_service_body.dart';
 import 'package:c_talent/presentation/components/services/services_body.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
@@ -85,24 +87,34 @@ class _InterestClassTabState extends State<InterestClassTab>
                                         dismissOnTap: true);
                                   } else {
                                     showCustomModalBottom(
-                                        context: context,
-                                        listItems: data
-                                            .allServiceCategories!.categories!
-                                            .map((category) =>
-                                                category.title.toString())
-                                            .toList(),
-                                        value: data.selectedCategory,
-                                        onChanged: (modalContext, value) {
-                                          data.setFilterCategoryType(value);
-                                        },
-                                        onPress: (modalContext) {
-                                          data.filterServiceCategory(
-                                              context: modalContext);
-                                        },
-                                        onReset: (modalContext) {
-                                          data.resetCategory(
-                                              context: modalContext);
-                                        });
+                                      context: context,
+                                      child: Consumer<ServicesProvider>(
+                                          builder: (modalContext, data, child) {
+                                        return customBottomModalBody(
+                                            modalContext: modalContext,
+                                            listItems: data
+                                                .allServiceCategories!
+                                                .categories!
+                                                .map((category) =>
+                                                    category.title.toString())
+                                                .toList(),
+                                            value: data.selectedCategory,
+                                            onClose: (context) =>
+                                                data.closeCustomBottomModal(
+                                                    context: context),
+                                            onChanged: (modalContext, value) {
+                                              data.setFilterCategoryType(value);
+                                            },
+                                            onPress: (modalContext) {
+                                              data.filterServiceCategory(
+                                                  context: modalContext);
+                                            },
+                                            onReset: (modalContext) {
+                                              data.resetCategory(
+                                                  context: context);
+                                            });
+                                      }),
+                                    );
                                   }
                                 },
                                 child: Center(
@@ -121,9 +133,14 @@ class _InterestClassTabState extends State<InterestClassTab>
                           height: SizeConfig.defaultSize * 5.0,
                           child: RoundedTextFormField(
                             onChanged: (value) => data.searchNewServices(
+                                servicesFilterType: ServicesFilterType.search,
                                 query: value,
                                 context: context,
-                                debounceMilliSecond: 800),
+                                // IF USER HAS CLEARED ALL THE KEYWORD IN TEXTFIELD
+                                debounceMilliSecond:
+                                    data.searchTxtController.text.trim() != ''
+                                        ? 800
+                                        : 0),
                             textEditingController: data.searchTxtController,
                             textInputType: TextInputType.text,
                             isEnable: true,
@@ -147,18 +164,19 @@ class _InterestClassTabState extends State<InterestClassTab>
                 ),
               ),
               SizedBox(height: SizeConfig.defaultSize * 2),
-              // when user filters interest class
-              // data.isFilterBtnClick == true
-              // ? const Flexible(child: FilterInterestClasses())
-              // : data.interestClassSearchTextController.text == ''
-              //     // default view
-              //     ? const Flexible(child: AllInterestClasses())
-              //     // when user searches on search field
-              //     : const Flexible(child: SearchInterestClasses()),
               Flexible(
-                  child: data.searchTxtController.text != ''
-                      ? const SearchServicesBody()
-                      : const ServicesBody())
+                  // IF SEARCH OR FILTER IS DONE IN SERVICES
+                  child: data.searchTxtController.text.trim() != '' ||
+                          data.isFilterBtnClick == true
+                      ? SearchServicesBody(
+                          servicesFilterType:
+                              data.searchTxtController.text.trim() != ''
+                                  ? ServicesFilterType.search
+                                  : ServicesFilterType.filter,
+                        )
+                      :
+                      // NORMAL SERVICES BODY
+                      const ServicesBody())
             ],
           );
         }));

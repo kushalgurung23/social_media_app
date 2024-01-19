@@ -106,7 +106,8 @@ class _ServicesBodyState extends State<ServicesBody> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    AppLocalizations.of(context).allCourse,
+                                    // translate
+                                    'All Services',
                                     style: TextStyle(
                                         fontFamily: kHelveticaMedium,
                                         fontSize: SizeConfig.defaultSize * 1.8),

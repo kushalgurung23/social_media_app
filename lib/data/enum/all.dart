@@ -13,7 +13,7 @@ enum ServiceToggleType {
   allService,
   recommendService,
   bookmarkService,
-  searchedServices
+  searchedAndFilteredServices
 }
 
-enum ServicesFilterType { search, category }
+enum ServicesFilterType { search, filter }

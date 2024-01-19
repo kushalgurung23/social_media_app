@@ -10,7 +10,7 @@ import 'package:c_talent/presentation/components/all/bottom_nav_bar.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/tabs/service_tab.dart';
 import 'package:c_talent/presentation/tabs/news_tab.dart';
-import 'package:c_talent/presentation/tabs/notification_tab.dart';
+import 'package:c_talent/presentation/tabs/notification_and_promotion_tab.dart';
 import 'package:c_talent/presentation/tabs/profile_tab.dart';
 import 'package:provider/provider.dart';
 
@@ -153,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen>
   final bodyTabs = [
     const NewsTab(),
     const InterestClassTab(),
-    const NotificationTab(),
+    const NotificationAndPromotionTab(),
     const ProfileTab()
   ];
 

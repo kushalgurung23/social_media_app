@@ -88,7 +88,7 @@ class PostTopBody extends StatelessWidget {
                       ),
                       onSelected: (value) {
                         if (value == AppLocalizations.of(context).report) {
-                          data.resetNewsPostReportOption();
+                          data.clearReportOptionData();
                           showReportNewsPostContainer(
                               newsPostFrom: newsPostFrom,
                               context: context,

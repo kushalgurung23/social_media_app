@@ -68,7 +68,7 @@ class ServicesRepo {
       if (servicesFilterType == ServicesFilterType.search &&
           searchKeyword != null) {
         url += "search=$searchKeyword&";
-      } else if (servicesFilterType == ServicesFilterType.category &&
+      } else if (servicesFilterType == ServicesFilterType.filter &&
           filterValue != null) {
         url += "category=$filterValue&";
       }

@@ -760,10 +760,15 @@ class NewsAdProvider extends ChangeNotifier {
     reportNewsPostOtherReason = newsPostReportOtherReason;
   }
 
-  void resetNewsPostReportOption() {
+  void clearReportOptionData() {
     reportNewsPostReasonType = null;
     reportNewsPostOtherReason = null;
     notifyListeners();
+  }
+
+  void resetNewsPostReportOption({required BuildContext context}) {
+    clearReportOptionData();
+    Navigator.of(context).pop();
   }
 
   Future<void> reportNewsPost(
@@ -797,7 +802,7 @@ class NewsAdProvider extends ChangeNotifier {
         EasyLoading.show(status: "Reporting..", dismissOnTap: false);
         String? currentUserId = mainScreenProvider.currentUserId;
         if (currentUserId == null) {
-          resetNewsPostReportOption();
+          clearReportOptionData();
           // translate
           EasyLoading.showInfo("Please login again.",
               dismissOnTap: false, duration: const Duration(seconds: 4));
@@ -819,7 +824,7 @@ class NewsAdProvider extends ChangeNotifier {
             bodyData: bodyData,
             jwt: mainScreenProvider.currentAccessToken.toString());
         if (response.statusCode == 200) {
-          resetNewsPostReportOption();
+          clearReportOptionData();
           if (_allNewsPosts != null && _allNewsPosts?.posts != null) {
             _allNewsPosts!.posts!
                 .removeWhere((post) => post.newsPost?.id.toString() == postId);
@@ -842,7 +847,7 @@ class NewsAdProvider extends ChangeNotifier {
               return reportNewsPost(
                   postId: postId, context: context, newsPostFrom: newsPostFrom);
             } else {
-              resetNewsPostReportOption();
+              clearReportOptionData();
               await Provider.of<DrawerProvider>(context, listen: false)
                   .logOut(context: context);
               return;

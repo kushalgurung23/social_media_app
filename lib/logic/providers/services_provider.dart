@@ -273,8 +273,6 @@ class ServicesProvider extends ChangeNotifier {
     ]);
   }
 
-  bool isFilterBtnClick = false;
-
   // CAROUSEL
   // current carousel image index
   int activeImageIndex = 0;
@@ -407,12 +405,25 @@ class ServicesProvider extends ChangeNotifier {
       if (toBeUpdatedService != null && toBeUpdatedService.service != null) {
         toBeUpdatedService.service!.isSaved = oneService.isSaved;
       }
-    } else if (serviceToggleType == ServiceToggleType.bookmarkService ||
-        serviceToggleType == ServiceToggleType.searchedServices) {
+    }
+    // IF TOGGLED IN BOOKMARK SCREEN, THEN CHANGE STATE IN SEARCH & FILTER (IF IN USE), RECOMMENDED AND ALL SERVICES
+    else if (serviceToggleType == ServiceToggleType.bookmarkService ||
+        serviceToggleType == ServiceToggleType.searchedAndFilteredServices) {
+      // REMOVE/RE-ADD UNSAVED BOOKMARK SERVICE FROM BOOKMARK SERVICE SCREEN
       if (serviceToggleType == ServiceToggleType.bookmarkService) {
-        // REMOVE UNSAVED BOOKMARK SERVICE FROM BOOKMARK SERVICE SCREEN
         Provider.of<BookmarkServicesProvider>(context, listen: false)
             .onBookmarkServiceToggleSuccess(oneService: oneService);
+        // IF SEARCH OR FILTER IS IN USE, UPDATE THEIR STATE FIRST
+        if (searchTxtController.text.trim() != '' || isFilterBtnClick == true) {
+          // CHANGING STATE IN ALL SERVICES
+          ServicePost? toBeUpdatedAllServices = _searchServices!.services!
+              .firstWhereOrNull(
+                  (foundService) => foundService.service?.id == oneService.id);
+          if (toBeUpdatedAllServices != null &&
+              toBeUpdatedAllServices.service != null) {
+            toBeUpdatedAllServices.service!.isSaved = oneService.isSaved;
+          }
+        }
       }
       // CHANGING STATE IN ALL SERVICES
       ServicePost? toBeUpdatedAllServices = _allServices!.services!
@@ -454,13 +465,16 @@ class ServicesProvider extends ChangeNotifier {
   // bool noRecord = false;
 
   Future searchNewServices(
-          {required String query,
+          {required ServicesFilterType servicesFilterType,
+          required String? query,
           required BuildContext context,
           required int debounceMilliSecond}) async =>
       debounce(() async {
         // translate
-        EasyLoading.show(status: 'Searching..', dismissOnTap: true);
         isSearchLoading = true;
+        EasyLoading.show(
+            status: AppLocalizations.of(context).loading, dismissOnTap: true);
+
         // value of search page will be initialized back to 1, because it can be incremented while loading more search data
         searchPage = 1;
 
@@ -468,21 +482,62 @@ class ServicesProvider extends ChangeNotifier {
         if (searchHasMore == false) {
           searchHasMore = true;
         }
-
+        // SEARCH
         // If there is no keyword in the search field, we won't call the server
-        if (searchTxtController.text.trim() == '' && query.trim() == '') {
-          EasyLoading.dismiss();
+        if (servicesFilterType == ServicesFilterType.search) {
+          // IF FILTER CATEGORY IS NOT NULL, THEN MAKE IT NULL
+          if (selectedCategory != null) {
+            selectedCategory = null;
+            notifyListeners();
+          }
+          if (isFilterBtnClick == true) {
+            isFilterBtnClick = false;
+            notifyListeners();
+          }
+          if (searchTxtController.text.trim() == '' && query?.trim() == '') {
+            // WHEN TEXTFIELD BECOMES EMPTY, REMOVED SEARCHED DATA
+            if (_searchServices?.services != null &&
+                _searchServices!.services!.isNotEmpty) {
+              _searchServices!.services!.clear();
+            }
+            EasyLoading.dismiss();
+            isSearchLoading = false;
+            notifyListeners();
+            return;
+          }
           notifyListeners();
-          return;
         }
-        notifyListeners();
+        // FILTER
+        else {
+          if (searchTxtController.text.trim() != '') {
+            searchTxtController.clear();
+            notifyListeners();
+          }
+          if (selectedCategory == null) {
+            // WHEN FILTER VALUE IS NULL, REMOVE ALL PREV DATA
+            if (_searchServices?.services != null &&
+                _searchServices!.services!.isNotEmpty) {
+              _searchServices!.services!.clear();
+            }
+            EasyLoading.dismiss();
+            isSearchLoading = false;
+            notifyListeners();
+            return;
+          }
+          notifyListeners();
+        }
         Response response = await ServicesRepo.searchServices(
             page: searchPage.toString(),
             pageSize: searchPageSize.toString(),
             accessToken: mainScreenProvider.currentAccessToken.toString(),
-            searchKeyword: query.trim(),
-            servicesFilterType: ServicesFilterType.search,
-            filterValue: null);
+            searchKeyword:
+                servicesFilterType == ServicesFilterType.search && query != null
+                    ? query.trim()
+                    : null,
+            servicesFilterType: servicesFilterType,
+            filterValue: servicesFilterType == ServicesFilterType.filter
+                ? selectedCategory
+                : null);
         // AFTER REFRESHING, isRefreshingSearch value will be set to false
         // WHEN TRUE, IT IS USED TO DISPLAY LOADING TEXT WIDGET
         if (isRefreshingSearch == true) {
@@ -505,6 +560,7 @@ class ServicesProvider extends ChangeNotifier {
             // If token is refreshed, re-call the method
             if (isTokenRefreshed == true && context.mounted) {
               return searchNewServices(
+                  servicesFilterType: servicesFilterType,
                   context: context,
                   query: query,
                   debounceMilliSecond: debounceMilliSecond);
@@ -525,23 +581,27 @@ class ServicesProvider extends ChangeNotifier {
       }, duration: Duration(milliseconds: debounceMilliSecond));
 
   // Loading more services when user reach maximum pageSize item of a page in listview
-  Future loadMoreSearchResults({required BuildContext context}) async {
-    if (searchHasMore == false) {
+  Future loadMoreSearchResults(
+      {required BuildContext context,
+      required ServicesFilterType servicesFilterType}) async {
+    // If there are no more data, or else we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
+    if (searchHasMore == false || isSearchLoading) {
       return;
     }
     searchPage++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (isSearchLoading) {
-      return;
-    }
+
     isSearchLoading = true;
     Response response = await ServicesRepo.searchServices(
         page: searchPage.toString(),
         pageSize: searchPageSize.toString(),
-        searchKeyword: searchTxtController.text.trim(),
         accessToken: mainScreenProvider.currentAccessToken.toString(),
-        servicesFilterType: ServicesFilterType.search,
-        filterValue: null);
+        searchKeyword: servicesFilterType == ServicesFilterType.search
+            ? searchTxtController.text.trim()
+            : null,
+        servicesFilterType: servicesFilterType,
+        filterValue: servicesFilterType == ServicesFilterType.filter
+            ? selectedCategory
+            : null);
     if (response.statusCode == 200) {
       final newSearchResults = allServicesFromJson(response.body);
 
@@ -571,7 +631,8 @@ class ServicesProvider extends ChangeNotifier {
 
         // If token is refreshed, re-call the method
         if (isTokenRefreshed == true && context.mounted) {
-          return loadMoreSearchResults(context: context);
+          return loadMoreSearchResults(
+              context: context, servicesFilterType: servicesFilterType);
         } else {
           await Provider.of<DrawerProvider>(context, listen: false)
               .logOut(context: context);
@@ -598,7 +659,9 @@ class ServicesProvider extends ChangeNotifier {
   }
 
   bool isRefreshingSearch = false;
-  Future refreshSearchedServices({required BuildContext context}) async {
+  Future refreshSearchedServices(
+      {required BuildContext context,
+      required ServicesFilterType servicesFilterType}) async {
     isRefreshingSearch = true;
     notifyListeners();
     isSearchLoading = false;
@@ -609,6 +672,7 @@ class ServicesProvider extends ChangeNotifier {
     }
 
     await searchNewServices(
+        servicesFilterType: servicesFilterType,
         query: searchTxtController.text.trim(),
         context: context,
         debounceMilliSecond: 0);
@@ -621,30 +685,6 @@ class ServicesProvider extends ChangeNotifier {
   AllServiceCategories? get allServiceCategories => _allServiceCategories;
 
   bool isCategoriesLoading = false;
-  String? selectedCategory;
-  bool isCategoriesFiltering = false;
-
-  void setFilterCategoryType(String? newValue) {
-    print('is it working');
-    print(newValue);
-    if (newValue == null) {
-      return;
-    }
-    selectedCategory = newValue.toString();
-    print(selectedCategory.toString() + " is new value");
-    notifyListeners();
-  }
-
-  void resetCategory({required BuildContext context}) {
-    print('reset');
-    selectedCategory = null;
-    notifyListeners();
-    Navigator.of(context).pop();
-  }
-
-  Future<void> filterServiceCategory({required BuildContext context}) async {
-    print('object');
-  }
 
   Future loadServiceCategories({required BuildContext context}) async {
     if (isCategoriesLoading) {
@@ -684,6 +724,54 @@ class ServicesProvider extends ChangeNotifier {
       isCategoriesLoading = false;
       notifyListeners();
       return false;
+    }
+  }
+
+  String? selectedCategory;
+
+  void setFilterCategoryType(String? newValue) {
+    if (newValue == null) {
+      return;
+    }
+    selectedCategory = newValue.toString();
+    notifyListeners();
+  }
+
+  void resetCategory({required BuildContext context}) {
+    selectedCategory = null;
+    isFilterBtnClick = false;
+    if (_searchServices?.services != null &&
+        _searchServices!.services!.isNotEmpty) {
+      _searchServices!.services!.clear();
+    }
+    notifyListeners();
+    Navigator.of(context).pop();
+  }
+
+  void closeCustomBottomModal({required BuildContext context}) {
+    Navigator.of(context).pop();
+    if (isFilterBtnClick == false) {
+      selectedCategory = null;
+      notifyListeners();
+    }
+  }
+
+  bool isFilterBtnClick = false;
+
+  Future<void> filterServiceCategory({required BuildContext context}) async {
+    if (selectedCategory == null) {
+      EasyLoading.showInfo('Please select a category',
+          duration: const Duration(seconds: 3), dismissOnTap: true);
+    } else {
+      searchNewServices(
+          servicesFilterType: ServicesFilterType.filter,
+          query: null,
+          context: context,
+          debounceMilliSecond: 0);
+
+      isFilterBtnClick = true;
+      notifyListeners();
+      Navigator.of(context).pop();
     }
   }
 

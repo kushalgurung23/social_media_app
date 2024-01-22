@@ -1,11 +1,10 @@
 // To parse this JSON data, do
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 AllServiceCategories allServiceCategoriesFromJson(String str) =>
     AllServiceCategories.fromJson(json.decode(str));
-
-String allServiceCategoriesToJson(AllServiceCategories data) =>
-    json.encode(data.toJson());
 
 class AllServiceCategories {
   final String? status;
@@ -24,13 +23,6 @@ class AllServiceCategories {
             : List<Category>.from(
                 json["categories"]!.map((x) => Category.fromJson(x))),
       );
-
-  Map<String, dynamic> toJson() => {
-        "status": status,
-        "categories": categories == null
-            ? []
-            : List<dynamic>.from(categories!.map((x) => x.toJson())),
-      };
 }
 
 class Category {
@@ -51,16 +43,9 @@ class Category {
         title: json["title"],
         createdAt: json["created_at"] == null
             ? null
-            : DateTime.parse(json["created_at"]),
+            : DateTime.parse(json["created_at"]).toLocal(),
         updatedAt: json["updated_at"] == null
             ? null
-            : DateTime.parse(json["updated_at"]),
+            : DateTime.parse(json["updated_at"]).toLocal(),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "title": title,
-        "created_at": createdAt?.toIso8601String(),
-        "updated_at": updatedAt?.toIso8601String(),
-      };
 }

@@ -26,7 +26,7 @@ class AllSocialIcons extends StatelessWidget {
         showFacebook == true
             ? Link(
                 target: LinkTarget.self,
-                uri: Uri.parse(facebookLink!),
+                uri: Uri.parse(facebookLink.toString()),
                 builder: ((context, followLink) => IconButton(
                     splashRadius: SizeConfig.defaultSize * 2.5,
                     constraints: const BoxConstraints(),
@@ -45,7 +45,7 @@ class AllSocialIcons extends StatelessWidget {
         showTwitter == true
             ? Link(
                 target: LinkTarget.self,
-                uri: Uri.parse(twitterLink!),
+                uri: Uri.parse(twitterLink.toString()),
                 builder: ((context, followLink) => IconButton(
                     splashRadius: SizeConfig.defaultSize * 2.5,
                     constraints: const BoxConstraints(),
@@ -64,7 +64,7 @@ class AllSocialIcons extends StatelessWidget {
         showInstagram == true
             ? Link(
                 target: LinkTarget.self,
-                uri: Uri.parse(instagramLink!),
+                uri: Uri.parse(instagramLink.toString()),
                 builder: ((context, followLink) => IconButton(
                     splashRadius: SizeConfig.defaultSize * 2.5,
                     constraints: const BoxConstraints(),

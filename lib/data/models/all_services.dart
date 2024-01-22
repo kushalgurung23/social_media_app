@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 AllServices allServicesFromJson(String str) =>
     AllServices.fromJson(json.decode(str));
 
@@ -113,11 +115,15 @@ class OneService {
         location: json["location"],
         createdAt: json["created_at"] == null
             ? null
-            : DateTime.parse(json["created_at"]),
-        mainImage: json["main_image"],
+            : DateFormat("yyyy-MM-dd HH:mm:ss")
+                .parse(json["created_at"], true)
+                .toLocal(),
         updatedAt: json["updated_at"] == null
             ? null
-            : DateTime.parse(json["updated_at"]),
+            : DateFormat("yyyy-MM-dd HH:mm:ss")
+                .parse(json["updated_at"], true)
+                .toLocal(),
+        mainImage: json["main_image"],
         description: json["description"],
         isRecommend: json["is_recommend"],
         phoneNumber: json["phone_number"],

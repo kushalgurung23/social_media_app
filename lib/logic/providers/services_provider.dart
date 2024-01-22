@@ -84,7 +84,6 @@ class ServicesProvider extends ChangeNotifier {
   // Loading more services when user reach maximum pageSize item of a page in listview
   Future loadMoreServices({required BuildContext context}) async {
     servicesPageNumber++;
-    print('more service called $servicesPageNumber');
     // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
     if (servicesIsLoading) {
       return;
@@ -133,7 +132,6 @@ class ServicesProvider extends ChangeNotifier {
   }
 
   Future refreshServices({required BuildContext context}) async {
-    print('refresh service called');
     servicesIsLoading = false;
     servicesHasMore = true;
     servicesPageNumber = 1;
@@ -155,7 +153,7 @@ class ServicesProvider extends ChangeNotifier {
   int recmdServicesPageSize = 10;
   // hasMore will be true until we have more data to fetch in the API
   bool recmdServicesHasMore = true;
-  // It will be true once we try to fetch more news post data.
+  // It will be true once we try to fetch more services
   bool recmdServicesIsLoading = false;
 
   // This method will be called to get services

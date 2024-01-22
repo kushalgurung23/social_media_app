@@ -9,6 +9,7 @@ import 'package:pinch_zoom_image_last/pinch_zoom_image_last.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/link.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 // ignore: depend_on_referenced_packages
 import '../../../data/constant/connection_url.dart';
 import '../../../data/constant/font_constant.dart';
@@ -364,35 +365,30 @@ class _ServiceDescriptionScreenState extends State<ServiceDescriptionScreen> {
                                                               .defaultSize *
                                                           1.45),
                                                 ),
-                                                Link(
-                                                  uri: Uri.parse(
-                                                      'tel: +852 ${widget.service.phoneNumber}'),
-                                                  builder:
-                                                      ((context, followLink) =>
-                                                          GestureDetector(
-                                                            onTap: followLink,
-                                                            child: Container(
-                                                              color: Colors
-                                                                  .transparent,
-                                                              child: Text(
-                                                                widget.service
-                                                                    .phoneNumber
-                                                                    .toString(),
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        SizeConfig.defaultSize *
-                                                                            1.45,
-                                                                    color: const Color(
-                                                                        0xFFA08875),
-                                                                    decoration:
-                                                                        TextDecoration
-                                                                            .underline,
-                                                                    fontFamily:
-                                                                        kHelveticaRegular),
-                                                              ),
-                                                            ),
-                                                          )),
-                                                )
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    await launchUrlString(
+                                                        'tel://+852${widget.service.phoneNumber}');
+                                                  },
+                                                  child: Container(
+                                                    color: Colors.transparent,
+                                                    child: Text(
+                                                      widget.service.phoneNumber
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: SizeConfig
+                                                                  .defaultSize *
+                                                              1.45,
+                                                          color: const Color(
+                                                              0xFFA08875),
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .underline,
+                                                          fontFamily:
+                                                              kHelveticaRegular),
+                                                    ),
+                                                  ),
+                                                ),
                                               ],
                                             ),
                                           ),

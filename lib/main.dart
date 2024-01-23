@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/bookmark_services_provider.dart';
 import 'package:c_talent/logic/providers/chat_message_provider.dart';
+import 'package:c_talent/logic/providers/profile_provider.dart';
 import 'package:c_talent/logic/providers/promotion_provider.dart';
 import 'package:c_talent/logic/providers/push_notification_provider.dart';
 import 'package:c_talent/logic/providers/permission_provider.dart';
@@ -152,7 +153,11 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(
             create: (context) => PromotionProvider(
                 mainScreenProvider:
-                    Provider.of<MainScreenProvider>(context, listen: false)))
+                    Provider.of<MainScreenProvider>(context, listen: false))),
+        ChangeNotifierProvider(
+            create: (context) => ProfileProvider(
+                mainScreenProvider:
+                    Provider.of<MainScreenProvider>(context, listen: false))),
       ],
       child: MaterialApp(
         builder: EasyLoading.init(),

@@ -1,5 +1,14 @@
+import 'package:c_talent/data/models/login_success.dart';
+import 'package:c_talent/data/models/user.dart';
 import 'package:c_talent/presentation/tabs/profile_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../../data/constant/font_constant.dart';
+import '../../logic/providers/profile_provider.dart';
+import '../components/profile/profile_top_container.dart';
+import '../components/profile/topic_follow_follower.dart';
+import '../helper/size_configuration.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({Key? key}) : super(key: key);
@@ -15,7 +24,82 @@ class _ProfileTabState extends State<ProfileTab>
     super.build(context);
     return Scaffold(
       appBar: profileAppBar(context: context),
-      body: const Text('Profile body'),
+      body: Consumer<ProfileProvider>(builder: (context, data, child) {
+        return StreamBuilder<LoginSuccess>(
+            initialData: data.mainScreenProvider.loginSuccess,
+            stream: data.mainScreenProvider.loginSuccessStreamController.stream,
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return Center(
+                    child: Text(
+                      AppLocalizations.of(context).loading,
+                      style: TextStyle(
+                          fontFamily: kHelveticaRegular,
+                          fontSize: SizeConfig.defaultSize * 1.5),
+                    ),
+                  );
+                case ConnectionState.done:
+                default:
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        AppLocalizations.of(context).refreshPage,
+                        style: TextStyle(
+                            fontFamily: kHelveticaRegular,
+                            fontSize: SizeConfig.defaultSize * 1.5),
+                      ),
+                    );
+                  } else if (!snapshot.hasData) {
+                    return Center(
+                      child: Text(
+                        AppLocalizations.of(context).dataCouldNotLoad,
+                        style: TextStyle(
+                            fontFamily: kHelveticaRegular,
+                            fontSize: SizeConfig.defaultSize * 1.5),
+                      ),
+                    );
+                  } else {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: SizeConfig.defaultSize * 2),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(
+                            parent: BouncingScrollPhysics()),
+                        child: Column(children: [
+                          SizedBox(height: SizeConfig.defaultSize * 2),
+                          // Top Container
+                          const ProfileTopContainer(),
+                          SizedBox(
+                            height: SizeConfig.defaultSize * 2.5,
+                          ),
+                          const TopicFollowFollower(isOtherUser: false),
+                          SizedBox(
+                            height: SizeConfig.defaultSize * 2.5,
+                          ),
+                          // // My Topic
+                          // MyTopic(createdPost: snapshot.data!.createdPost),
+                          // SizedBox(
+                          //   height: SizeConfig.defaultSize * 2.5,
+                          // ),
+                          // // Bookmarked Topic
+                          // BookmarkedTopic(
+                          //     bookMarkedTopic: snapshot.data!.newsPostSaves),
+                          // SizedBox(
+                          //   height: SizeConfig.defaultSize * 2.5,
+                          // ),
+                          // // Following
+                          // FollowingContainer(
+                          //   userId: snapshot.data!.id.toString(),
+                          // ),
+                          SizedBox(height: SizeConfig.defaultSize * 5)
+                        ]),
+                      ),
+                    );
+                  }
+              }
+            });
+      }),
     );
   }
 

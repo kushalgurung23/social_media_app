@@ -215,10 +215,16 @@ class _NewsLikedScreenState extends State<NewsLikedScreen> {
                                         ),
                                       ),
                                       //  button
-                                      likedBy.id ==
-                                              int.parse(data.mainScreenProvider
-                                                  .currentUserId
-                                                  .toString())
+                                      data.mainScreenProvider.loginSuccess
+                                                      .user !=
+                                                  null &&
+                                              likedBy.id ==
+                                                  int.parse(data
+                                                      .mainScreenProvider
+                                                      .loginSuccess
+                                                      .user!
+                                                      .id
+                                                      .toString())
                                           ? const SizedBox()
                                           : RectangularButton(
                                               textPadding: EdgeInsets.symmetric(

@@ -14,6 +14,7 @@ class LikedAvatars extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<MainScreenProvider>(builder: (context, data, child) {
+      final String? loggedInUserId = data.loginSuccess.user?.id.toString();
       List<Like?>? likes = newsPost.likes?.reversed.toList();
       if (likes == null || likes.isEmpty) {
         return const SizedBox();
@@ -35,7 +36,7 @@ class LikedAvatars extends StatelessWidget {
         String? secondProfilePicture;
         // IF CURRENT USER HAS LIKED POST, SHOW THIER PICTURE AT THE LAST
         if (isLike) {
-          if (likes[0]?.likedBy?.id.toString() == data.currentUserId) {
+          if (likes[0]?.likedBy?.id.toString() == loggedInUserId) {
             firstProfilePicture = likes[1]?.likedBy?.profilePicture;
             secondProfilePicture = likes[0]?.likedBy?.profilePicture;
           } else {
@@ -81,11 +82,11 @@ class LikedAvatars extends StatelessWidget {
         String? thirdProfilePicture;
 
         if (isLike) {
-          if (likes[0]?.likedBy?.id.toString() == data.currentUserId) {
+          if (likes[0]?.likedBy?.id.toString() == loggedInUserId) {
             firstProfilePicture = likes[1]?.likedBy?.profilePicture;
             secondProfilePicture = likes[2]?.likedBy?.profilePicture;
             thirdProfilePicture = likes[0]?.likedBy?.profilePicture;
-          } else if (likes[1]?.likedBy?.id.toString() == data.currentUserId) {
+          } else if (likes[1]?.likedBy?.id.toString() == loggedInUserId) {
             firstProfilePicture = likes[0]?.likedBy?.profilePicture;
             secondProfilePicture = likes[2]?.likedBy?.profilePicture;
             thirdProfilePicture = likes[1]?.likedBy?.profilePicture;
@@ -153,11 +154,11 @@ class LikedAvatars extends StatelessWidget {
         if (likes.length == 4) {
           if (isLike == true) {
             // We will start from 1 index instead of 0, because item in 0 index is the oldest after reversing the list at the top.
-            if (likes[1]?.likedBy?.id.toString() == data.currentUserId) {
+            if (likes[1]?.likedBy?.id.toString() == loggedInUserId) {
               firstProfilePicture = likes[2]?.likedBy?.profilePicture;
               secondProfilePicture = likes[3]?.likedBy?.profilePicture;
               thirdProfilePicture = likes[1]?.likedBy?.profilePicture;
-            } else if (likes[2]?.likedBy?.id.toString() == data.currentUserId) {
+            } else if (likes[2]?.likedBy?.id.toString() == loggedInUserId) {
               firstProfilePicture = likes[1]?.likedBy?.profilePicture;
               secondProfilePicture = likes[3]?.likedBy?.profilePicture;
               thirdProfilePicture = likes[2]?.likedBy?.profilePicture;
@@ -176,11 +177,11 @@ class LikedAvatars extends StatelessWidget {
         else {
           if (isLike == true) {
             // We will start from 2 index instead of 0, because item in 0 index is the oldest after reversing the list at the top.
-            if (likes[2]?.likedBy?.id.toString() == data.currentUserId) {
+            if (likes[2]?.likedBy?.id.toString() == loggedInUserId) {
               firstProfilePicture = likes[3]?.likedBy?.profilePicture;
               secondProfilePicture = likes[4]?.likedBy?.profilePicture;
               thirdProfilePicture = likes[2]?.likedBy?.profilePicture;
-            } else if (likes[3]?.likedBy?.id.toString() == data.currentUserId) {
+            } else if (likes[3]?.likedBy?.id.toString() == loggedInUserId) {
               firstProfilePicture = likes[2]?.likedBy?.profilePicture;
               secondProfilePicture = likes[4]?.likedBy?.profilePicture;
               thirdProfilePicture = likes[3]?.likedBy?.profilePicture;

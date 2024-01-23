@@ -42,7 +42,7 @@ class ServicesProvider extends ChangeNotifier {
     try {
       print('initial service called');
       Response response = await ServicesRepo.getAllServices(
-          accessToken: mainScreenProvider.currentAccessToken.toString(),
+          accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
           page: servicesPageNumber.toString(),
           pageSize: servicesPageSize.toString(),
           isRecommendedServices: false);
@@ -90,7 +90,7 @@ class ServicesProvider extends ChangeNotifier {
     }
     servicesIsLoading = true;
     Response response = await ServicesRepo.getAllServices(
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
         page: servicesPageNumber.toString(),
         pageSize: servicesPageSize.toString(),
         isRecommendedServices: false);
@@ -161,7 +161,7 @@ class ServicesProvider extends ChangeNotifier {
     try {
       print('recommend service called');
       Response response = await ServicesRepo.getAllServices(
-          accessToken: mainScreenProvider.currentAccessToken.toString(),
+          accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
           page: recmdServicesPageNumber.toString(),
           pageSize: recmdServicesPageSize.toString(),
           isRecommendedServices: true);
@@ -210,7 +210,7 @@ class ServicesProvider extends ChangeNotifier {
     }
     recmdServicesIsLoading = true;
     Response response = await ServicesRepo.getAllServices(
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
         page: recmdServicesPageNumber.toString(),
         pageSize: recmdServicesPageSize.toString(),
         isRecommendedServices: true);
@@ -332,7 +332,7 @@ class ServicesProvider extends ChangeNotifier {
         notifyListeners();
 
         Response response = await ServicesRepo.toggleServiceSave(
-            accessToken: mainScreenProvider.currentAccessToken.toString(),
+            accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
             serviceId: oneService.id.toString());
 
         if (response.statusCode == 200 && context.mounted) {
@@ -527,7 +527,7 @@ class ServicesProvider extends ChangeNotifier {
         Response response = await ServicesRepo.searchServices(
             page: searchPage.toString(),
             pageSize: searchPageSize.toString(),
-            accessToken: mainScreenProvider.currentAccessToken.toString(),
+            accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
             searchKeyword:
                 servicesFilterType == ServicesFilterType.search && query != null
                     ? query.trim()
@@ -592,7 +592,7 @@ class ServicesProvider extends ChangeNotifier {
     Response response = await ServicesRepo.searchServices(
         page: searchPage.toString(),
         pageSize: searchPageSize.toString(),
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
         searchKeyword: servicesFilterType == ServicesFilterType.search
             ? searchTxtController.text.trim()
             : null,
@@ -690,7 +690,8 @@ class ServicesProvider extends ChangeNotifier {
     }
     isCategoriesLoading = true;
     Response response = await ServicesRepo.getServicesCategories(
-        accessToken: mainScreenProvider.currentAccessToken.toString());
+      accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
+    );
     if (response.statusCode == 200) {
       final servicesCategories = allServiceCategoriesFromJson(response.body);
 

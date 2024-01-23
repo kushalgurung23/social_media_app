@@ -84,7 +84,7 @@ class NewsAdProvider extends ChangeNotifier {
       required StreamController<AllNewsPosts> allNewsPostController}) async {
     try {
       Response response = await NewsPostRepo.getAllNewsPosts(
-          accessToken: mainScreenProvider.currentAccessToken.toString(),
+          accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
           page: newsPostPageNumber.toString(),
           pageSize: newsPostPageSize.toString());
       if (response.statusCode == 200) {
@@ -135,7 +135,7 @@ class NewsAdProvider extends ChangeNotifier {
     }
     newsPostIsLoading = true;
     Response response = await NewsPostRepo.getAllNewsPosts(
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
         page: newsPostPageNumber.toString(),
         pageSize: newsPostPageSize.toString());
     if (response.statusCode == 200) {
@@ -186,7 +186,7 @@ class NewsAdProvider extends ChangeNotifier {
       required NewsPost newsPost,
       required BuildContext context}) async {
     Response response = await NewsCommentRepo.getAllNewsComments(
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
         page: commentsPageNumber.toString(),
         pageSize: commentsPageSize.toString(),
         newsPostId: newsPost.id.toString());
@@ -242,7 +242,7 @@ class NewsAdProvider extends ChangeNotifier {
     isLoadingComments = true;
 
     Response response = await NewsCommentRepo.getAllNewsComments(
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
         page: commentsPageNumber.toString(),
         pageSize: commentsPageSize.toString(),
         newsPostId: newsPost.id.toString());
@@ -334,7 +334,7 @@ class NewsAdProvider extends ChangeNotifier {
       required int newsPostId,
       required BuildContext context}) async {
     Response response = await NewsLikesRepo.getAllNewsLikes(
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
         page: likesPageNumber.toString(),
         pageSize: likesPageSize.toString(),
         newsPostId: newsPostId.toString());
@@ -385,7 +385,7 @@ class NewsAdProvider extends ChangeNotifier {
     isLoadingLikes = true;
 
     Response response = await NewsLikesRepo.getAllNewsLikes(
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
         page: likesPageNumber.toString(),
         pageSize: likesPageSize.toString(),
         newsPostId: newsPostId.toString());
@@ -477,7 +477,7 @@ class NewsAdProvider extends ChangeNotifier {
         }
         notifyListeners();
         Response response = await NewsSaveRepo.toggleNewsPostSave(
-            jwt: mainScreenProvider.currentAccessToken.toString(),
+            jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
             bodyData:
                 jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
 
@@ -548,21 +548,20 @@ class NewsAdProvider extends ChangeNotifier {
         }
         notifyListeners();
         Response response = await NewsLikesRepo.toggleNewsPostLike(
-            jwt: mainScreenProvider.currentAccessToken.toString(),
+            jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
             bodyData:
                 jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
         // SUCCESSFUL
         if (response.statusCode == 200 && context.mounted) {
+          final loggedInUser = mainScreenProvider.loginSuccess.user;
           // SHOW PROFILE IMAGE AVATAR
-          if (newsPost.isLiked == 1) {
+          if (newsPost.isLiked == 1 && loggedInUser != null) {
             newsPost.likes?.insert(
                 0,
                 Like(
                     likedBy: By(
-                        id: int.tryParse(
-                            mainScreenProvider.currentUserId.toString()),
-                        profilePicture:
-                            mainScreenProvider.currentProfilePicture)));
+                        id: int.tryParse(loggedInUser.id.toString()),
+                        profilePicture: loggedInUser.profilePicture)));
             if (newsPost.likesCount != null) {
               newsPost.likesCount = newsPost.likesCount! + 1;
             }
@@ -571,7 +570,7 @@ class NewsAdProvider extends ChangeNotifier {
           else {
             newsPost.likes?.removeWhere((element) =>
                 element.likedBy?.id ==
-                int.tryParse(mainScreenProvider.currentUserId.toString()));
+                int.tryParse(loggedInUser?.id.toString() ?? '0'));
             if (newsPost.likesCount != null) {
               newsPost.likesCount = newsPost.likesCount! - 1;
             }
@@ -650,7 +649,7 @@ class NewsAdProvider extends ChangeNotifier {
         }
         notifyListeners();
         Response response = await NewsCommentRepo.writeNewsComment(
-            jwt: mainScreenProvider.currentAccessToken.toString(),
+            jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
             bodyData: jsonEncode({
               "post_id": int.parse(newsPost.id.toString()),
               "comment": commentTextController.text,
@@ -700,6 +699,10 @@ class NewsAdProvider extends ChangeNotifier {
       {required List<NewsComment>? newsComments,
       required DateTime currentLocalDateTime,
       required TextEditingController commentTextController}) {
+    final loggedInUser = mainScreenProvider.loginSuccess.user;
+    if (loggedInUser == null) {
+      return;
+    }
     newsComments?.insert(
         0,
         NewsComment(
@@ -707,9 +710,9 @@ class NewsAdProvider extends ChangeNotifier {
             updatedAt: currentLocalDateTime,
             comment: commentTextController.text,
             commentBy: By(
-                id: int.tryParse(mainScreenProvider.currentUserId.toString()),
-                profilePicture: mainScreenProvider.currentProfilePicture,
-                username: mainScreenProvider.currentUsername)));
+                id: int.tryParse(loggedInUser.id.toString()),
+                profilePicture: loggedInUser.profilePicture,
+                username: loggedInUser.username)));
   }
 
   // New news post validation
@@ -800,7 +803,8 @@ class NewsAdProvider extends ChangeNotifier {
         }
         // translate
         EasyLoading.show(status: "Reporting..", dismissOnTap: false);
-        String? currentUserId = mainScreenProvider.currentUserId;
+        String? currentUserId =
+            mainScreenProvider.loginSuccess.user?.id.toString();
         if (currentUserId == null) {
           clearReportOptionData();
           // translate
@@ -822,7 +826,7 @@ class NewsAdProvider extends ChangeNotifier {
         String bodyData = jsonEncode(body);
         Response response = await NewsPostRepo.reportNewsPost(
             bodyData: bodyData,
-            jwt: mainScreenProvider.currentAccessToken.toString());
+            jwt: mainScreenProvider.loginSuccess.accessToken.toString());
         if (response.statusCode == 200) {
           clearReportOptionData();
           if (_allNewsPosts != null && _allNewsPosts?.posts != null) {
@@ -984,7 +988,7 @@ class NewsAdProvider extends ChangeNotifier {
     final streamedResponse = await NewsPostRepo.createNewPostWithoutImage(
         title: titleTextController.text,
         content: contentTextController.text,
-        accessJWT: mainScreenProvider.currentAccessToken.toString());
+        accessJWT: mainScreenProvider.loginSuccess.accessToken.toString());
     Response createResponse = await Response.fromStream(streamedResponse);
     return createResponse;
   }
@@ -999,7 +1003,7 @@ class NewsAdProvider extends ChangeNotifier {
         imageList: compressedPostImages,
         title: titleTextController.text,
         content: contentTextController.text,
-        accessJWT: mainScreenProvider.currentAccessToken.toString());
+        accessJWT: mainScreenProvider.loginSuccess.accessToken.toString());
     Response createResponse = await Response.fromStream(streamedResponse);
     return createResponse;
   }

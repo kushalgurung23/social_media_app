@@ -6,6 +6,7 @@ import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/data/service/user_secure_storage.dart';
 import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/bottom_nav_provider.dart';
+import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/main.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/views/hamburger_menu_items/home_screen.dart';
@@ -15,41 +16,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
+
+import '../../data/models/login_success.dart';
+import '../../data/repositories/users/user_repo.dart';
 
 class MainScreenProvider extends ChangeNotifier {
-  String? currentUserId,
-      currentAccessToken,
-      currentProfilePicture,
-      currentUsername;
+  // String? currentUserId,
+  //     currentAccessToken,
+  //     currentProfilePicture,
+  //     currentUsername;
   bool? isKeepUserLoggedIn;
 
+  // THIS OBJECT WILL STORE LOGGED IN USER DETAILS
+  late LoginSuccess _loginSuccess;
+  LoginSuccess get loginSuccess => _loginSuccess;
+
+  StreamController<LoginSuccess> loginSuccessStreamController =
+      BehaviorSubject<LoginSuccess>();
+
   void saveUserLoginDetails(
-      {required String currentUserId,
-      required String currentAccessToken,
-      required String? currentProfilePicture,
-      required bool isKeepUserLoggedIn,
-      required String username}) {
-    this.currentUserId = currentUserId;
-    this.currentAccessToken = currentAccessToken;
-    this.currentProfilePicture = currentProfilePicture;
+      {required LoginSuccess loginSuccess, required bool isKeepUserLoggedIn}) {
     this.isKeepUserLoggedIn = isKeepUserLoggedIn;
-    currentUsername = username;
+    _loginSuccess = loginSuccess;
+    // this.currentUserId = currentUserId;
+    // this.currentAccessToken = currentAccessToken;
+    // this.currentProfilePicture = currentProfilePicture;
+    // currentUsername = username;
   }
 
   void setNewAccessToken({required String newAccessToken}) {
-    currentAccessToken = newAccessToken;
+    // currentAccessToken = newAccessToken;
+    _loginSuccess.accessToken = newAccessToken;
   }
 
   void removeUserLoginDetails() {
-    currentUserId = null;
-    currentAccessToken = null;
     isKeepUserLoggedIn = null;
-    currentProfilePicture = null;
-    currentUsername = null;
+    _loginSuccess = LoginSuccess();
+    // currentUserId = null;
+    // currentAccessToken = null;
+    // currentProfilePicture = null;
+    // currentUsername = null;
   }
 
   void initial() async {
@@ -65,24 +77,22 @@ class MainScreenProvider extends ChangeNotifier {
             .setCanRefreshToken(canRefreshingToken: true);
       }
       if (isLogin) {
-        currentUserId = await UserSecureStorage.getSecuredUserId() ?? '';
-        currentAccessToken =
-            await UserSecureStorage.getSecuredAccessToken() ?? '';
         isKeepUserLoggedIn = isLogin;
-        currentProfilePicture =
-            await UserSecureStorage.getSecuredProfilePicture();
-        currentUsername = await UserSecureStorage.getSecuredUsername();
+        // currentUserId = await UserSecureStorage.getSecuredUserId() ?? '';
+        // currentProfilePicture =
+        //     await UserSecureStorage.getSecuredProfilePicture();
+        // currentUsername = await UserSecureStorage.getSecuredUsername();
 
         // the following two sharedPreferences are set to false, because if it is true notification badge won't be popped
         if (navigatorKey.currentContext != null) {
-          print(await UserSecureStorage.getSecuredAccessToken());
-          print(await UserSecureStorage.getSecuredRefreshToken());
+          await getMyDetails();
           Provider.of<BottomNavProvider>(navigatorKey.currentContext!,
                   listen: false)
               .setBottomIndex(index: 0, context: navigatorKey.currentContext!);
           navigatorKey.currentState?.pushReplacementNamed(HomeScreen.id);
         }
       } else {
+        removeUserLoginDetails();
         navigatorKey.currentState?.pushReplacementNamed(LoginScreen.id);
       }
       notifyListeners();
@@ -97,6 +107,43 @@ class MainScreenProvider extends ChangeNotifier {
           "Sorry, an error occurred. Please restart the application.\nError: $e",
           dismissOnTap: false,
           duration: const Duration(seconds: 10));
+    }
+  }
+
+  Future<void> getMyDetails() async {
+    String accessToken = await UserSecureStorage.getSecuredAccessToken() ?? '';
+    Response response = await UserRepo.loadMyDetails(jwt: accessToken);
+    if (response.statusCode == 200) {
+      _loginSuccess = loginSuccessFromJson(response.body);
+      loginSuccessStreamController.sink.add(_loginSuccess);
+      // THIS API DOES NOT RETURN ACCESS TOKEN
+      _loginSuccess.accessToken = accessToken;
+      notifyListeners();
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
+      if (navigatorKey.currentContext != null &&
+          navigatorKey.currentContext!.mounted) {
+        bool isTokenRefreshed = await Provider.of<AuthProvider>(
+                navigatorKey.currentContext!,
+                listen: false)
+            .refreshAccessToken(context: navigatorKey.currentContext!);
+        // If token is refreshed, re-call the method
+        if (isTokenRefreshed == true) {
+          return getMyDetails();
+        } else {
+          await Provider.of<DrawerProvider>(navigatorKey.currentContext!,
+                  listen: false)
+              .logOut(context: navigatorKey.currentContext!);
+          return;
+        }
+      }
+    } else {
+      if (navigatorKey.currentContext != null &&
+          navigatorKey.currentContext!.mounted) {
+        // translate
+        EasyLoading.showInfo('Please restart the application',
+            dismissOnTap: false, duration: const Duration(seconds: 15));
+      }
+      return;
     }
   }
 

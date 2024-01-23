@@ -41,7 +41,7 @@ class ChatMessageProvider extends ChangeNotifier {
           allConversationsController}) async {
     try {
       Response response = await ChatConversationRepo.getAllChatConversation(
-          accessToken: mainScreenProvider.currentAccessToken.toString(),
+          accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
           page: conversationPageNumber.toString(),
           pageSize: conversationPageSize.toString());
       if (response.statusCode == 200) {
@@ -94,7 +94,7 @@ class ChatMessageProvider extends ChangeNotifier {
     }
     conversationIsLoading = true;
     Response response = await ChatConversationRepo.getAllChatConversation(
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
         page: conversationPageNumber.toString(),
         pageSize: conversationPageSize.toString());
     if (response.statusCode == 200) {
@@ -175,7 +175,7 @@ class ChatMessageProvider extends ChangeNotifier {
       required String conversationId}) async {
     try {
       Response response = await ChatConversationRepo.getOneChatConversation(
-          accessToken: mainScreenProvider.currentAccessToken.toString(),
+          accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
           conversationId: conversationId,
           page: chatPageNumber.toString(),
           pageSize: chatPageSize.toString());
@@ -234,7 +234,7 @@ class ChatMessageProvider extends ChangeNotifier {
     chatIsLoading = true;
     Response response = await ChatConversationRepo.getOneChatConversation(
         conversationId: conversationId,
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
         page: chatPageNumber.toString(),
         pageSize: chatPageSize.toString());
     if (response.statusCode == 200) {

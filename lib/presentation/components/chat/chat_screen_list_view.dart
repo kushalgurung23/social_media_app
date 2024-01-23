@@ -159,7 +159,9 @@ class _ChatScreenListViewState extends State<ChatScreenListView> {
                                   final ConversationUser? receiver =
                                       oneMessage.receiver;
                                   bool amISender = sender?.id.toString() ==
-                                          data.mainScreenProvider.currentUserId
+                                          data.mainScreenProvider.loginSuccess
+                                              .user?.id
+                                              .toString()
                                       ? true
                                       : false;
                                   return sender == null || receiver == null

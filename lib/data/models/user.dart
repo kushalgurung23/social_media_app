@@ -39,21 +39,26 @@ class UserObject {
   DateTime? verifiedOn;
   List<DeviceToken>? deviceToken;
   String? profilePicture;
+  int? createdPostsCount;
+  int? followerCount;
+  int? followingCount;
 
-  UserObject({
-    this.id,
-    this.email,
-    this.password,
-    this.username,
-    this.isActive,
-    this.userType,
-    this.createdAt,
-    this.updatedAt,
-    this.isVerified,
-    this.verifiedOn,
-    this.deviceToken,
-    this.profilePicture,
-  });
+  UserObject(
+      {this.id,
+      this.email,
+      this.password,
+      this.username,
+      this.isActive,
+      this.userType,
+      this.createdAt,
+      this.updatedAt,
+      this.isVerified,
+      this.verifiedOn,
+      this.deviceToken,
+      this.profilePicture,
+      this.createdPostsCount,
+      this.followerCount,
+      this.followingCount});
 
   factory UserObject.fromJson(Map<String, dynamic> json) => UserObject(
         id: json["id"],
@@ -83,6 +88,9 @@ class UserObject {
             : List<DeviceToken>.from(
                 json["device_token"]!.map((x) => DeviceToken.fromJson(x))),
         profilePicture: json["profile_picture"],
+        createdPostsCount: json["created_posts_count"],
+        followerCount: json["follower_count"],
+        followingCount: json["following_count"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -100,6 +108,9 @@ class UserObject {
             ? []
             : List<dynamic>.from(deviceToken!.map((x) => x.toJson())),
         "profile_picture": profilePicture,
+        "created_posts_count": createdPostsCount,
+        "follower_count": followerCount,
+        "following_count": followingCount
       };
 }
 

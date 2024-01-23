@@ -102,12 +102,7 @@ class LoginScreenProvider extends ChangeNotifier {
 
         if (context.mounted) {
           await saveUserCredentials(
-              profilePicture: loginSuccess.user?.profilePicture,
-              userId: loginSuccess.user!.id.toString(),
-              username: loginSuccess.user!.username.toString(),
-              refreshToken: loginSuccess.refreshToken.toString(),
-              accessToken: loginSuccess.accessToken.toString(),
-              context: context);
+              loginSuccess: loginSuccess, context: context);
         }
         EasyLoading.dismiss();
         if (context.mounted) {
@@ -147,30 +142,20 @@ class LoginScreenProvider extends ChangeNotifier {
   }
 
   Future<void> saveUserCredentials(
-      {required String userId,
-      required String username,
-      required String refreshToken,
-      required String accessToken,
-      required String? profilePicture,
+      {required LoginSuccess loginSuccess,
       required BuildContext context}) async {
     mainScreenProvider.saveUserLoginDetails(
-        currentProfilePicture: profilePicture,
-        currentUserId: userId,
-        username: username,
-        currentAccessToken: accessToken,
-        isKeepUserLoggedIn: isKeepUserLoggedIn);
+        loginSuccess: loginSuccess, isKeepUserLoggedIn: isKeepUserLoggedIn);
     clearLoginInput();
     hidePassword();
     // THIS WILL ALLOW USER TO REFRESH ACCESS TOKEN WHEN THEY RE-LOGIN
     Provider.of<AuthProvider>(context, listen: false)
         .setCanRefreshToken(canRefreshingToken: true);
-    if (isKeepUserLoggedIn) {
+    if (isKeepUserLoggedIn && loginSuccess.user != null) {
       await UserSecureStorage.secureAndSaveUserDetails(
-          profilePicture: profilePicture,
-          userId: userId,
-          currentUsername: username,
-          refreshToken: refreshToken,
-          accessToken: accessToken,
+          userId: loginSuccess.user!.id.toString(),
+          refreshToken: loginSuccess.refreshToken.toString(),
+          accessToken: loginSuccess.accessToken.toString(),
           isKeepUserLoggedIn: isKeepUserLoggedIn);
     } else {
       await UserSecureStorage.removeSecuredUserDetails();

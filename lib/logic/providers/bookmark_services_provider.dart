@@ -33,7 +33,7 @@ class BookmarkServicesProvider extends ChangeNotifier {
   Future<void> loadBookmarkedServices({required BuildContext context}) async {
     try {
       Response response = await ServicesRepo.getSavedServices(
-          accessToken: mainScreenProvider.currentAccessToken.toString(),
+          accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
           page: bookmarkedServicesPageNumber.toString(),
           pageSize: bookmarkedServicesPageSize.toString());
       if (response.statusCode == 200) {
@@ -80,7 +80,7 @@ class BookmarkServicesProvider extends ChangeNotifier {
     }
     bookmarkedServicesIsLoading = true;
     Response response = await ServicesRepo.getSavedServices(
-        accessToken: mainScreenProvider.currentAccessToken.toString(),
+        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
         page: bookmarkedServicesPageNumber.toString(),
         pageSize: bookmarkedServicesPageSize.toString());
     if (response.statusCode == 200) {

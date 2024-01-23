@@ -121,10 +121,13 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
                                         focusNode.requestFocus();
                                       },
                                       postedByOnPress: () {
-                                        if (postedBy.id != null) {
+                                        if (postedBy.id != null &&
+                                            data.mainScreenProvider.loginSuccess
+                                                    .user !=
+                                                null) {
                                           if (postedBy.id !=
                                               int.parse(data.mainScreenProvider
-                                                  .currentUserId
+                                                  .loginSuccess.user!.id
                                                   .toString())) {
                                             // Navigator.push(
                                             //     context,

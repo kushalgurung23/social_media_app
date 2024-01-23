@@ -38,8 +38,10 @@ class SocketIoProvider extends ChangeNotifier {
         Provider.of<ChatMessageProvider>(context, listen: false);
     socket!.onConnect((data) {
       // Add socket user in socketio
-      print("LOGGED IN CURRENT USER ID ${mainScreenProvider.currentUserId}");
-      socket!.emit("addUser", mainScreenProvider.currentUserId);
+      print(
+          "LOGGED IN CURRENT USER ID ${mainScreenProvider.loginSuccess.user?.id}");
+      socket!
+          .emit("addUser", mainScreenProvider.loginSuccess.user?.id.toString());
 
       // Online users
       socket!.on("getUsers", (data) => {});
@@ -155,12 +157,12 @@ class SocketIoProvider extends ChangeNotifier {
       }
       print("DEVICE TOKENS $otherUserDeviceToken");
       socket!.emit('sendMessage', {
-        'sender': mainScreenProvider.currentUserId.toString(),
+        'sender': mainScreenProvider.loginSuccess.user?.id.toString(),
         'receiver': receiverUserId,
         'text': messageTextController.text,
         'has_receiver_seen': false,
         'conversation_id': conversationId,
-        'access_token': mainScreenProvider.currentAccessToken.toString(),
+        'access_token': mainScreenProvider.loginSuccess.accessToken.toString(),
         'sent_at_utc': DateTime.now().toUtc().toString()
       });
 

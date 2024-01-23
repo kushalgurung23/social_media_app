@@ -75,7 +75,7 @@ class PushNotificationProvider extends ChangeNotifier {
       {required BuildContext context}) async {
     try {
       Response response = await PushNotificationRepo.loadPushNotification(
-          jwt: mainScreenProvider.currentAccessToken.toString(),
+          jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
           pageNumber: pushNotificationPageNumber.toString(),
           pageSize: pushNotificationPageSize.toString());
 // AFTER REFRESHING, isRefreshingNotification value will be set to false
@@ -127,7 +127,7 @@ class PushNotificationProvider extends ChangeNotifier {
     }
     pushNotificationIsLoading = true;
     Response response = await PushNotificationRepo.loadPushNotification(
-        jwt: mainScreenProvider.currentAccessToken.toString(),
+        jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
         pageNumber: pushNotificationPageNumber.toString(),
         pageSize: pushNotificationPageSize.toString());
     if (response.statusCode == 200) {
@@ -215,7 +215,7 @@ class PushNotificationProvider extends ChangeNotifier {
         }
         notifyListeners();
         Response response = await PushNotificationRepo.readPushNotification(
-            jwt: mainScreenProvider.currentAccessToken.toString(),
+            jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
             notificationId: pushNotification.id.toString());
 
         if (response.statusCode == 200 && context.mounted) {

@@ -109,7 +109,9 @@ class _ChatRoomListViewState extends State<ChatRoomListView> {
                                               ?.sender
                                               ?.id
                                               .toString() ==
-                                          data.mainScreenProvider.currentUserId
+                                          data.mainScreenProvider.loginSuccess
+                                              .user?.id
+                                              .toString()
                                       ? true
                                       : false;
                                   final ChatMessage? currentChatMessage =

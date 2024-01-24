@@ -1,12 +1,14 @@
 import 'dart:async';
+
 import 'package:c_talent/data/repositories/promotions/promotion_repo.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import '../../data/models/all_promotions.dart';
 import 'auth_provider.dart';
 import 'drawer_provider.dart';
@@ -139,5 +141,11 @@ class PromotionProvider extends ChangeNotifier {
     await loadInitialPromotions(context: context);
     isRefreshingPromotions = false;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    allPromotionsStreamController.close();
+    super.dispose();
   }
 }

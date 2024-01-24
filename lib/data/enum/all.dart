@@ -17,3 +17,5 @@ enum ServiceToggleType {
 }
 
 enum ServicesFilterType { search, filter }
+
+enum ProfileTopicType { myTopic, bookmarkTopic }

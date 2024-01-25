@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../data/constant/font_constant.dart';
-import '../../../logic/providers/profile_provider.dart';
+import '../../../logic/providers/profile_news_provider.dart';
 import '../../helper/size_configuration.dart';
 
 class MyTopic extends StatefulWidget {
@@ -18,7 +18,7 @@ class MyTopic extends StatefulWidget {
 class _MyTopicState extends State<MyTopic> {
   @override
   void initState() {
-    Provider.of<ProfileProvider>(context, listen: false)
+    Provider.of<ProfileNewsProvider>(context, listen: false)
         .loadMyInitialProfileNews(context: context);
     super.initState();
   }
@@ -27,7 +27,7 @@ class _MyTopicState extends State<MyTopic> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProfileProvider>(builder: (context, data, child) {
+    return Consumer<ProfileNewsProvider>(builder: (context, data, child) {
       return Container(
         key: lastTopicKey,
         margin: const EdgeInsets.symmetric(horizontal: 1),

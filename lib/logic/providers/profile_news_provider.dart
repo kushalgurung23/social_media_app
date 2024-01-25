@@ -11,10 +11,10 @@ import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
-class ProfileProvider extends ChangeNotifier {
+class ProfileNewsProvider extends ChangeNotifier {
   late final MainScreenProvider mainScreenProvider;
 
-  ProfileProvider({required this.mainScreenProvider});
+  ProfileNewsProvider({required this.mainScreenProvider});
 
   AllProfileNews? _myProfileNews;
   AllProfileNews? get myProfileNews => _myProfileNews;
@@ -155,7 +155,6 @@ class ProfileProvider extends ChangeNotifier {
           myProfileNewsPageNum < (_myProfileNews!.count! / 6).ceil()) {
         await loadMoreMyProfileNews(context: context);
       }
-      print(_myProfileNews!.count.toString());
     } else {
       // Value of 0 index is 1
       // Value of 1 index is 2
@@ -309,6 +308,7 @@ class ProfileProvider extends ChangeNotifier {
         await loadMoreBookmarkProfileNews(context: context);
       }
     }
+
     // GO BACK
     else {
       // Value of 0 index is 1

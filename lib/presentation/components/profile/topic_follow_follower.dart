@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../data/constant/font_constant.dart';
-import '../../../logic/providers/profile_provider.dart';
+import '../../../logic/providers/profile_news_provider.dart';
 import '../../helper/size_configuration.dart';
 
 // ignore: must_be_immutable
@@ -14,7 +14,7 @@ class TopicFollowFollower extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProfileProvider>(builder: (context, data, child) {
+    return Consumer<ProfileNewsProvider>(builder: (context, data, child) {
       final user = data.mainScreenProvider.loginSuccess.user;
       return user == null
           ? const SizedBox()

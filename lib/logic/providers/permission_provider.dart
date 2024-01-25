@@ -1,19 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:c_talent/logic/providers/auth_provider.dart';
-import 'package:c_talent/logic/providers/drawer_provider.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
-
-import '../../data/models/all_services.dart';
-import '../../data/repositories/services/services_repo.dart';
 
 class PermissionProvider extends ChangeNotifier {
   late MainScreenProvider mainScreenProvider;

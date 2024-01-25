@@ -1,9 +1,10 @@
 import 'package:c_talent/presentation/components/profile/bookmark_topic.dart';
+import 'package:c_talent/presentation/components/profile/profile_following.dart';
 import 'package:c_talent/presentation/tabs/profile_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../logic/providers/profile_provider.dart';
+import '../../logic/providers/profile_news_provider.dart';
 import '../components/profile/my_topic.dart';
 import '../components/profile/profile_top_container.dart';
 import '../components/profile/topic_follow_follower.dart';
@@ -23,7 +24,7 @@ class _ProfileTabState extends State<ProfileTab>
     super.build(context);
     return Scaffold(
       appBar: profileAppBar(context: context),
-      body: Consumer<ProfileProvider>(builder: (context, data, child) {
+      body: Consumer<ProfileNewsProvider>(builder: (context, data, child) {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: SizeConfig.defaultSize * 2),
           child: SingleChildScrollView(
@@ -50,10 +51,8 @@ class _ProfileTabState extends State<ProfileTab>
               SizedBox(
                 height: SizeConfig.defaultSize * 2.5,
               ),
-              // // Following
-              // FollowingContainer(
-              //   userId: snapshot.data!.id.toString(),
-              // ),
+              // Following
+              const ProfileFollowing(),
               SizedBox(height: SizeConfig.defaultSize * 5)
             ]),
           ),

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../data/constant/color_constant.dart';
 import '../../../data/constant/connection_url.dart';
 import '../../../data/constant/font_constant.dart';
-import '../../../logic/providers/profile_provider.dart';
+import '../../../logic/providers/profile_news_provider.dart';
 import '../../helper/size_configuration.dart';
 
 class ProfileTopContainer extends StatelessWidget {
@@ -12,7 +12,7 @@ class ProfileTopContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProfileProvider>(builder: (context, data, child) {
+    return Consumer<ProfileNewsProvider>(builder: (context, data, child) {
       final user = data.mainScreenProvider.loginSuccess.user;
       return user == null
           ? const SizedBox()

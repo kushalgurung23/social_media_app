@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../../data/constant/font_constant.dart';
-import '../../../logic/providers/profile_provider.dart';
+import '../../../logic/providers/profile_news_provider.dart';
 import '../../helper/size_configuration.dart';
 
 class BookmarkTopic extends StatefulWidget {
@@ -18,7 +18,7 @@ class BookmarkTopic extends StatefulWidget {
 class _BookmarkTopicState extends State<BookmarkTopic> {
   @override
   void initState() {
-    Provider.of<ProfileProvider>(context, listen: false)
+    Provider.of<ProfileNewsProvider>(context, listen: false)
         .loadInitialBookmarkProfileNews(context: context);
     super.initState();
   }
@@ -27,7 +27,7 @@ class _BookmarkTopicState extends State<BookmarkTopic> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProfileProvider>(builder: (context, data, child) {
+    return Consumer<ProfileNewsProvider>(builder: (context, data, child) {
       return Container(
         key: bookmarkTopicKey,
         margin: const EdgeInsets.symmetric(horizontal: 1),

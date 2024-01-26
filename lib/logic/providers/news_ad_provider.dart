@@ -129,8 +129,9 @@ class NewsAdProvider extends ChangeNotifier {
       {required BuildContext context,
       required StreamController<AllNewsPosts> allNewsPostController}) async {
     newsPostPageNumber++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (newsPostIsLoading) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data we will get exit from this method.
+    if (newsPostIsLoading || newsPostHasMore == false) {
       return;
     }
     newsPostIsLoading = true;
@@ -235,8 +236,9 @@ class NewsAdProvider extends ChangeNotifier {
           allNewsCommentStreamController,
       required NewsPost newsPost}) async {
     commentsPageNumber++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (isLoadingComments) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data, we will get exit from this method.
+    if (isLoadingComments || hasMoreComments == false) {
       return;
     }
     isLoadingComments = true;
@@ -378,8 +380,9 @@ class NewsAdProvider extends ChangeNotifier {
       required StreamController<NewsPostLikes?> allNewsLikesStreamController,
       required int newsPostId}) async {
     likesPageNumber++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (isLoadingLikes) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet, or we don't have more data,
+    // we will get exit from this method.
+    if (isLoadingLikes || hasMoreLikes == false) {
       return;
     }
     isLoadingLikes = true;
@@ -392,7 +395,7 @@ class NewsAdProvider extends ChangeNotifier {
     if (response.statusCode == 200) {
       final newLikes = newsPostLikesFromJson(response.body);
 
-      // isLoading = false indicates that the loading is complete
+      // isLoadingLikes = false indicates that the loading is complete
       isLoadingLikes = false;
 
       if (newLikes.likes == null) return;

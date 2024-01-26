@@ -28,6 +28,8 @@ import 'package:c_talent/presentation/router/app_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import 'logic/providers/created_post_provider.dart';
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -161,6 +163,10 @@ class _MyAppState extends State<MyApp> {
                     Provider.of<MainScreenProvider>(context, listen: false))),
         ChangeNotifierProvider(
             create: (context) => ProfileFollowProvider(
+                mainScreenProvider:
+                    Provider.of<MainScreenProvider>(context, listen: false))),
+        ChangeNotifierProvider(
+            create: (context) => CreatedPostProvider(
                 mainScreenProvider:
                     Provider.of<MainScreenProvider>(context, listen: false))),
       ],

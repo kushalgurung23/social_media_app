@@ -88,8 +88,9 @@ class ChatMessageProvider extends ChangeNotifier {
       required StreamController<AllConversations?>
           allConversationsController}) async {
     conversationPageNumber++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (conversationIsLoading) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data, we will get exit from this method.
+    if (conversationIsLoading || conversationHasMore == false) {
       return;
     }
     conversationIsLoading = true;
@@ -227,8 +228,9 @@ class ChatMessageProvider extends ChangeNotifier {
       required BuildContext context,
       required String conversationId}) async {
     chatPageNumber++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (chatIsLoading) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data we will get exit from this method.
+    if (chatIsLoading || chatHasMore == false) {
       return;
     }
     chatIsLoading = true;

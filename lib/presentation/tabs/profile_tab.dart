@@ -1,3 +1,5 @@
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/logic/providers/profile_follow_provider.dart';
 import 'package:c_talent/presentation/components/profile/bookmark_topic.dart';
 import 'package:c_talent/presentation/components/profile/profile_following.dart';
 import 'package:c_talent/presentation/tabs/profile_appbar.dart';
@@ -19,14 +21,27 @@ class ProfileTab extends StatefulWidget {
 
 class _ProfileTabState extends State<ProfileTab>
     with AutomaticKeepAliveClientMixin {
+  Future<void> refreshProfileTab() async {
+    final profileNewsProvider =
+        Provider.of<ProfileNewsProvider>(context, listen: false);
+    await Future.wait([
+      Provider.of<MainScreenProvider>(context, listen: false).getMyDetails(),
+      profileNewsProvider.refreshMyProfileNews(context: context),
+      profileNewsProvider.refreshBookmarkProfileNews(context: context),
+      Provider.of<ProfileFollowProvider>(context, listen: false)
+          .refreshProfileFollowings(context: context)
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
       appBar: profileAppBar(context: context),
-      body: Consumer<ProfileNewsProvider>(builder: (context, data, child) {
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: SizeConfig.defaultSize * 2),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: SizeConfig.defaultSize * 2),
+        child: RefreshIndicator(
+          onRefresh: refreshProfileTab,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(
                 parent: BouncingScrollPhysics()),
@@ -56,8 +71,8 @@ class _ProfileTabState extends State<ProfileTab>
               SizedBox(height: SizeConfig.defaultSize * 5)
             ]),
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 

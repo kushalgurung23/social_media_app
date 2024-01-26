@@ -82,8 +82,9 @@ class PromotionProvider extends ChangeNotifier {
   // Loading more promotions when user reach maximum pageSize item of a page in listview
   Future loadMorePromotions({required BuildContext context}) async {
     promotionsPageNumber++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (promotionsIsLoading) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data, we will get exit from this method.
+    if (promotionsIsLoading || promotionsHasMore == false) {
       return;
     }
     promotionsIsLoading = true;

@@ -84,8 +84,9 @@ class ServicesProvider extends ChangeNotifier {
   // Loading more services when user reach maximum pageSize item of a page in listview
   Future loadMoreServices({required BuildContext context}) async {
     servicesPageNumber++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (servicesIsLoading) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data, we will get exit from this method.
+    if (servicesIsLoading || servicesHasMore == false) {
       return;
     }
     servicesIsLoading = true;
@@ -204,8 +205,9 @@ class ServicesProvider extends ChangeNotifier {
   Future loadMoreRecommendedServices({required BuildContext context}) async {
     recmdServicesPageNumber++;
     print('recommend more service called $recmdServicesPageNumber');
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (recmdServicesIsLoading) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data, we will get exit from this method.
+    if (recmdServicesIsLoading || recmdServicesHasMore == false) {
       return;
     }
     recmdServicesIsLoading = true;
@@ -582,7 +584,8 @@ class ServicesProvider extends ChangeNotifier {
   Future loadMoreSearchResults(
       {required BuildContext context,
       required ServicesFilterType servicesFilterType}) async {
-    // If there are no more data, or else we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
+    // If there are no more data, or else we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data, we will get exit from this method.
     if (searchHasMore == false || isSearchLoading) {
       return;
     }

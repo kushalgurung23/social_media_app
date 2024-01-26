@@ -1,3 +1,7 @@
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/presentation/views/profile/created_post_screen.dart';
+import 'package:c_talent/presentation/views/profile/follower_screen.dart';
+import 'package:c_talent/presentation/views/profile/following_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -14,8 +18,8 @@ class TopicFollowFollower extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProfileNewsProvider>(builder: (context, data, child) {
-      final user = data.mainScreenProvider.loginSuccess.user;
+    return Consumer<MainScreenProvider>(builder: (context, data, child) {
+      final user = data.loginSuccess.user;
       return user == null
           ? const SizedBox()
           : Padding(
@@ -50,20 +54,8 @@ class TopicFollowFollower extends StatelessWidget {
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    // Navigator.push(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //         builder: (context) => AllProfileTopicList(
-                                    //               isOtherUser: isOtherUser,
-                                    //               otherUserStreamController:
-                                    //                   isOtherUser == true
-                                    //                       ? otherUserStreamController
-                                    //                       : null,
-                                    //               userId: isOtherUser == true
-                                    //                   ? user.id.toString()
-                                    //                   : data
-                                    //                       .mainScreenProvider.userId!,
-                                    //             )));
+                                    Navigator.of(context)
+                                        .pushNamed(CreatedPostsScreen.id);
                                   },
                                   child: Container(
                                     color: Colors.transparent,
@@ -101,28 +93,11 @@ class TopicFollowFollower extends StatelessWidget {
                                     ),
                                   ),
                                 ),
+                                // FOLLOWING
                                 GestureDetector(
                                   onTap: () {
-                                    // isOtherUser == true
-                                    //     ? Navigator.push(
-                                    //         context,
-                                    //         MaterialPageRoute(
-                                    //             builder: (context) =>
-                                    //                 OtherUserFollowingScreen(
-                                    //                   otherUserStreamController:
-                                    //                       isOtherUser == true
-                                    //                           ? otherUserStreamController
-                                    //                           : null,
-                                    //                   otherUserId: isOtherUser == true
-                                    //                       ? user.id
-                                    //                       : null,
-                                    //                 )))
-                                    //     : Navigator.push(
-                                    //         context,
-                                    //         MaterialPageRoute(
-                                    //             builder: (context) =>
-                                    //                 const ProfileFollowingScreen(
-                                    //                     additionalProfile: false)));
+                                    Navigator.of(context)
+                                        .pushNamed(FollowingScreen.id);
                                   },
                                   child: Container(
                                     color: Colors.transparent,
@@ -160,27 +135,11 @@ class TopicFollowFollower extends StatelessWidget {
                                     ),
                                   ),
                                 ),
+                                // FOLLOWER
                                 GestureDetector(
                                   onTap: () {
-                                    // isOtherUser == true
-                                    //     ? Navigator.push(
-                                    //         context,
-                                    //         MaterialPageRoute(
-                                    //             builder: (context) =>
-                                    //                 OtherUserFollowerScreen(
-                                    //                     otherUserStreamController:
-                                    //                         isOtherUser == true
-                                    //                             ? otherUserStreamController
-                                    //                             : null,
-                                    //                     otherUserId:
-                                    //                         isOtherUser == true
-                                    //                             ? user.id
-                                    //                             : null)))
-                                    //     : Navigator.push(
-                                    //         context,
-                                    //         MaterialPageRoute(
-                                    //             builder: (context) =>
-                                    //                 const ProfileFollowerScreen()));
+                                    Navigator.of(context)
+                                        .pushNamed(FollowerScreen.id);
                                   },
                                   child: Container(
                                     color: Colors.transparent,

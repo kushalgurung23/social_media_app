@@ -100,6 +100,28 @@ class _NewsPostListState extends State<NewsPostList>
                                         : NewsPostContainer(
                                             index: index,
                                             newsPost: newsPost,
+                                            onLike: () async {
+                                              await data.toggleNewsPostLike(
+                                                  newsPost: newsPost,
+                                                  context: context);
+                                            },
+                                            onSave: () async {
+                                              await data.toggleNewsPostSave(
+                                                  newsPost: newsPost,
+                                                  context: context);
+                                            },
+                                            onComment:
+                                                (newsTextEditingController) async {
+                                              if (newsTextEditingController.text
+                                                  .trim()
+                                                  .isNotEmpty) {
+                                                await data.writeNewsPostComment(
+                                                    newsPost: newsPost,
+                                                    commentTextController:
+                                                        newsTextEditingController,
+                                                    context: context);
+                                              }
+                                            },
                                           );
                                   } else {
                                     return Padding(

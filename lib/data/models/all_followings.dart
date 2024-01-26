@@ -10,7 +10,7 @@ class AllFollowings {
   int? count;
   int? page;
   int? limit;
-  List<Following>? followings;
+  List<Follower>? followings;
 
   AllFollowings({
     this.status,
@@ -27,12 +27,12 @@ class AllFollowings {
         limit: json["limit"],
         followings: json["followings"] == null
             ? []
-            : List<Following>.from(
-                json["followings"]!.map((x) => Following.fromJson(x))),
+            : List<Follower>.from(
+                json["followings"]!.map((x) => Follower.fromJson(x))),
       );
 }
 
-class Following {
+class Follower {
   int? id;
   String? email;
   String? username;
@@ -43,7 +43,7 @@ class Following {
   FollowDetails? followDetails;
   String? profilePicture;
 
-  Following({
+  Follower({
     this.id,
     this.email,
     this.username,
@@ -55,7 +55,7 @@ class Following {
     this.profilePicture,
   });
 
-  factory Following.fromJson(Map<String, dynamic> json) => Following(
+  factory Follower.fromJson(Map<String, dynamic> json) => Follower(
         id: json["id"],
         email: json["email"],
         username: json["username"],

@@ -74,8 +74,10 @@ class BookmarkServicesProvider extends ChangeNotifier {
   // Loading more services when user reach maximum pageSize item of a page in listview
   Future loadMoreBookmarkedServices({required BuildContext context}) async {
     bookmarkedServicesPageNumber++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (bookmarkedServicesIsLoading) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or if we don't have anymore new data
+    //we will get exit from this method.
+    if (bookmarkedServicesIsLoading || bookmarkedServicesHasMore == false) {
       return;
     }
     bookmarkedServicesIsLoading = true;

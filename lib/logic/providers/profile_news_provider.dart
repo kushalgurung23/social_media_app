@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:c_talent/data/repositories/profile/profile_posts_repo.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:c_talent/data/models/profile_news.dart';
 import 'package:c_talent/data/repositories/profile/profile_repo.dart';
@@ -33,7 +34,7 @@ class ProfileNewsProvider extends ChangeNotifier {
   // This method will be called to get profile news
   Future<void> loadMyInitialProfileNews({required BuildContext context}) async {
     try {
-      Response response = await ProfileRepo.loadMyNewsTopics(
+      Response response = await ProfilePostsRepo.loadMyNewsTopics(
           jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
           pageNumber: myProfileNewsPageNum.toString(),
           pageSize: myProfileNewsPageSize.toString());
@@ -80,12 +81,13 @@ class ProfileNewsProvider extends ChangeNotifier {
   // Loading more profile news when user reach maximum pageSize item
   Future loadMoreMyProfileNews({required BuildContext context}) async {
     myProfileNewsPageNum++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (myProfileNewsIsLoading) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data, we will get exit from this method.
+    if (myProfileNewsIsLoading || myProfileNewsHasMore == false) {
       return;
     }
     myProfileNewsIsLoading = true;
-    Response response = await ProfileRepo.loadMyNewsTopics(
+    Response response = await ProfilePostsRepo.loadMyNewsTopics(
         jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
         pageNumber: myProfileNewsPageNum.toString(),
         pageSize: myProfileNewsPageSize.toString());
@@ -186,7 +188,7 @@ class ProfileNewsProvider extends ChangeNotifier {
   Future<void> loadInitialBookmarkProfileNews(
       {required BuildContext context}) async {
     try {
-      Response response = await ProfileRepo.loadMyBookmarkTopics(
+      Response response = await ProfilePostsRepo.loadMyBookmarkTopics(
           jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
           pageNumber: bkmarkProfileNewsPageNum.toString(),
           pageSize: bkmarkProfileNewsPageSize.toString());
@@ -233,12 +235,13 @@ class ProfileNewsProvider extends ChangeNotifier {
   // Loading more profile news when user reach maximum pageSize item
   Future loadMoreBookmarkProfileNews({required BuildContext context}) async {
     bkmarkProfileNewsPageNum++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (bkmarkProfileNewsIsLoading) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data, we will get exit from this method.
+    if (bkmarkProfileNewsIsLoading || bkmarkProfileNewsHasMore == false) {
       return;
     }
     bkmarkProfileNewsIsLoading = true;
-    Response response = await ProfileRepo.loadMyBookmarkTopics(
+    Response response = await ProfilePostsRepo.loadMyBookmarkTopics(
         jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
         pageNumber: bkmarkProfileNewsPageNum.toString(),
         pageSize: bkmarkProfileNewsPageSize.toString());

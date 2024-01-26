@@ -1,3 +1,4 @@
+import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,8 +13,8 @@ class ProfileTopContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProfileNewsProvider>(builder: (context, data, child) {
-      final user = data.mainScreenProvider.loginSuccess.user;
+    return Consumer<MainScreenProvider>(builder: (context, data, child) {
+      final user = data.loginSuccess.user;
       return user == null
           ? const SizedBox()
           : Row(

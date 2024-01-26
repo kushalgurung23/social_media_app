@@ -35,7 +35,7 @@ class ProfileFollowProvider extends ChangeNotifier {
   Future<void> loadInitialProfileFollowings(
       {required BuildContext context}) async {
     try {
-      Response response = await ProfileRepo.loadMyFollowings(
+      Response response = await ProfileFollowRepo.loadMyFollowings(
           jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
           pageNumber: profileFollowingPageNum.toString(),
           pageSize: profileFollowingPageSize.toString());
@@ -82,12 +82,13 @@ class ProfileFollowProvider extends ChangeNotifier {
   // Loading more profile followings when user reach maximum pageSize item
   Future loadMoreProfileFollowings({required BuildContext context}) async {
     profileFollowingPageNum++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (isLoadingFollowings) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data, we will get exit from this method.
+    if (isLoadingFollowings || hasMoreFollowings == false) {
       return;
     }
     isLoadingFollowings = true;
-    Response response = await ProfileRepo.loadMyBookmarkTopics(
+    Response response = await ProfileFollowRepo.loadMyFollowings(
         jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
         pageNumber: profileFollowingPageNum.toString(),
         pageSize: profileFollowingPageSize.toString());
@@ -162,7 +163,7 @@ class ProfileFollowProvider extends ChangeNotifier {
   Future<void> loadInitialProfileFollowers(
       {required BuildContext context}) async {
     try {
-      Response response = await ProfileRepo.loadMyFollowers(
+      Response response = await ProfileFollowRepo.loadMyFollowers(
           jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
           pageNumber: profileFollowersPageNum.toString(),
           pageSize: profileFollowersPageSize.toString());
@@ -209,12 +210,14 @@ class ProfileFollowProvider extends ChangeNotifier {
   // Loading more profile followers when user reach maximum pageSize item
   Future loadMoreProfileFollowers({required BuildContext context}) async {
     profileFollowersPageNum++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (isLoadingFollowers) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data, we will get exit from this method.
+    if (isLoadingFollowers || hasMoreFollowers == false) {
+      print('no need to call');
       return;
     }
     isLoadingFollowers = true;
-    Response response = await ProfileRepo.loadMyFollowers(
+    Response response = await ProfileFollowRepo.loadMyFollowers(
         jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
         pageNumber: profileFollowersPageNum.toString(),
         pageSize: profileFollowersPageSize.toString());

@@ -121,8 +121,9 @@ class PushNotificationProvider extends ChangeNotifier {
   // Loading more push notifications when user reach maximum pageSize item of a page in listview
   Future loadMorePushNotifications({required BuildContext context}) async {
     pushNotificationPageNumber++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet, we will get exit from this method.
-    if (pushNotificationIsLoading) {
+    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+    // or we don't have more data, we will get exit from this method.
+    if (pushNotificationIsLoading || pushNotificationHasMore == false) {
       return;
     }
     pushNotificationIsLoading = true;

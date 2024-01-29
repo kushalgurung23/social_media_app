@@ -6,7 +6,9 @@ import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_news_posts.dart';
 import 'package:c_talent/data/models/created_news_post.dart';
 import 'package:c_talent/data/models/news_post_likes.dart';
+import 'package:c_talent/data/models/profile_news.dart';
 import 'package:c_talent/data/models/single_news_comments.dart';
+import 'package:c_talent/data/models/user.dart';
 import 'package:c_talent/data/repositories/news_post/news_comment_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_likes_repo.dart';
 import 'package:c_talent/data/repositories/news_post/news_post_repo.dart';
@@ -15,14 +17,18 @@ import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/logic/providers/permission_provider.dart';
+import 'package:c_talent/logic/providers/profile_news_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+
+import 'created_post_provider.dart';
 
 class NewsAdProvider extends ChangeNotifier {
   late final MainScreenProvider mainScreenProvider;
@@ -485,6 +491,7 @@ class NewsAdProvider extends ChangeNotifier {
                 jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
 
         if (response.statusCode == 200 && context.mounted) {
+          onSuccessToggleSave(context: context, newsPost: newsPost);
           toggleSaveOnProcess = false;
           notifyListeners();
         } else if (response.statusCode == 401 || response.statusCode == 403) {
@@ -521,16 +528,34 @@ class NewsAdProvider extends ChangeNotifier {
     }
   }
 
+  // UPDATE STATE IN CREATED NEWS POSTS IN PROFILE
+  void onSuccessToggleSave(
+      {required BuildContext context, required NewsPost newsPost}) {
+    // NOT REQUIRED TO UPDATE IN MY TOPIC
+    // BOOKMARKED TOPIC
+    Provider.of<ProfileNewsProvider>(context, listen: false)
+        .onToggleSaveFromDifferentScreen(context: context);
+
+    // CREATED POST (NOT MY TOPIC)
+    Provider.of<CreatedPostProvider>(context, listen: false)
+        .onSaveFromDifferentScreen(
+            isSaved: newsPost.isSaved, newsPostId: newsPost.id);
+  }
+
   bool toggleLikeOnProcess = false;
 
   Future<void> toggleNewsPostLike(
       {required NewsPost newsPost, required BuildContext context}) async {
-    int? currentLikeStatus = newsPost.isLiked;
-
+    int? previousLikeStatus = newsPost.isLiked;
+    List<Like> previousLikes =
+        newsPost.likes == null ? [] : [...newsPost.likes!];
+    int? previousLikesCount = newsPost.likesCount;
     // THIS METHOD IS CALLED WHEN TOGGLE LIKE FAILS TO KEEP ORIGINAL DATA
     void onToggleLikeFailed() {
       // if error occurs, keep current like status
-      newsPost.isLiked = currentLikeStatus;
+      newsPost.isLiked = previousLikeStatus;
+      newsPost.likes = previousLikes;
+      newsPost.likesCount = previousLikesCount;
       toggleLikeOnProcess = false;
       notifyListeners();
     }
@@ -543,12 +568,13 @@ class NewsAdProvider extends ChangeNotifier {
         return;
       } else {
         toggleLikeOnProcess = true;
-
-        if (currentLikeStatus == 1) {
-          newsPost.isLiked = 0;
-        } else {
-          newsPost.isLiked = 1;
-        }
+        updateLikeState(
+            previousLikeStatus: previousLikeStatus,
+            loggedInUser:
+                Provider.of<MainScreenProvider>(context, listen: false)
+                    .loginSuccess
+                    .user,
+            newsPost: newsPost);
         notifyListeners();
         Response response = await NewsLikesRepo.toggleNewsPostLike(
             jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
@@ -556,28 +582,7 @@ class NewsAdProvider extends ChangeNotifier {
                 jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
         // SUCCESSFUL
         if (response.statusCode == 200 && context.mounted) {
-          final loggedInUser = mainScreenProvider.loginSuccess.user;
-          // SHOW PROFILE IMAGE AVATAR
-          if (newsPost.isLiked == 1 && loggedInUser != null) {
-            newsPost.likes?.insert(
-                0,
-                Like(
-                    likedBy: By(
-                        id: int.tryParse(loggedInUser.id.toString()),
-                        profilePicture: loggedInUser.profilePicture)));
-            if (newsPost.likesCount != null) {
-              newsPost.likesCount = newsPost.likesCount! + 1;
-            }
-          }
-          // REMOVE PROFILE IMAGE AVATAR
-          else {
-            newsPost.likes?.removeWhere((element) =>
-                element.likedBy?.id ==
-                int.tryParse(loggedInUser?.id.toString() ?? '0'));
-            if (newsPost.likesCount != null) {
-              newsPost.likesCount = newsPost.likesCount! - 1;
-            }
-          }
+          onSuccessToggleLike(newsPost: newsPost, context: context);
           toggleLikeOnProcess = false;
           notifyListeners();
         }
@@ -616,19 +621,68 @@ class NewsAdProvider extends ChangeNotifier {
     }
   }
 
+  void updateLikeState(
+      {required UserObject? loggedInUser,
+      required NewsPost newsPost,
+      required int? previousLikeStatus}) {
+    if (loggedInUser == null) {
+      return;
+    } else {
+      // IF POST WAS ALREADY LIKED, NOW IT WILL BE DISLIKED
+      if (previousLikeStatus == 1) {
+        newsPost.isLiked = 0;
+        if (newsPost.likesCount != null && newsPost.likesCount! > 0) {
+          newsPost.likesCount = newsPost.likesCount! - 1;
+        }
+        // REMOVE PROFILE IMAGE AVATAR
+        newsPost.likes?.removeWhere((element) =>
+            element.likedBy?.id == int.tryParse(loggedInUser.id.toString()));
+      }
+      // IF POST WAS NOT LIKED BEFORE, IT WILL NOW BE LIKED
+      else {
+        newsPost.isLiked = 1;
+        if (newsPost.likesCount != null) {
+          newsPost.likesCount = newsPost.likesCount! + 1;
+        }
+        Like newLike = Like(
+            likedBy: By(
+                id: int.tryParse(loggedInUser.id.toString()),
+                profilePicture: loggedInUser.profilePicture));
+        // SHOW PROFILE IMAGE AVATAR
+        newsPost.likes?.insert(0, newLike);
+      }
+
+      notifyListeners();
+    }
+  }
+
+  void onSuccessToggleLike(
+      {required NewsPost newsPost, required BuildContext context}) {
+    if (newsPost.id != null && newsPost.likesCount != null) {
+      // MY TOPIC AND MY BOOKMARK TOPIC
+      Provider.of<ProfileNewsProvider>(context, listen: false)
+          .onToggleLikeFromDifferentScreen(
+              newsPostId: newsPost.id!, likeCount: newsPost.likesCount!);
+    }
+
+    // CREATED NEWS POST (NOT MY TOPIC)
+    Provider.of<CreatedPostProvider>(context, listen: false)
+        .onLikeFromDifferentScreen(newsPost: newsPost);
+  }
+
   bool toggleCommentOnProcess = false;
 
   Future<void> writeNewsPostComment(
       {required NewsPost newsPost,
       required TextEditingController commentTextController,
       required BuildContext context}) async {
+    int? previousCommentCount = newsPost.commentCount;
+    List<NewsComment>? previousComments =
+        newsPost.comments == null ? [] : [...newsPost.comments!];
     // WHEN ACTION FAILS, THIS METHOD WILL BE CALLED TO SET DEFAULT VALUE
     void onCommentFailed() {
-      if (newsPost.commentCount != null) {
-        newsPost.commentCount = newsPost.commentCount! - 1;
-      }
-      // if error occurs, remove new comment
-      newsPost.comments?.removeAt(0);
+      newsPost.commentCount = previousCommentCount;
+      newsPost.comments = previousComments;
       toggleCommentOnProcess = false;
       notifyListeners();
     }
@@ -643,13 +697,11 @@ class NewsAdProvider extends ChangeNotifier {
         toggleCommentOnProcess = true;
         final currentLocalDateTime = DateTime.now();
 
-        addNewCommentToObject(
-            newsComments: newsPost.comments,
+        updateCommentState(
+            newsPost: newsPost,
             currentLocalDateTime: currentLocalDateTime,
             commentTextController: commentTextController);
-        if (newsPost.commentCount != null) {
-          newsPost.commentCount = newsPost.commentCount! + 1;
-        }
+
         notifyListeners();
         Response response = await NewsCommentRepo.writeNewsComment(
             jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
@@ -660,6 +712,7 @@ class NewsAdProvider extends ChangeNotifier {
               "updated_at_utc": currentLocalDateTime.toUtc().toString()
             }));
         if (response.statusCode == 200 && context.mounted) {
+          onCommentSuccess(context: context, newsPost: newsPost);
           commentTextController.clear();
           toggleCommentOnProcess = false;
           notifyListeners();
@@ -698,15 +751,18 @@ class NewsAdProvider extends ChangeNotifier {
     }
   }
 
-  void addNewCommentToObject(
-      {required List<NewsComment>? newsComments,
+  void updateCommentState(
+      {required NewsPost newsPost,
       required DateTime currentLocalDateTime,
       required TextEditingController commentTextController}) {
     final loggedInUser = mainScreenProvider.loginSuccess.user;
     if (loggedInUser == null) {
       return;
     }
-    newsComments?.insert(
+    if (newsPost.commentCount != null) {
+      newsPost.commentCount = newsPost.commentCount! + 1;
+    }
+    newsPost.comments?.insert(
         0,
         NewsComment(
             createdAt: currentLocalDateTime,
@@ -716,6 +772,19 @@ class NewsAdProvider extends ChangeNotifier {
                 id: int.tryParse(loggedInUser.id.toString()),
                 profilePicture: loggedInUser.profilePicture,
                 username: loggedInUser.username)));
+  }
+
+  void onCommentSuccess(
+      {required NewsPost newsPost, required BuildContext context}) {
+    // MY TOPIC AND BOOKMARK TOPIC
+    if (newsPost.id != null && newsPost.commentCount != null) {
+      Provider.of<ProfileNewsProvider>(context, listen: false)
+          .onCommentFromDifferentScreen(
+              newsPostId: newsPost.id!, commentCount: newsPost.commentCount!);
+    }
+    // CREATED POST (NOT MY TOPIC)
+    Provider.of<CreatedPostProvider>(context, listen: false)
+        .onCommentFromDifferentScreen(newsPost: newsPost);
   }
 
   // New news post validation
@@ -911,6 +980,7 @@ class NewsAdProvider extends ChangeNotifier {
       required TextEditingController contentTextController,
       required BuildContext context}) async {
     try {
+      // translate
       EasyLoading.show(status: "Uploading..", dismissOnTap: false);
       Response createResponse;
       if (imageFileList == null || imageFileList!.isEmpty) {
@@ -938,6 +1008,11 @@ class NewsAdProvider extends ChangeNotifier {
         clearNewPostData(
             titleTextController: titleTextController,
             contentTextController: contentTextController);
+        // TO ADD NEW POST IN MY TOPIC IN PROFILE TAB
+        if (context.mounted) {
+          await Provider.of<ProfileNewsProvider>(context, listen: false)
+              .onSuccessCreateNewPost(context: context);
+        }
         // translate
         EasyLoading.showSuccess("Created successfully!",
             duration: const Duration(seconds: 2), dismissOnTap: true);

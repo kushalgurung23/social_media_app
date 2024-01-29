@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-
+// ignore: depend_on_referenced_packages
+import 'package:collection/collection.dart';
 import 'package:c_talent/data/repositories/profile/profile_posts_repo.dart';
 import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
@@ -422,5 +423,56 @@ class CreatedPostProvider extends ChangeNotifier {
                 id: int.tryParse(loggedInUser.id.toString()),
                 profilePicture: loggedInUser.profilePicture,
                 username: loggedInUser.username)));
+  }
+
+  void goBackFromCreatedPostsScreen({required BuildContext context}) {
+    _createdProfilePosts = null;
+    Navigator.pop(context);
+  }
+
+  void onSaveFromDifferentScreen(
+      {required int? isSaved, required int? newsPostId}) {
+    if (_createdProfilePosts?.posts == null) {
+      return;
+    }
+    Post? foundPost = _createdProfilePosts!.posts!.firstWhereOrNull((element) =>
+        element.newsPost?.id != null && element.newsPost?.id == newsPostId);
+    if (foundPost == null) {
+      return;
+    } else {
+      foundPost.newsPost?.isSaved = isSaved;
+      notifyListeners();
+    }
+  }
+
+  void onLikeFromDifferentScreen({required NewsPost newsPost}) {
+    if (_createdProfilePosts?.posts == null) {
+      return;
+    }
+    Post? foundPost = _createdProfilePosts!.posts!.firstWhereOrNull((element) =>
+        element.newsPost?.id != null && element.newsPost?.id == newsPost.id);
+    if (foundPost == null) {
+      return;
+    } else {
+      foundPost.newsPost?.isLiked = newsPost.isLiked;
+      foundPost.newsPost?.likesCount = newsPost.likesCount;
+      foundPost.newsPost?.likes = newsPost.likes;
+      notifyListeners();
+    }
+  }
+
+  void onCommentFromDifferentScreen({required NewsPost newsPost}) {
+    if (_createdProfilePosts?.posts == null) {
+      return;
+    }
+    Post? foundPost = _createdProfilePosts!.posts!.firstWhereOrNull((element) =>
+        element.newsPost?.id != null && element.newsPost?.id == newsPost.id);
+    if (foundPost == null) {
+      return;
+    } else {
+      foundPost.newsPost?.commentCount = newsPost.commentCount;
+      foundPost.newsPost?.comments = newsPost.comments;
+      notifyListeners();
+    }
   }
 }

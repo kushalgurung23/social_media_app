@@ -36,124 +36,139 @@ class ProfileTopicBody extends StatelessWidget {
               : allProfileNews.count! - (6 * selectedTopicIndex),
           itemBuilder: (BuildContext context, int index) {
             final topicData =
-                allProfileNews.news![index + (6 * selectedTopicIndex)];
-            return GestureDetector(
-              onTap: () {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) =>
-                //             LastBookmarkTopicDescriptionScreen(
-                //                 topicId:
-                //                     topicData.id.toString(),
-                //                 newsCommentTextEditingController:
-                //                     data.profileTopicTextEditingController)));
-              },
-              child: Container(
-                margin: EdgeInsets.only(
-                    bottom: SizeConfig.defaultSize * 3,
-                    left: SizeConfig.defaultSize * 2,
-                    right: SizeConfig.defaultSize * 2),
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                    border: Border(
-                        bottom:
-                            BorderSide(color: Color(0xFFD0E0F0), width: 1))),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding:
-                            EdgeInsets.only(bottom: SizeConfig.defaultSize),
-                        child: Text(
-                          topicData.title!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontFamily: kHelveticaMedium,
-                              fontSize: SizeConfig.defaultSize * 1.4,
-                              color: const Color(0xFF000000)),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            bottom: SizeConfig.defaultSize * 0.8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                allProfileNews.news?[index + (6 * selectedTopicIndex)];
+            return topicData == null
+                ? const SizedBox()
+                : GestureDetector(
+                    onTap: () {
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) =>
+                      //             LastBookmarkTopicDescriptionScreen(
+                      //                 topicId:
+                      //                     topicData.id.toString(),
+                      //                 newsCommentTextEditingController:
+                      //                     data.profileTopicTextEditingController)));
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(
+                          bottom: SizeConfig.defaultSize * 3,
+                          left: SizeConfig.defaultSize * 2,
+                          right: SizeConfig.defaultSize * 2),
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                          border: Border(
+                              bottom: BorderSide(
+                                  color: Color(0xFFD0E0F0), width: 1))),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          right: SizeConfig.defaultSize),
-                                      child: SvgPicture.asset(
-                                        "assets/svg/heart.svg",
-                                        color: const Color(0xFFD1D3D5),
-                                        height: SizeConfig.defaultSize * 1.3,
-                                        width: SizeConfig.defaultSize * 1.3,
-                                      ),
-                                    ),
-                                    Text(
-                                        '${topicData.likeCount ?? '0'} ${topicData.likeCount != null && topicData.likeCount! > 1 ? AppLocalizations.of(context).likes : AppLocalizations.of(context).like}',
-                                        style: TextStyle(
-                                            fontFamily: kHelveticaRegular,
-                                            fontSize:
-                                                SizeConfig.defaultSize * 1.3,
-                                            color: const Color(0xFF8897A7))),
-                                  ]),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  bottom: SizeConfig.defaultSize),
+                              child: Text(
+                                topicData.title!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontFamily: kHelveticaMedium,
+                                    fontSize: SizeConfig.defaultSize * 1.4,
+                                    color: const Color(0xFF000000)),
+                              ),
                             ),
-                            SizedBox(
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  bottom: SizeConfig.defaultSize * 0.8),
                               child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          right: SizeConfig.defaultSize),
-                                      child: SvgPicture.asset(
-                                        "assets/svg/comment.svg",
-                                        color: const Color(0xFFD1D3D5),
-                                        height: SizeConfig.defaultSize * 1.3,
-                                        width: SizeConfig.defaultSize * 1.3,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${topicData.commentCount ?? '0'}'
-                                      ' '
-                                      '${topicData.commentCount != null && topicData.commentCount! > 1 ? AppLocalizations.of(context).replies : AppLocalizations.of(context).reply.toLowerCase()}',
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SizedBox(
+                                    child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                right: SizeConfig.defaultSize),
+                                            child: SvgPicture.asset(
+                                              "assets/svg/heart.svg",
+                                              color: const Color(0xFFD1D3D5),
+                                              height:
+                                                  SizeConfig.defaultSize * 1.3,
+                                              width:
+                                                  SizeConfig.defaultSize * 1.3,
+                                            ),
+                                          ),
+                                          Text(
+                                              '${topicData.likeCount ?? '0'} ${topicData.likeCount != null && topicData.likeCount! > 1 ? AppLocalizations.of(context).likes : AppLocalizations.of(context).like}',
+                                              style: TextStyle(
+                                                  fontFamily: kHelveticaRegular,
+                                                  fontSize:
+                                                      SizeConfig.defaultSize *
+                                                          1.3,
+                                                  color:
+                                                      const Color(0xFF8897A7))),
+                                        ]),
+                                  ),
+                                  SizedBox(
+                                    child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                right: SizeConfig.defaultSize),
+                                            child: SvgPicture.asset(
+                                              "assets/svg/comment.svg",
+                                              color: const Color(0xFFD1D3D5),
+                                              height:
+                                                  SizeConfig.defaultSize * 1.3,
+                                              width:
+                                                  SizeConfig.defaultSize * 1.3,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${topicData.commentCount ?? '0'}'
+                                            ' '
+                                            '${topicData.commentCount != null && topicData.commentCount! > 1 ? AppLocalizations.of(context).replies : AppLocalizations.of(context).reply.toLowerCase()}',
+                                            style: TextStyle(
+                                                fontFamily: kHelveticaRegular,
+                                                fontSize:
+                                                    SizeConfig.defaultSize *
+                                                        1.3,
+                                                color: const Color(0xFF8897A7)),
+                                          ),
+                                        ]),
+                                  ),
+                                  Text(
+                                      topicData.createdAt == null
+                                          ? ''
+                                          : Provider.of<MainScreenProvider>(
+                                                  context,
+                                                  listen: false)
+                                              .convertDateTimeToAgo(
+                                                  profileTopicType ==
+                                                              ProfileTopicType
+                                                                  .bookmarkTopic &&
+                                                          topicData.savedAt !=
+                                                              null
+                                                      ? topicData.savedAt!
+                                                      : topicData.createdAt!,
+                                                  context),
                                       style: TextStyle(
                                           fontFamily: kHelveticaRegular,
                                           fontSize:
                                               SizeConfig.defaultSize * 1.3,
-                                          color: const Color(0xFF8897A7)),
-                                    ),
-                                  ]),
-                            ),
-                            Text(
-                                topicData.createdAt == null
-                                    ? ''
-                                    : Provider.of<MainScreenProvider>(context,
-                                            listen: false)
-                                        .convertDateTimeToAgo(
-                                            profileTopicType ==
-                                                        ProfileTopicType
-                                                            .bookmarkTopic &&
-                                                    topicData.savedAt != null
-                                                ? topicData.savedAt!
-                                                : topicData.createdAt!,
-                                            context),
-                                style: TextStyle(
-                                    fontFamily: kHelveticaRegular,
-                                    fontSize: SizeConfig.defaultSize * 1.3,
-                                    color: const Color(0xFF8897A7)))
-                          ],
-                        ),
-                      )
-                    ]),
-              ),
-            );
+                                          color: const Color(0xFF8897A7)))
+                                ],
+                              ),
+                            )
+                          ]),
+                    ),
+                  );
           },
         ),
         // GO TO FRONT/BACK BUTTON

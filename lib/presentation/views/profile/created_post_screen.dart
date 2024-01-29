@@ -49,7 +49,8 @@ class _CreatedPostsScreenState extends State<CreatedPostsScreen> {
               color: const Color(0xFF8897A7),
               size: SizeConfig.defaultSize * 2.7),
           onPressed: () {
-            Navigator.pop(context);
+            Provider.of<CreatedPostProvider>(context, listen: false)
+                .goBackFromCreatedPostsScreen(context: context);
           },
         ),
         title: AppLocalizations.of(context).createdPost,

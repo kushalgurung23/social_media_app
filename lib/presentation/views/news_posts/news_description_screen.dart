@@ -255,7 +255,6 @@ class _NewsDescriptionScreenState extends State<NewsDescriptionScreen> {
                                     .trim()
                                     .isNotEmpty) {
                                   focusNode.unfocus();
-
                                   await data.writeNewsPostComment(
                                       newsPost: widget.newsPost,
                                       commentTextController: widget

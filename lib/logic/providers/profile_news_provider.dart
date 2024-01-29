@@ -1,13 +1,14 @@
 import 'dart:async';
-import 'package:c_talent/data/repositories/profile/profile_posts_repo.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:c_talent/data/models/profile_news.dart';
-import 'package:c_talent/data/repositories/profile/profile_repo.dart';
+import 'package:c_talent/data/repositories/profile/profile_posts_repo.dart';
 import 'package:c_talent/logic/providers/auth_provider.dart';
 import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
+// ignore: depend_on_referenced_packages
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -133,6 +134,7 @@ class ProfileNewsProvider extends ChangeNotifier {
   Future refreshMyProfileNews({required BuildContext context}) async {
     isRefreshingMyProfileNews = true;
     notifyListeners();
+    selectedMyProfileTopicIndex = 0;
     myProfileNewsIsLoading = false;
     myProfileNewsHasMore = true;
     myProfileNewsPageNum = 1;
@@ -287,6 +289,7 @@ class ProfileNewsProvider extends ChangeNotifier {
   Future refreshBookmarkProfileNews({required BuildContext context}) async {
     isRefreshingBookmarkNews = true;
     notifyListeners();
+    selectedBookmarkedTopicIndex = 0;
     bkmarkProfileNewsIsLoading = false;
     bkmarkProfileNewsHasMore = true;
     bkmarkProfileNewsPageNum = 1;
@@ -375,6 +378,59 @@ class ProfileNewsProvider extends ChangeNotifier {
   Future otherProfileScroll({required BuildContext context}) async {
     await Scrollable.ensureVisible(context,
         duration: const Duration(milliseconds: 500));
+  }
+
+  Future<void> onSuccessCreateNewPost({required BuildContext context}) async {
+    await refreshMyProfileNews(context: context);
+  }
+
+  Future<void> onToggleSaveFromDifferentScreen(
+      {required BuildContext context}) async {
+    await refreshBookmarkProfileNews(context: context);
+  }
+
+  void onToggleLikeFromDifferentScreen(
+      {required int newsPostId, required int likeCount}) {
+    // MY TOPIC
+    if (_myProfileNews?.news != null) {
+      ProfileNews? myTopic = _myProfileNews!.news!
+          .firstWhereOrNull((profileNews) => profileNews.id == newsPostId);
+      if (myTopic != null) {
+        myTopic.likeCount = likeCount;
+      }
+    }
+
+    // BOOKMARKED TOPIC
+    if (_bkmarkProfileNews?.news != null) {
+      ProfileNews? bookmarkedTopic = _bkmarkProfileNews!.news!
+          .firstWhereOrNull((profileNews) => profileNews.id == newsPostId);
+      if (bookmarkedTopic != null) {
+        bookmarkedTopic.likeCount = likeCount;
+      }
+    }
+    notifyListeners();
+  }
+
+  void onCommentFromDifferentScreen(
+      {required int newsPostId, required int commentCount}) {
+    // MY TOPIC
+    if (_myProfileNews?.news != null) {
+      ProfileNews? myTopic = _myProfileNews!.news!
+          .firstWhereOrNull((profileNews) => profileNews.id == newsPostId);
+      if (myTopic != null) {
+        myTopic.commentCount = commentCount;
+      }
+    }
+
+    // BOOKMARKED TOPIC
+    if (_bkmarkProfileNews?.news != null) {
+      ProfileNews? bookmarkedTopic = _bkmarkProfileNews!.news!
+          .firstWhereOrNull((profileNews) => profileNews.id == newsPostId);
+      if (bookmarkedTopic != null) {
+        bookmarkedTopic.commentCount = commentCount;
+      }
+    }
+    notifyListeners();
   }
 
   @override

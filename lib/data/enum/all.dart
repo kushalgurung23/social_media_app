@@ -19,3 +19,6 @@ enum ServiceToggleType {
 enum ServicesFilterType { search, filter }
 
 enum ProfileTopicType { myTopic, bookmarkTopic }
+
+// WHEN NEWS POSTS ARE LIKED FROM EITHER NEWS POST OR CREATED POST
+enum NewsPostActionFrom { newsPost, createdPost }

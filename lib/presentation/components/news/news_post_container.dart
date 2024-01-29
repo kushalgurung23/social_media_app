@@ -1,18 +1,18 @@
+import 'package:c_talent/data/constant/font_constant.dart';
 import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_news_posts.dart';
-import 'package:c_talent/logic/providers/created_post_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
+import 'package:c_talent/logic/providers/news_ad_provider.dart';
+import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
 import 'package:c_talent/presentation/components/news/liked_avatars.dart';
+import 'package:c_talent/presentation/components/news/post_top_body.dart';
+import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/views/news_posts/news_liked_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:c_talent/data/constant/font_constant.dart';
-import 'package:c_talent/logic/providers/news_ad_provider.dart';
-import 'package:c_talent/presentation/components/news/post_top_body.dart';
-import 'package:c_talent/presentation/components/all/rounded_text_form_field.dart';
-import 'package:c_talent/presentation/helper/size_configuration.dart';
+
 import '../../views/news_posts/news_description_screen.dart';
 
 class NewsPostContainer extends StatefulWidget {

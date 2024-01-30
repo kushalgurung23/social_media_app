@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-// ignore: depend_on_referenced_packages
 import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_news_posts.dart';
+import 'package:c_talent/data/models/comment_load.dart';
 import 'package:c_talent/data/models/created_news_post.dart';
 import 'package:c_talent/data/models/news_post_likes.dart';
-import 'package:c_talent/data/models/profile_news.dart';
 import 'package:c_talent/data/models/single_news_comments.dart';
 import 'package:c_talent/data/models/user.dart';
 import 'package:c_talent/data/repositories/news_post/news_comment_repo.dart';
@@ -18,16 +17,16 @@ import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
 import 'package:c_talent/logic/providers/permission_provider.dart';
 import 'package:c_talent/logic/providers/profile_news_provider.dart';
+// ignore: depend_on_referenced_packages
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-
 import 'created_post_provider.dart';
 
 class NewsAdProvider extends ChangeNotifier {
@@ -182,137 +181,127 @@ class NewsAdProvider extends ChangeNotifier {
   }
 
   // NEWS COMMENTS
-  bool isLoadingComments = false;
-  int commentsPageNumber = 1;
-  int commentsPageSize = 10;
-  bool hasMoreComments = true;
+  // bool isLoadingComments = false;
+  // int commentsPageNumber = 1;
+  // int commentsPageSize = 10;
+  // bool hasMoreComments = true;
 
-  Future<void> loadInitialNewsComments(
-      {required StreamController<List<NewsComment>?>
-          allNewsCommentStreamController,
-      required NewsPost newsPost,
-      required BuildContext context}) async {
-    Response response = await NewsCommentRepo.getAllNewsComments(
-        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
-        page: commentsPageNumber.toString(),
-        pageSize: commentsPageSize.toString(),
-        newsPostId: newsPost.id.toString());
+  // Future<void> loadInitialNewsComments(
+  //     {required StreamController<List<NewsComment>?>
+  //         allNewsCommentStreamController,
+  //     required NewsPost newsPost,
+  //     required BuildContext context}) async {
+  //   Response response = await NewsCommentRepo.getAllNewsComments(
+  //       accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
+  //       page: commentsPageNumber.toString(),
+  //       pageSize: commentsPageSize.toString(),
+  //       newsPostId: newsPost.id.toString());
 
-    if (response.statusCode == 200) {
-      final singleNewsComments = singleNewsCommentsFromJson(response.body);
-      if (singleNewsComments != null) {
-        // FOR NEWS POST LIST
-        newsPost.comments = singleNewsComments.comments;
+  //   if (response.statusCode == 200) {
+  //     final singleNewsComments = singleNewsCommentsFromJson(response.body);
+  //     if (singleNewsComments != null) {
+  //       // FOR NEWS POST LIST
+  //       newsPost.comments = singleNewsComments.comments;
 
-        // FOR NEWS POST DESCRIPTION SCREEN
-        allNewsCommentStreamController.sink.add(newsPost.comments);
-        notifyListeners();
-      }
-    } else if (response.statusCode == 401 || response.statusCode == 403) {
-      if (context.mounted) {
-        bool isTokenRefreshed =
-            await Provider.of<AuthProvider>(context, listen: false)
-                .refreshAccessToken(context: context);
+  //       // FOR NEWS POST DESCRIPTION SCREEN
+  //       allNewsCommentStreamController.sink.add(newsPost.comments);
+  //       notifyListeners();
+  //     }
+  //   } else if (response.statusCode == 401 || response.statusCode == 403) {
+  //     if (context.mounted) {
+  //       bool isTokenRefreshed =
+  //           await Provider.of<AuthProvider>(context, listen: false)
+  //               .refreshAccessToken(context: context);
 
-        // If token is refreshed, re-call the method
-        if (isTokenRefreshed == true && context.mounted) {
-          return loadInitialNewsComments(
-              allNewsCommentStreamController: allNewsCommentStreamController,
-              newsPost: newsPost,
-              context: context);
-        } else {
-          await Provider.of<DrawerProvider>(context, listen: false)
-              .logOut(context: context);
-          return;
-        }
-      }
-    } else {
-      // translate
-      EasyLoading.showInfo(
-          "Sorry, comments could not load. Please try again later.",
-          dismissOnTap: true,
-          duration: const Duration(seconds: 4));
-    }
-  }
+  //       // If token is refreshed, re-call the method
+  //       if (isTokenRefreshed == true && context.mounted) {
+  //         return loadInitialNewsComments(
+  //             allNewsCommentStreamController: allNewsCommentStreamController,
+  //             newsPost: newsPost,
+  //             context: context);
+  //       } else {
+  //         await Provider.of<DrawerProvider>(context, listen: false)
+  //             .logOut(context: context);
+  //         return;
+  //       }
+  //     }
+  //   } else {
+  //     // translate
+  //     EasyLoading.showInfo(
+  //         "Sorry, comments could not load. Please try again later.",
+  //         dismissOnTap: true,
+  //         duration: const Duration(seconds: 4));
+  //   }
+  // }
 
-  // Loading more news posts when user reach maximum pageSize item of a page in listview
-  Future<void> loadMoreNewsComments(
-      {required BuildContext context,
-      required StreamController<List<NewsComment>?>
-          allNewsCommentStreamController,
-      required NewsPost newsPost}) async {
-    commentsPageNumber++;
-    // If we have already made request to fetch more data, and new data hasn't been fetched yet,
-    // or we don't have more data, we will get exit from this method.
-    if (isLoadingComments || hasMoreComments == false) {
-      return;
-    }
-    isLoadingComments = true;
+  // // Loading more news posts when user reach maximum pageSize item of a page in listview
+  // Future<void> loadMoreNewsComments(
+  //     {required BuildContext context,
+  //     required StreamController<List<NewsComment>?>
+  //         allNewsCommentStreamController,
+  //     required NewsPost newsPost}) async {
+  //   commentsPageNumber++;
+  //   // If we have already made request to fetch more data, and new data hasn't been fetched yet,
+  //   // or we don't have more data, we will get exit from this method.
+  //   if (isLoadingComments || hasMoreComments == false) {
+  //     return;
+  //   }
+  //   isLoadingComments = true;
 
-    Response response = await NewsCommentRepo.getAllNewsComments(
-        accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
-        page: commentsPageNumber.toString(),
-        pageSize: commentsPageSize.toString(),
-        newsPostId: newsPost.id.toString());
-    if (response.statusCode == 200) {
-      final newComments = singleNewsCommentsFromJson(response.body);
+  //   Response response = await NewsCommentRepo.getAllNewsComments(
+  //       accessToken: mainScreenProvider.loginSuccess.accessToken.toString(),
+  //       page: commentsPageNumber.toString(),
+  //       pageSize: commentsPageSize.toString(),
+  //       newsPostId: newsPost.id.toString());
+  //   if (response.statusCode == 200) {
+  //     final newComments = singleNewsCommentsFromJson(response.body);
 
-      // isLoading = false indicates that the loading is complete
-      isLoadingComments = false;
+  //     // isLoading = false indicates that the loading is complete
+  //     isLoadingComments = false;
 
-      if (newComments?.comments == null) return;
-      // If the newly added data is less than our default pageSize, it means we won't have further more data. Hence hasMore = false
-      if (newComments!.comments!.length < commentsPageSize) {
-        hasMoreComments = false;
-      }
-      // ADDING NEWS COMMENTS IN TOTAL NEWS COMMENTS
-      if (newsPost.comments != null) {
-        // ADDING NEW COMMENTS FOR NEWS POST LIST
-        for (int i = 0; i < newComments.comments!.length; i++) {
-          newsPost.comments!.add(newComments.comments![i]);
-        }
-        // ADD NEW COMMENTS FOR NEWS POST DESCRIPTION SCREEN
-        allNewsCommentStreamController.sink.add(newsPost.comments);
-      }
-      notifyListeners();
-    } else if (response.statusCode == 401 || response.statusCode == 403) {
-      if (context.mounted) {
-        bool isTokenRefreshed =
-            await Provider.of<AuthProvider>(context, listen: false)
-                .refreshAccessToken(context: context);
+  //     if (newComments?.comments == null) return;
+  //     // If the newly added data is less than our default pageSize, it means we won't have further more data. Hence hasMore = false
+  //     if (newComments!.comments!.length < commentsPageSize) {
+  //       hasMoreComments = false;
+  //     }
+  //     // ADDING NEWS COMMENTS IN TOTAL NEWS COMMENTS
+  //     if (newsPost.comments != null) {
+  //       // ADDING NEW COMMENTS FOR NEWS POST LIST
+  //       for (int i = 0; i < newComments.comments!.length; i++) {
+  //         newsPost.comments!.add(newComments.comments![i]);
+  //       }
+  //       // ADD NEW COMMENTS FOR NEWS POST DESCRIPTION SCREEN
+  //       allNewsCommentStreamController.sink.add(newsPost.comments);
+  //     }
+  //     notifyListeners();
+  //   } else if (response.statusCode == 401 || response.statusCode == 403) {
+  //     if (context.mounted) {
+  //       bool isTokenRefreshed =
+  //           await Provider.of<AuthProvider>(context, listen: false)
+  //               .refreshAccessToken(context: context);
 
-        // If token is refreshed, re-call the method
-        if (isTokenRefreshed == true && context.mounted) {
-          return loadMoreNewsComments(
-              context: context,
-              allNewsCommentStreamController: allNewsCommentStreamController,
-              newsPost: newsPost);
-        } else {
-          await Provider.of<DrawerProvider>(context, listen: false)
-              .logOut(context: context);
-          return;
-        }
-      }
-    } else {
-      // translate
-      EasyLoading.showInfo(
-          "Sorry, comments could not load. Please try again later.",
-          dismissOnTap: true,
-          duration: const Duration(seconds: 4));
-    }
-  }
+  //       // If token is refreshed, re-call the method
+  //       if (isTokenRefreshed == true && context.mounted) {
+  //         return loadMoreNewsComments(
+  //             context: context,
+  //             allNewsCommentStreamController: allNewsCommentStreamController,
+  //             newsPost: newsPost);
+  //       } else {
+  //         await Provider.of<DrawerProvider>(context, listen: false)
+  //             .logOut(context: context);
+  //         return;
+  //       }
+  //     }
+  //   } else {
+  //     // translate
+  //     EasyLoading.showInfo(
+  //         "Sorry, comments could not load. Please try again later.",
+  //         dismissOnTap: true,
+  //         duration: const Duration(seconds: 4));
+  //   }
+  // }
 
-  void goBackFromNewsDescriptionScreen(
-      {required TextEditingController newsCommentTextController,
-      required BuildContext context}) {
-    commentsPageNumber = 1;
-    commentsPageSize = 10;
-    hasMoreComments = true;
-    isLoadingComments = false;
-    newsCommentTextController.clear();
-    notifyListeners();
-    Navigator.of(context).pop();
-  }
+  // CLEAR LOADED COMMENTS IN BOTH NEWS POSTS AND CREATED POSTS DESCRIPTION SCREEN
 
   Future refreshNewsPosts(
       {required BuildContext context,
@@ -528,7 +517,7 @@ class NewsAdProvider extends ChangeNotifier {
     }
   }
 
-  // UPDATE STATE IN CREATED NEWS POSTS IN PROFILE
+  // UPDATE STATE IN OTHER SCREENS AS WELL
   void onSuccessToggleSave(
       {required BuildContext context, required NewsPost newsPost}) {
     // NOT REQUIRED TO UPDATE IN MY TOPIC
@@ -570,10 +559,7 @@ class NewsAdProvider extends ChangeNotifier {
         toggleLikeOnProcess = true;
         updateLikeState(
             previousLikeStatus: previousLikeStatus,
-            loggedInUser:
-                Provider.of<MainScreenProvider>(context, listen: false)
-                    .loginSuccess
-                    .user,
+            loggedInUser: mainScreenProvider.loginSuccess.user,
             newsPost: newsPost);
         notifyListeners();
         Response response = await NewsLikesRepo.toggleNewsPostLike(
@@ -785,6 +771,55 @@ class NewsAdProvider extends ChangeNotifier {
     // CREATED POST (NOT MY TOPIC)
     Provider.of<CreatedPostProvider>(context, listen: false)
         .onCommentFromDifferentScreen(newsPost: newsPost);
+  }
+
+  // WHEN POST IS SAVED FROM DIFFERENT SCREEN, WE WILL UPDATE THE LIKE STATE IN NEWS POSTS TOO
+  void onSaveFromDifferentScreen(
+      {required int? isSaved, required int? newsPostId}) {
+    if (_allNewsPosts?.posts == null) {
+      return;
+    }
+    Post? foundPost = _allNewsPosts!.posts!.firstWhereOrNull((element) =>
+        element.newsPost?.id != null && element.newsPost?.id == newsPostId);
+    if (foundPost == null) {
+      return;
+    } else {
+      foundPost.newsPost?.isSaved = isSaved;
+      notifyListeners();
+    }
+  }
+
+  // WHEN POST IS LIKED FROM DIFFERENT SCREEN, WE WILL UPDATE THE LIKE STATE IN NEWS POSTS TOO
+  void onLikeFromDifferentScreen({required NewsPost newsPost}) {
+    if (_allNewsPosts?.posts == null) {
+      return;
+    }
+    Post? foundPost = _allNewsPosts!.posts!.firstWhereOrNull((element) =>
+        element.newsPost?.id != null && element.newsPost?.id == newsPost.id);
+    if (foundPost == null) {
+      return;
+    } else {
+      foundPost.newsPost?.isLiked = newsPost.isLiked;
+      foundPost.newsPost?.likesCount = newsPost.likesCount;
+      foundPost.newsPost?.likes = newsPost.likes;
+      notifyListeners();
+    }
+  }
+
+  // WHEN POST IS COMMENTED FROM DIFFERENT SCREEN, WE WILL UPDATE THE COMMENT STATE IN NEWS POSTS TOO
+  void onCommentFromDifferentScreen({required NewsPost newsPost}) {
+    if (_allNewsPosts?.posts == null) {
+      return;
+    }
+    Post? foundPost = _allNewsPosts!.posts!.firstWhereOrNull((element) =>
+        element.newsPost?.id != null && element.newsPost?.id == newsPost.id);
+    if (foundPost == null) {
+      return;
+    } else {
+      foundPost.newsPost?.commentCount = newsPost.commentCount;
+      foundPost.newsPost?.comments = newsPost.comments;
+      notifyListeners();
+    }
   }
 
   // New news post validation

@@ -9,6 +9,7 @@ import 'package:c_talent/logic/providers/push_notification_provider.dart';
 import 'package:c_talent/logic/providers/permission_provider.dart';
 import 'package:c_talent/logic/providers/registration_provider.dart';
 import 'package:c_talent/logic/providers/services_provider.dart';
+import 'package:c_talent/logic/providers/single_news_provider.dart';
 import 'package:c_talent/logic/providers/socketio_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -167,6 +168,10 @@ class _MyAppState extends State<MyApp> {
                     Provider.of<MainScreenProvider>(context, listen: false))),
         ChangeNotifierProvider(
             create: (context) => CreatedPostProvider(
+                mainScreenProvider:
+                    Provider.of<MainScreenProvider>(context, listen: false))),
+        ChangeNotifierProvider(
+            create: (context) => SingleNewsProvider(
                 mainScreenProvider:
                     Provider.of<MainScreenProvider>(context, listen: false))),
       ],

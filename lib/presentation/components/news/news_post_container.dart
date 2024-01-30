@@ -8,6 +8,7 @@ import 'package:c_talent/presentation/components/news/liked_avatars.dart';
 import 'package:c_talent/presentation/components/news/post_top_body.dart';
 import 'package:c_talent/presentation/helper/size_configuration.dart';
 import 'package:c_talent/presentation/views/news_posts/news_liked_screen.dart';
+import 'package:c_talent/presentation/views/news_posts/single_news_description_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,6 +18,7 @@ import '../../views/news_posts/news_description_screen.dart';
 
 class NewsPostContainer extends StatefulWidget {
   final NewsPost newsPost;
+  final NewsPostActionFrom newsPostActionFrom;
   final int index;
   final VoidCallback onLike, onSave;
   final void Function(TextEditingController) onComment;
@@ -25,6 +27,7 @@ class NewsPostContainer extends StatefulWidget {
       required this.index,
       required this.newsPost,
       required this.onLike,
+      required this.newsPostActionFrom,
       required this.onComment,
       required this.onSave})
       : super(key: key);
@@ -50,11 +53,11 @@ class _NewsPostContainerState extends State<NewsPostContainer>
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => NewsDescriptionScreen(
+                      builder: (context) => SingleNewsDescriptionScreen(
+                            newsPostActionFrom: widget.newsPostActionFrom,
                             isFocusTextField: false,
-                            newsPost: widget.newsPost,
-                            newsCommentTextEditingController:
-                                newsTextEditingController,
+                            newsPostId: widget.newsPost.id.toString(),
+                            commentTxtController: newsTextEditingController,
                           )));
             },
             child: Container(
@@ -107,10 +110,12 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => NewsDescriptionScreen(
+                              builder: (context) => SingleNewsDescriptionScreen(
+                                    newsPostActionFrom:
+                                        widget.newsPostActionFrom,
                                     isFocusTextField: true,
-                                    newsPost: widget.newsPost,
-                                    newsCommentTextEditingController:
+                                    newsPostId: widget.newsPost.id.toString(),
+                                    commentTxtController:
                                         newsTextEditingController,
                                   )));
                     },
@@ -283,10 +288,13 @@ class _NewsPostContainerState extends State<NewsPostContainer>
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            NewsDescriptionScreen(
+                                            SingleNewsDescriptionScreen(
+                                              newsPostActionFrom:
+                                                  widget.newsPostActionFrom,
                                               isFocusTextField: false,
-                                              newsPost: widget.newsPost,
-                                              newsCommentTextEditingController:
+                                              newsPostId:
+                                                  widget.newsPost.id.toString(),
+                                              commentTxtController:
                                                   newsTextEditingController,
                                             )));
                               },

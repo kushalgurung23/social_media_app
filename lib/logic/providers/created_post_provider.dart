@@ -1,15 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
-// ignore: depend_on_referenced_packages
-import 'package:collection/collection.dart';
+
 import 'package:c_talent/data/repositories/profile/profile_posts_repo.dart';
 import 'package:c_talent/logic/providers/drawer_provider.dart';
 import 'package:c_talent/logic/providers/main_screen_provider.dart';
+// ignore: depend_on_referenced_packages
+import 'package:collection/collection.dart';
+import 'package:c_talent/logic/providers/news_ad_provider.dart';
+import 'package:c_talent/logic/providers/profile_news_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import '../../data/models/all_news_posts.dart';
 import '../../data/repositories/news_post/news_comment_repo.dart';
 import '../../data/repositories/news_post/news_likes_repo.dart';
@@ -154,8 +159,8 @@ class CreatedPostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // SAVE CREATED POSTS
-  bool saveOnProcessCreatedPost = false;
+  // SAVING NEWS POST FROM CREATED POST
+  bool onProcessCreatedPostSave = false;
 
   Future<void> toggleCreatedPostSave(
       {required NewsPost createdPost, required BuildContext context}) async {
@@ -165,18 +170,18 @@ class CreatedPostProvider extends ChangeNotifier {
     void onToggleSaveFailed() {
       // if error occurs, keep current save status
       createdPost.isSaved = currentSaveStatus;
-      saveOnProcessCreatedPost = false;
+      onProcessCreatedPostSave = false;
       notifyListeners();
     }
 
     try {
-      if (saveOnProcessCreatedPost == true) {
+      if (onProcessCreatedPostSave == true) {
         // Please wait
         EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
             dismissOnTap: false, duration: const Duration(seconds: 1));
         return;
       } else {
-        saveOnProcessCreatedPost = true;
+        onProcessCreatedPostSave = true;
         if (currentSaveStatus == 1) {
           createdPost.isSaved = 0;
         } else {
@@ -189,7 +194,8 @@ class CreatedPostProvider extends ChangeNotifier {
                 jsonEncode({"post_id": int.parse(createdPost.id.toString())}));
 
         if (response.statusCode == 200 && context.mounted) {
-          saveOnProcessCreatedPost = false;
+          onSuccessCreatedPostSave(context: context, createdPost: createdPost);
+          onProcessCreatedPostSave = false;
           notifyListeners();
         } else if (response.statusCode == 401 || response.statusCode == 403) {
           onToggleSaveFailed();
@@ -226,35 +232,50 @@ class CreatedPostProvider extends ChangeNotifier {
     }
   }
 
-  //
-  bool likeOnProcessCreatedPosts = false;
+  // UPDATE STATE IN OTHER SCREENS AS WELL
+  void onSuccessCreatedPostSave(
+      {required BuildContext context, required NewsPost createdPost}) {
+    // NEWS POSTS
+    Provider.of<NewsAdProvider>(context, listen: false)
+        .onSaveFromDifferentScreen(
+            isSaved: createdPost.isSaved, newsPostId: createdPost.id);
+
+    // NOT REQUIRED TO UPDATE IN MY TOPIC
+    // BOOKMARKED TOPIC
+    Provider.of<ProfileNewsProvider>(context, listen: false)
+        .onToggleSaveFromDifferentScreen(context: context);
+  }
+
+  bool onProcessCreatedPostLike = false;
 
   Future<void> toggleCreatedPostLike(
       {required NewsPost createdPost, required BuildContext context}) async {
-    int? currentLikeStatus = createdPost.isLiked;
-
+    int? previousLikeStatus = createdPost.isLiked;
+    List<Like> previousLikes =
+        createdPost.likes == null ? [] : [...createdPost.likes!];
+    int? previousLikesCount = createdPost.likesCount;
     // THIS METHOD IS CALLED WHEN TOGGLE LIKE FAILS TO KEEP ORIGINAL DATA
     void onToggleLikeFailed() {
       // if error occurs, keep current like status
-      createdPost.isLiked = currentLikeStatus;
-      likeOnProcessCreatedPosts = false;
+      createdPost.isLiked = previousLikeStatus;
+      createdPost.likes = previousLikes;
+      createdPost.likesCount = previousLikesCount;
+      onProcessCreatedPostLike = false;
       notifyListeners();
     }
 
     try {
-      if (likeOnProcessCreatedPosts == true) {
+      if (onProcessCreatedPostLike == true) {
         // Please wait
         EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
             dismissOnTap: false, duration: const Duration(seconds: 1));
         return;
       } else {
-        likeOnProcessCreatedPosts = true;
-
-        if (currentLikeStatus == 1) {
-          createdPost.isLiked = 0;
-        } else {
-          createdPost.isLiked = 1;
-        }
+        onProcessCreatedPostLike = true;
+        Provider.of<NewsAdProvider>(context, listen: false).updateLikeState(
+            previousLikeStatus: previousLikeStatus,
+            loggedInUser: mainScreenProvider.loginSuccess.user,
+            newsPost: createdPost);
         notifyListeners();
         Response response = await NewsLikesRepo.toggleNewsPostLike(
             jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
@@ -262,29 +283,8 @@ class CreatedPostProvider extends ChangeNotifier {
                 jsonEncode({"post_id": int.parse(createdPost.id.toString())}));
         // SUCCESSFUL
         if (response.statusCode == 200 && context.mounted) {
-          final loggedInUser = mainScreenProvider.loginSuccess.user;
-          // SHOW PROFILE IMAGE AVATAR
-          if (createdPost.isLiked == 1 && loggedInUser != null) {
-            createdPost.likes?.insert(
-                0,
-                Like(
-                    likedBy: By(
-                        id: int.tryParse(loggedInUser.id.toString()),
-                        profilePicture: loggedInUser.profilePicture)));
-            if (createdPost.likesCount != null) {
-              createdPost.likesCount = createdPost.likesCount! + 1;
-            }
-          }
-          // REMOVE PROFILE IMAGE AVATAR
-          else {
-            createdPost.likes?.removeWhere((element) =>
-                element.likedBy?.id ==
-                int.tryParse(loggedInUser?.id.toString() ?? '0'));
-            if (createdPost.likesCount != null) {
-              createdPost.likesCount = createdPost.likesCount! - 1;
-            }
-          }
-          likeOnProcessCreatedPosts = false;
+          onSuccessToggleLike(createdPost: createdPost, context: context);
+          onProcessCreatedPostLike = false;
           notifyListeners();
         }
 
@@ -323,40 +323,52 @@ class CreatedPostProvider extends ChangeNotifier {
     }
   }
 
-  bool commentOnProcessCreatedPost = false;
+  void onSuccessToggleLike(
+      {required NewsPost createdPost, required BuildContext context}) {
+    if (createdPost.id != null && createdPost.likesCount != null) {
+      // MY TOPIC AND MY BOOKMARK TOPIC
+      Provider.of<ProfileNewsProvider>(context, listen: false)
+          .onToggleLikeFromDifferentScreen(
+              newsPostId: createdPost.id!, likeCount: createdPost.likesCount!);
+    }
+
+    // NEWS POST
+    Provider.of<NewsAdProvider>(context, listen: false)
+        .onLikeFromDifferentScreen(newsPost: createdPost);
+  }
+
+  bool onProcessCreatedPostComment = false;
 
   Future<void> writeCreatedPostComment(
       {required NewsPost createdPost,
       required TextEditingController commentTextController,
       required BuildContext context}) async {
+    int? previousCommentCount = createdPost.commentCount;
+    List<NewsComment>? previousComments =
+        createdPost.comments == null ? [] : [...createdPost.comments!];
     // WHEN ACTION FAILS, THIS METHOD WILL BE CALLED TO SET DEFAULT VALUE
     void onCommentFailed() {
-      if (createdPost.commentCount != null) {
-        createdPost.commentCount = createdPost.commentCount! - 1;
-      }
-      // if error occurs, remove new comment
-      createdPost.comments?.removeAt(0);
-      commentOnProcessCreatedPost = false;
+      createdPost.commentCount = previousCommentCount;
+      createdPost.comments = previousComments;
+      onProcessCreatedPostComment = false;
       notifyListeners();
     }
 
     try {
-      if (commentOnProcessCreatedPost == true) {
+      if (onProcessCreatedPostComment == true) {
         // Please wait
         EasyLoading.showInfo(AppLocalizations.of(context).pleaseWait,
             dismissOnTap: false, duration: const Duration(seconds: 1));
         return;
       } else {
-        commentOnProcessCreatedPost = true;
+        onProcessCreatedPostComment = true;
         final currentLocalDateTime = DateTime.now();
 
-        addNewCommentToObject(
-            newsComments: createdPost.comments,
+        Provider.of<NewsAdProvider>(context, listen: false).updateCommentState(
+            newsPost: createdPost,
             currentLocalDateTime: currentLocalDateTime,
             commentTextController: commentTextController);
-        if (createdPost.commentCount != null) {
-          createdPost.commentCount = createdPost.commentCount! + 1;
-        }
+
         notifyListeners();
         Response response = await NewsCommentRepo.writeNewsComment(
             jwt: mainScreenProvider.loginSuccess.accessToken.toString(),
@@ -367,8 +379,9 @@ class CreatedPostProvider extends ChangeNotifier {
               "updated_at_utc": currentLocalDateTime.toUtc().toString()
             }));
         if (response.statusCode == 200 && context.mounted) {
+          onCommentSuccess(context: context, createdPost: createdPost);
           commentTextController.clear();
-          commentOnProcessCreatedPost = false;
+          onProcessCreatedPostComment = false;
           notifyListeners();
         }
         // ACCESS TOKEN EXPIRED
@@ -405,24 +418,18 @@ class CreatedPostProvider extends ChangeNotifier {
     }
   }
 
-  void addNewCommentToObject(
-      {required List<NewsComment>? newsComments,
-      required DateTime currentLocalDateTime,
-      required TextEditingController commentTextController}) {
-    final loggedInUser = mainScreenProvider.loginSuccess.user;
-    if (loggedInUser == null) {
-      return;
+  void onCommentSuccess(
+      {required NewsPost createdPost, required BuildContext context}) {
+    // MY TOPIC AND BOOKMARK TOPIC
+    if (createdPost.id != null && createdPost.commentCount != null) {
+      Provider.of<ProfileNewsProvider>(context, listen: false)
+          .onCommentFromDifferentScreen(
+              newsPostId: createdPost.id!,
+              commentCount: createdPost.commentCount!);
     }
-    newsComments?.insert(
-        0,
-        NewsComment(
-            createdAt: currentLocalDateTime,
-            updatedAt: currentLocalDateTime,
-            comment: commentTextController.text,
-            commentBy: By(
-                id: int.tryParse(loggedInUser.id.toString()),
-                profilePicture: loggedInUser.profilePicture,
-                username: loggedInUser.username)));
+    // CREATED POST (NOT MY TOPIC)
+    Provider.of<NewsAdProvider>(context, listen: false)
+        .onCommentFromDifferentScreen(newsPost: createdPost);
   }
 
   void goBackFromCreatedPostsScreen({required BuildContext context}) {
@@ -430,6 +437,7 @@ class CreatedPostProvider extends ChangeNotifier {
     Navigator.pop(context);
   }
 
+  // WHEN POST IS SAVED FROM DIFFERENT SCREEN, WE WILL UPDATE THE LIKE STATE IN CREATED POSTS TOO
   void onSaveFromDifferentScreen(
       {required int? isSaved, required int? newsPostId}) {
     if (_createdProfilePosts?.posts == null) {
@@ -445,6 +453,7 @@ class CreatedPostProvider extends ChangeNotifier {
     }
   }
 
+  // WHEN POST IS LIKED FROM DIFFERENT SCREEN, WE WILL UPDATE THE LIKE STATE IN CREATED POSTS TOO
   void onLikeFromDifferentScreen({required NewsPost newsPost}) {
     if (_createdProfilePosts?.posts == null) {
       return;
@@ -461,6 +470,7 @@ class CreatedPostProvider extends ChangeNotifier {
     }
   }
 
+  // WHEN POST IS COMMENTED FROM DIFFERENT SCREEN, WE WILL UPDATE THE COMMENT STATE IN CREATED POSTS TOO
   void onCommentFromDifferentScreen({required NewsPost newsPost}) {
     if (_createdProfilePosts?.posts == null) {
       return;

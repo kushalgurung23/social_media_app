@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:c_talent/data/constant/font_constant.dart';
+import 'package:c_talent/data/enum/all.dart';
 // ignore: depend_on_referenced_packages
 import 'package:c_talent/data/models/all_news_posts.dart';
 import 'package:c_talent/logic/providers/news_ad_provider.dart';
@@ -98,6 +99,8 @@ class _NewsPostListState extends State<NewsPostList>
                                     return newsPost == null
                                         ? const SizedBox()
                                         : NewsPostContainer(
+                                            newsPostActionFrom:
+                                                NewsPostActionFrom.newsPost,
                                             index: index,
                                             newsPost: newsPost,
                                             onLike: () async {

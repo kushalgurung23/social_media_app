@@ -86,4 +86,17 @@ class NewsPostRepo {
       throw Exception("Unable to create new post.");
     }
   }
+
+  static Future<http.Response> getPostById(
+      {required String accessToken, required String newsPostId}) async {
+    try {
+      String url = "${kAPIURL}posts/$newsPostId";
+
+      http.Response response = await http.get(Uri.parse(url),
+          headers: {'Authorization': 'Bearer $accessToken'});
+      return response;
+    } catch (err) {
+      rethrow;
+    }
+  }
 }

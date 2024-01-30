@@ -1,6 +1,7 @@
 import 'dart:async';
 
 // ignore: depend_on_referenced_packages
+import 'package:c_talent/data/enum/all.dart';
 import 'package:c_talent/data/models/all_news_posts.dart';
 import 'package:c_talent/logic/providers/created_post_provider.dart';
 import 'package:c_talent/presentation/components/news/news_post_container.dart';
@@ -127,6 +128,8 @@ class _CreatedPostsScreenState extends State<CreatedPostsScreen> {
                                 return createdPost == null
                                     ? const SizedBox()
                                     : NewsPostContainer(
+                                        newsPostActionFrom:
+                                            NewsPostActionFrom.createdPost,
                                         index: index,
                                         newsPost: createdPost,
                                         onComment:

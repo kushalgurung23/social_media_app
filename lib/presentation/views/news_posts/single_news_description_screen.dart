@@ -220,6 +220,9 @@ class _SingleNewsDescriptionScreenState
                                                   await newsProvider
                                                       .toggleNewsPostSave(
                                                           newsPost: newsPost,
+                                                          newsPostActionFrom:
+                                                              NewsPostActionFrom
+                                                                  .singlePost,
                                                           context: context);
                                                 } else if (widget
                                                         .newsPostActionFrom ==
@@ -241,7 +244,10 @@ class _SingleNewsDescriptionScreenState
                                                   await newsProvider
                                                       .toggleNewsPostLike(
                                                           newsPost: newsPost,
-                                                          context: context);
+                                                          context: context,
+                                                          newsPostActionFrom:
+                                                              NewsPostActionFrom
+                                                                  .singlePost);
                                                 } else if (widget
                                                         .newsPostActionFrom ==
                                                     NewsPostActionFrom
@@ -299,7 +305,33 @@ class _SingleNewsDescriptionScreenState
                                       vertical: SizeConfig.defaultSize * 2),
                                   child: RoundedTextFormField(
                                       focusNode: focusNode,
-                                      onTap: () {},
+                                      onTap: () async {
+                                        if (widget.commentTxtController.text
+                                            .trim()
+                                            .isNotEmpty) {
+                                          if (widget.newsPostActionFrom ==
+                                              NewsPostActionFrom.newsPost) {
+                                            await newsProvider
+                                                .writeNewsPostComment(
+                                                    newsPostActionFrom:
+                                                        NewsPostActionFrom
+                                                            .singlePost,
+                                                    newsPost: newsPost,
+                                                    commentTextController: widget
+                                                        .commentTxtController,
+                                                    context: context);
+                                          } else if (widget
+                                                  .newsPostActionFrom ==
+                                              NewsPostActionFrom.createdPost) {
+                                            await createdPostProvider
+                                                .writeCreatedPostComment(
+                                                    createdPost: newsPost,
+                                                    commentTextController: widget
+                                                        .commentTxtController,
+                                                    context: context);
+                                          }
+                                        }
+                                      },
                                       textEditingController:
                                           widget.commentTxtController,
                                       textInputType: TextInputType.text,

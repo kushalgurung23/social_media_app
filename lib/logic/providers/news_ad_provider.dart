@@ -449,7 +449,9 @@ class NewsAdProvider extends ChangeNotifier {
   bool toggleSaveOnProcess = false;
 
   Future<void> toggleNewsPostSave(
-      {required NewsPost newsPost, required BuildContext context}) async {
+      {required NewsPost newsPost,
+      required NewsPostActionFrom newsPostActionFrom,
+      required BuildContext context}) async {
     int? currentSaveStatus = newsPost.isSaved;
 
     // THIS METHOD IS CALLED WHEN TOGGLE SAVE FAILS TO KEEP ORIGINAL DATA
@@ -480,7 +482,10 @@ class NewsAdProvider extends ChangeNotifier {
                 jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
 
         if (response.statusCode == 200 && context.mounted) {
-          onSuccessToggleSave(context: context, newsPost: newsPost);
+          onSuccessToggleSave(
+              context: context,
+              newsPost: newsPost,
+              newsPostActionFrom: newsPostActionFrom);
           toggleSaveOnProcess = false;
           notifyListeners();
         } else if (response.statusCode == 401 || response.statusCode == 403) {
@@ -492,7 +497,10 @@ class NewsAdProvider extends ChangeNotifier {
 
           // If token is refreshed, re-call the method
           if (isTokenRefreshed == true && context.mounted) {
-            return toggleNewsPostSave(newsPost: newsPost, context: context);
+            return toggleNewsPostSave(
+                newsPostActionFrom: newsPostActionFrom,
+                newsPost: newsPost,
+                context: context);
           } else {
             await Provider.of<DrawerProvider>(context, listen: false)
                 .logOut(context: context);
@@ -519,7 +527,14 @@ class NewsAdProvider extends ChangeNotifier {
 
   // UPDATE STATE IN OTHER SCREENS AS WELL
   void onSuccessToggleSave(
-      {required BuildContext context, required NewsPost newsPost}) {
+      {required BuildContext context,
+      required NewsPost newsPost,
+      required NewsPostActionFrom newsPostActionFrom}) {
+    // IF LIKED FROM SINGLE
+    if (newsPostActionFrom == NewsPostActionFrom.singlePost) {
+      onSaveFromDifferentScreen(
+          isSaved: newsPost.isSaved, newsPostId: newsPost.id);
+    }
     // NOT REQUIRED TO UPDATE IN MY TOPIC
     // BOOKMARKED TOPIC
     Provider.of<ProfileNewsProvider>(context, listen: false)
@@ -534,7 +549,9 @@ class NewsAdProvider extends ChangeNotifier {
   bool toggleLikeOnProcess = false;
 
   Future<void> toggleNewsPostLike(
-      {required NewsPost newsPost, required BuildContext context}) async {
+      {required NewsPost newsPost,
+      required BuildContext context,
+      required NewsPostActionFrom newsPostActionFrom}) async {
     int? previousLikeStatus = newsPost.isLiked;
     List<Like> previousLikes =
         newsPost.likes == null ? [] : [...newsPost.likes!];
@@ -568,7 +585,10 @@ class NewsAdProvider extends ChangeNotifier {
                 jsonEncode({"post_id": int.parse(newsPost.id.toString())}));
         // SUCCESSFUL
         if (response.statusCode == 200 && context.mounted) {
-          onSuccessToggleLike(newsPost: newsPost, context: context);
+          onSuccessToggleLike(
+              newsPost: newsPost,
+              context: context,
+              newsPostActionFrom: newsPostActionFrom);
           toggleLikeOnProcess = false;
           notifyListeners();
         }
@@ -582,7 +602,10 @@ class NewsAdProvider extends ChangeNotifier {
                   .refreshAccessToken(context: context);
           // if token is refreshed, re-call the method
           if (isTokenRefreshed == true && context.mounted) {
-            return toggleNewsPostLike(newsPost: newsPost, context: context);
+            return toggleNewsPostLike(
+                newsPost: newsPost,
+                context: context,
+                newsPostActionFrom: newsPostActionFrom);
           } else {
             await Provider.of<DrawerProvider>(context, listen: false)
                 .logOut(context: context);
@@ -643,7 +666,13 @@ class NewsAdProvider extends ChangeNotifier {
   }
 
   void onSuccessToggleLike(
-      {required NewsPost newsPost, required BuildContext context}) {
+      {required NewsPost newsPost,
+      required BuildContext context,
+      required NewsPostActionFrom newsPostActionFrom}) {
+    // IF LIKED FROM SINGLE
+    if (newsPostActionFrom == NewsPostActionFrom.singlePost) {
+      onLikeFromDifferentScreen(newsPost: newsPost);
+    }
     if (newsPost.id != null && newsPost.likesCount != null) {
       // MY TOPIC AND MY BOOKMARK TOPIC
       Provider.of<ProfileNewsProvider>(context, listen: false)
@@ -659,7 +688,8 @@ class NewsAdProvider extends ChangeNotifier {
   bool toggleCommentOnProcess = false;
 
   Future<void> writeNewsPostComment(
-      {required NewsPost newsPost,
+      {required NewsPostActionFrom newsPostActionFrom,
+      required NewsPost newsPost,
       required TextEditingController commentTextController,
       required BuildContext context}) async {
     int? previousCommentCount = newsPost.commentCount;
@@ -698,7 +728,10 @@ class NewsAdProvider extends ChangeNotifier {
               "updated_at_utc": currentLocalDateTime.toUtc().toString()
             }));
         if (response.statusCode == 200 && context.mounted) {
-          onCommentSuccess(context: context, newsPost: newsPost);
+          onCommentSuccess(
+              context: context,
+              newsPost: newsPost,
+              newsPostActionFrom: newsPostActionFrom);
           commentTextController.clear();
           toggleCommentOnProcess = false;
           notifyListeners();
@@ -712,6 +745,7 @@ class NewsAdProvider extends ChangeNotifier {
           // if token is refreshed, re-call the method
           if (isTokenRefreshed == true && context.mounted) {
             return writeNewsPostComment(
+                newsPostActionFrom: newsPostActionFrom,
                 newsPost: newsPost,
                 commentTextController: commentTextController,
                 context: context);
@@ -761,7 +795,13 @@ class NewsAdProvider extends ChangeNotifier {
   }
 
   void onCommentSuccess(
-      {required NewsPost newsPost, required BuildContext context}) {
+      {required NewsPost newsPost,
+      required BuildContext context,
+      required NewsPostActionFrom newsPostActionFrom}) {
+    // IF LIKED FROM SINGLE
+    if (newsPostActionFrom == NewsPostActionFrom.singlePost) {
+      onCommentFromDifferentScreen(newsPost: newsPost);
+    }
     // MY TOPIC AND BOOKMARK TOPIC
     if (newsPost.id != null && newsPost.commentCount != null) {
       Provider.of<ProfileNewsProvider>(context, listen: false)

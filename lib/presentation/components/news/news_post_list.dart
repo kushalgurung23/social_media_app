@@ -105,11 +105,17 @@ class _NewsPostListState extends State<NewsPostList>
                                             newsPost: newsPost,
                                             onLike: () async {
                                               await data.toggleNewsPostLike(
+                                                  newsPostActionFrom:
+                                                      NewsPostActionFrom
+                                                          .newsPost,
                                                   newsPost: newsPost,
                                                   context: context);
                                             },
                                             onSave: () async {
                                               await data.toggleNewsPostSave(
+                                                  newsPostActionFrom:
+                                                      NewsPostActionFrom
+                                                          .newsPost,
                                                   newsPost: newsPost,
                                                   context: context);
                                             },
@@ -119,6 +125,9 @@ class _NewsPostListState extends State<NewsPostList>
                                                   .trim()
                                                   .isNotEmpty) {
                                                 await data.writeNewsPostComment(
+                                                    newsPostActionFrom:
+                                                        NewsPostActionFrom
+                                                            .newsPost,
                                                     newsPost: newsPost,
                                                     commentTextController:
                                                         newsTextEditingController,
